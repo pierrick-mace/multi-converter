@@ -10,9 +10,9 @@ body,
   // margin-top: 10%;
   position: relative;
   // padding: 2em;
-  background: rgba(0, 0, 0, 0.09);
+  background: rgba(0, 0, 0, 0.25);
   font-size: 20px;
-  border-radius: 10px;
+  // border-radius: 10px;
   overflow: hidden;
   color: white;
 }
@@ -25,16 +25,13 @@ body,
   right: 0;
   bottom: 0;
   left: 0;
-  filter: blur(20px);
+  filter: blur(13px);
   z-index: -1;
 }
 
 input {
   color: white;
   margin-bottom: 50px;
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.09);
 }
 
 label {
@@ -42,7 +39,7 @@ label {
 }
 
 .title {
-  // margin-bottom: 100px;
+  margin-bottom: 100px;
   padding: 2em;
 }
 
@@ -54,4 +51,13 @@ label {
 
 .m-t-10 {
   margin-top: 5%;
+}
+
+.white {
+  color: white !important
+}
+
+.navbar li a {
+    color: white;
+    margin-right: 2em;
 }

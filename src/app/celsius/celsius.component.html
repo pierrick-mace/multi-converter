@@ -1,0 +1,23 @@
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12 m-t-10">
+      <div class="blur title">
+        <h1>Elegant temperature converter</h1>
+      </div>
+    </div>
+
+  </div>
+  <div class="row">
+    <div class="col-sm-12 m-t-10">
+      <div class="blur">
+        <div class="form">
+          <form>
+            <input  [(ngModel)]="celsius" [ngModelOptions]="{standalone: true}" placeholder="°C" (input)="updateCelsius()"> <label> °C</label> <br> <br>
+            <input  [(ngModel)]="farenheit" [ngModelOptions]="{standalone: true}" placeholder="°F" (input)="updateFarenheit()"> <label> °F</label> <br> <br>
+            <input  [(ngModel)]="kelvin" [ngModelOptions]="{standalone: true}" placeholder="K" (input)="updateKelvin()">  <label> K</label>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
