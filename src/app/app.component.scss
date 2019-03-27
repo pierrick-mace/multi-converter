@@ -1,3 +1,8 @@
+@font-face {
+  font-family: simplifica;
+  src: url('/assets/SIMPLIFICA Typeface.ttf');
+}
+
 body,
 .blur::before {
   background: url('/assets/4k-wallpaper-agriculture-clouds-842711.jpg') 0 / cover fixed;
@@ -45,6 +50,11 @@ label {
 .title {
   // margin-bottom: 100px;
   padding: 2em;
+  font-family: simplifica;
+
+  h1 {
+    font-size: 60px;    
+  }
 }
 
 .form {
@@ -53,6 +63,10 @@ label {
   margin-bottom: 10%;
 }
 
-.m-t-10 {
+.m-t-5 {
   margin-top: 5%;
+}
+
+.m-b-5 {
+  margin-bottom: 5%;
 }
