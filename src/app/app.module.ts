@@ -6,6 +6,8 @@ import { CelsiusComponent } from './celsius/celsius.component';
 import { NavbarComponent } from './navbar/navbar.component';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
+import { ClipboardModule } from 'ngx-clipboard';
+import { CurrenciesComponent } from './currencies/currencies.component';
 
 const appRoutes: Routes = [
   { path: 'temperature', component: CelsiusComponent },
@@ -19,13 +21,15 @@ const appRoutes: Routes = [
     AppComponent,
     CelsiusComponent,
     NavbarComponent,
-    HomeComponent
+    HomeComponent,
+    CurrenciesComponent
   ],
   imports: [
     BrowserModule,
     ReactiveFormsModule,
     FormsModule,
-    RouterModule.forRoot(appRoutes)
+    RouterModule.forRoot(appRoutes),
+    ClipboardModule
   ],
   providers: [],
   bootstrap: [AppComponent]

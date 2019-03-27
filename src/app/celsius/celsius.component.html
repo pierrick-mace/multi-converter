@@ -12,9 +12,31 @@
       <div class="blur">
         <div class="form">
           <form>
-            <input  [(ngModel)]="celsius" [ngModelOptions]="{standalone: true}" placeholder="°C" (input)="updateCelsius()"> <label> °C</label> <br> <br>
-            <input  [(ngModel)]="farenheit" [ngModelOptions]="{standalone: true}" placeholder="°F" (input)="updateFarenheit()"> <label> °F</label> <br> <br>
-            <input  [(ngModel)]="kelvin" [ngModelOptions]="{standalone: true}" placeholder="K" (input)="updateKelvin()">  <label> K</label>
+            <label>
+              <button class="btn btn-outline-light align" [ngxClipboard]="inputCelsius">
+                <i class="fas fa-download"></i>
+              </button>
+            </label> 
+            <input  [(ngModel)]="celsius" [ngModelOptions]="{standalone: true}" placeholder="°C" (input)="updateCelsius()" #inputCelsius>
+            <label> °C</label>
+            <br> <br>
+
+            <label>
+              <button class="btn btn-outline-light align" [ngxClipboard]="inputFarenheit">
+                <i class="fas fa-download"></i>
+              </button>
+            </label>
+            <input  [(ngModel)]="farenheit" [ngModelOptions]="{standalone: true}" placeholder="°F" (input)="updateFarenheit()" #inputFarenheit>
+            <label> °F</label>
+            <br> <br>
+
+            <label>
+              <button class="btn btn-outline-light align" [ngxClipboard]="inputKelvin">
+                <i class="fas fa-download"></i>
+              </button>
+            </label>
+            <input  [(ngModel)]="kelvin" [ngModelOptions]="{standalone: true}" placeholder="K" (input)="updateKelvin()" #inputKelvin>
+            <label> K</label>
           </form>
         </div>
       </div>
