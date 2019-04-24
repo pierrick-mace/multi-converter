@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ApiResponse } from '../currencies/currencies.response';
+import { ApiResponse } from '../model/currencies';
 
 const API_URL = 'https://api.exchangeratesapi.io';
 

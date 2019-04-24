@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CurrenciesService } from '../service/currencies.service';
-import { Currency } from './currencies.response';
+import { Currency } from '../model/currencies';
 
 
 @Component({
@@ -23,7 +23,8 @@ export class CurrenciesComponent implements OnInit {
   ngOnInit() {
     this.amountConverted = 0;
     this.currenciesService.getAllCurrenciesRate().subscribe(data => {
-      this.currencies = Object.keys(data.rates).map(name => ({ name, value: data.rates[name] }));
+      this.currencies = Object.keys(data.rates).map(name => new Currency(name, data.rates[name]));
+
       this.currencies.push({
         name: 'EUR',
         value: 1.0
