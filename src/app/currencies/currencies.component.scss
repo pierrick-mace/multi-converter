@@ -1,1 +1,14 @@
 @import '../app.component.scss';
+
+.select-colors {
+  background: none;
+  background-color: #ffffff1a;
+  color: white;
+  position: relative;
+  top: -3px;
+  padding: 5px;
+}
+
+.p-1-em {
+  padding: 1em;
+}

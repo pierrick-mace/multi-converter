@@ -12,7 +12,7 @@ import { NavbarComponent } from './navbar/navbar.component';
 import { HomeComponent } from './home/home.component';
 import { CurrenciesComponent } from './currencies/currencies.component';
 
-const appRoutes: Routes = [
+export const appRoutes: Routes = [
   { path: 'temperature', component: CelsiusComponent },
   { path: 'home', component: HomeComponent },
   { path: 'currencies', component: CurrenciesComponent },

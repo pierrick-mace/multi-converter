@@ -5,18 +5,34 @@
         <h1>Currency rates</h1>
       </div>
     </div>
-
   </div>
 
-  <div class="row" *ngIf="currencyRates">
+  <div class="row" *ngIf="currencies">
     <div class="col-sm-12 m-t-5 m-b-5">
       <div class="blur">
-        Base currency: {{currencyRates.base}}
+        <div class="form p-1-em">
+          <form>
+            <input type="text" name="" placeholder="Amount to convert" [(ngModel)]="amountToConvert" [ngModelOptions]="{standalone: true}" (input)="updateTargetValue()">
+            <label>
+              <select class="custom-select select-colors" name="currencySelection" [(ngModel)]="selectedCurrency" (change)="updateCurrencyRates()">
+                <option *ngFor="let currency of currencies" [ngValue]="currency">
+                  {{currency.name}}
+                </option>
+              </select>
+            </label>
+            <br>
 
-        <ul>
-          <li *ngFor="let currency of currencyRates.rates">Currency: {{currency.name}} - {{currency.value}}</li>
-        </ul>
+            <input type="text" name="" readonly [(ngModel)]="amountConverted" [ngModelOptions]="{standalone: true}">
+            <label>
+              <select class="custom-select select-colors" name="targetCurrencySelection" [(ngModel)]="targetCurrency" (change)="updateTargetValue()">
+                <option *ngFor="let currency of currencies" [ngValue]="currency">
+                  {{currency.name}}
+                </option>
+              </select>
+            </label>
+            <br>
+          </form>
+        </div>
       </div>
     </div>
   </div>
-</div>

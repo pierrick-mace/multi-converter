@@ -17,4 +17,8 @@ export class CurrenciesService {
     return this.http.get<ApiResponse>(API_URL + '/latest');
   }
 
+  getRatesForCurrency(name: string) {
+    return this.http.get<ApiResponse>(API_URL + '/latest?base=' + name);
+  }
+
 }

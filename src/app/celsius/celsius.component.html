@@ -8,10 +8,10 @@
 
   </div>
   <div class="row">
-    <div class="col-sm-12 m-t-5 m-b-5">
+    <div class="col-12 m-t-5 m-b-5">
       <div class="blur">
-        <div class="form">
-          <form>
+        <form>
+          <div class="form-group p-1-em">
             <label>
               <button class="btn btn-outline-light align" [ngxClipboard]="inputCelsius">
                 <i class="fas fa-download"></i>
@@ -37,8 +37,8 @@
             </label>
             <input  [(ngModel)]="kelvin" [ngModelOptions]="{standalone: true}" placeholder="K" (input)="updateKelvin()" #inputKelvin>
             <label> K</label>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   </div>
