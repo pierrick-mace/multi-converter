@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-celsius',
-  templateUrl: './celsius.component.html',
-  styleUrls: ['./celsius.component.scss']
+  selector: 'app-temperature',
+  templateUrl: './temperature.component.html',
+  styleUrls: ['./temperature.component.scss']
 })
-export class CelsiusComponent implements OnInit {
+export class TemperatureComponent implements OnInit {
   celsius: number;
   farenheit: number;
   kelvin: number;

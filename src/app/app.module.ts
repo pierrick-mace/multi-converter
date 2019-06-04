@@ -7,13 +7,13 @@ import { HttpClientModule } from '@angular/common/http';
 import { ClipboardModule } from 'ngx-clipboard';
 
 import { AppComponent } from './app.component';
-import { CelsiusComponent } from './celsius/celsius.component';
+import { TemperatureComponent } from './temperature/temperature.component';
 import { NavbarComponent } from './navbar/navbar.component';
 import { HomeComponent } from './home/home.component';
 import { CurrenciesComponent } from './currencies/currencies.component';
 
 export const appRoutes: Routes = [
-  { path: 'temperature', component: CelsiusComponent },
+  { path: 'temperature', component: TemperatureComponent },
   { path: 'home', component: HomeComponent },
   { path: 'currencies', component: CurrenciesComponent },
   { path: '',   redirectTo: '/home', pathMatch: 'full' },
@@ -23,7 +23,7 @@ export const appRoutes: Routes = [
 @NgModule({
   declarations: [
     AppComponent,
-    CelsiusComponent,
+    TemperatureComponent,
     NavbarComponent,
     HomeComponent,
     CurrenciesComponent

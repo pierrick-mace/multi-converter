@@ -1,14 +1,14 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CelsiusComponent } from './celsius.component';
+import { TemperatureComponent } from './temperature.component';
 
 import { ClipboardModule } from 'ngx-clipboard';
 import { FormsModule } from '@angular/forms';
 
 
-describe('CelsiusComponent', () => {
-  let component: CelsiusComponent;
-  let fixture: ComponentFixture<CelsiusComponent>;
+describe('TemperatureComponent', () => {
+  let component: TemperatureComponent;
+  let fixture: ComponentFixture<TemperatureComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -16,13 +16,13 @@ describe('CelsiusComponent', () => {
         ClipboardModule,
         FormsModule
       ],
-      declarations: [ CelsiusComponent ]
+      declarations: [ TemperatureComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(CelsiusComponent);
+    fixture = TestBed.createComponent(TemperatureComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
