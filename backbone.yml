@@ -1,0 +1,66 @@
+# Navigation map of the Converter codebase.
+# Keep this file up to date whenever files are added, moved, or removed.
+
+project:
+  name: converter
+  description: Vue 3 SPA converting temperatures and currencies (live rates from the Frankfurter API)
+  stack: [Vue 3.5, TypeScript 5.9, Vite 8, Vue Router 4, Tailwind CSS v4, Vitest]
+
+entry:
+  index.html: Vite HTML entry, mounts #app
+  src/main.ts: Creates the Vue app, installs the router, imports global CSS
+  src/App.vue: Root layout, renders NavBar and RouterView
+
+routing:
+  src/router/index.ts: |
+    Routes (all lazy-loaded views):
+      /            -> redirect /home
+      /home        -> HomeView
+      /temperature -> TemperatureView
+      /currencies  -> CurrenciesView
+      catch-all    -> redirect /home
+
+views:
+  src/views/HomeView.vue: Landing page listing the conversion modules
+  src/views/TemperatureView.vue: Celsius/Fahrenheit/Kelvin converter with copy-to-clipboard
+  src/views/CurrenciesView.vue: Currency converter with live rates and rate history chart
+
+components:
+  src/components/NavBar.vue: Top navigation (Home, Temperature, Currencies)
+  src/components/NavBar.spec.ts: Component test for NavBar
+  src/components/RateChart.vue: SVG line chart of exchange-rate history, hover tooltip
+
+composables:
+  src/composables/useTemperatureConverter.ts: Pure conversion functions + reactive C/F/K state
+  src/composables/useTemperatureConverter.spec.ts: Tests for conversions and sync logic
+  src/composables/useCurrencyRates.ts: Currency list, selected/target currency, amount conversion, unit/inverse rates, rate date
+  src/composables/useCurrencyRates.spec.ts: Tests with mocked fetch
+  src/composables/useRateHistory.ts: Loads historical rate points for a base/target pair, range presets (1M/3M/1Y), stale-request guard
+  src/composables/useRateHistory.spec.ts: Tests with mocked fetch
+  src/composables/useClipboard.ts: navigator.clipboard wrapper with transient copied flag
+
+services:
+  src/services/exchangeRates.ts: fetchRates() and fetchRateHistory() against https://api.frankfurter.dev/v1
+
+types:
+  src/types/currency.ts: Currency, ExchangeRatesResponse, RateHistoryResponse, RatePoint
+  src/env.d.ts: Vite client type references
+
+assets:
+  src/assets/main.css: Tailwind v4 entry + theme tokens (dark instrument design) + global styles
+  src/assets/simplifica.ttf: Simplifica display font
+  public/favicon.ico: Favicon
+
+config:
+  package.json: Scripts and dependencies (npm)
+  vite.config.ts: Vite config (Vue plugin, Tailwind plugin, '@' alias, Vitest jsdom setup)
+  tsconfig.json: Solution-style root referencing app and node configs
+  tsconfig.app.json: App TS config ('@' path alias)
+  tsconfig.node.json: TS config for Vite config files
+  .oxlintrc.json: oxlint rules
+  .prettierrc.json: Prettier config
+  .editorconfig: Editor defaults
+
+claude:
+  CLAUDE.md: Project instructions for Claude Code
+  .claude/agents/: Curated project subagents (frontend, tests, review, a11y, perf, security, deps, TS, UI, Vue)
