@@ -32,6 +32,9 @@ describe('useCurrencyRates', () => {
       targetCurrency,
       amountToConvert,
       amountConverted,
+      unitRate,
+      inverseRate,
+      rateDate,
       loadCurrencies,
     } = useCurrencyRates()
 
@@ -40,6 +43,9 @@ describe('useCurrencyRates', () => {
     expect(currencies.value.map((c) => c.code)).toEqual(['EUR', 'GBP', 'USD'])
     expect(selectedCurrency.value.code).toBe('EUR')
     expect(targetCurrency.value.code).toBe('USD')
+    expect(rateDate.value).toBe('2026-07-01')
+    expect(unitRate.value).toBeCloseTo(1.1)
+    expect(inverseRate.value).toBeCloseTo(1 / 1.1)
 
     amountToConvert.value = 10
     expect(amountConverted.value).toBeCloseTo(11)

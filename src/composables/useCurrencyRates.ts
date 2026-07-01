@@ -10,13 +10,22 @@ export function useCurrencyRates() {
   const selectedCurrency = ref<Currency>(BASE_CURRENCY)
   const targetCurrency = ref<Currency>(BASE_CURRENCY)
   const amountToConvert = ref<number | null>(null)
+  const rateDate = ref<string | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  const amountConverted = computed(() => {
-    if (amountToConvert.value === null) return 0
+  const unitRate = computed(() => {
     const target = rates.value.find((rate) => rate.code === targetCurrency.value.code)
-    return target ? amountToConvert.value * target.rate : 0
+    return target?.rate ?? null
+  })
+
+  const inverseRate = computed(() =>
+    unitRate.value !== null && unitRate.value !== 0 ? 1 / unitRate.value : null,
+  )
+
+  const amountConverted = computed(() => {
+    if (amountToConvert.value === null || unitRate.value === null) return 0
+    return amountToConvert.value * unitRate.value
   })
 
   async function loadCurrencies() {
@@ -43,6 +52,7 @@ export function useCurrencyRates() {
   async function loadRatesForSelectedCurrency() {
     try {
       const data = await fetchRates(selectedCurrency.value.code)
+      rateDate.value = data.date
       rates.value = [
         { code: selectedCurrency.value.code, rate: 1 },
         ...Object.entries(data.rates).map(([code, rate]) => ({ code, rate })),
@@ -58,6 +68,9 @@ export function useCurrencyRates() {
     targetCurrency,
     amountToConvert,
     amountConverted,
+    unitRate,
+    inverseRate,
+    rateDate,
     loading,
     error,
     loadCurrencies,
