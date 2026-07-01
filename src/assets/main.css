@@ -1,0 +1,28 @@
+@import 'tailwindcss';
+
+@font-face {
+  font-family: 'Simplifica';
+  src: url('./simplifica.ttf') format('truetype');
+  font-display: swap;
+}
+
+@theme {
+  --font-display: 'Simplifica', serif;
+}
+
+body {
+  @apply min-h-screen bg-cover bg-fixed bg-center text-white;
+  background-image: url('./hero-background.jpg');
+}
+
+.glass {
+  @apply relative overflow-hidden rounded-xl bg-black/10 text-center;
+}
+
+.glass::before {
+  content: '';
+  position: absolute;
+  inset: -35px;
+  z-index: -1;
+  filter: blur(20px);
+}
