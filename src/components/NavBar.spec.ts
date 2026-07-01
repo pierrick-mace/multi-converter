@@ -26,7 +26,7 @@ describe('NavBar', () => {
 
   it('marks the active route link', async () => {
     const wrapper = await mountWithRouter()
-    const activeLink = wrapper.find('a.underline')
+    const activeLink = wrapper.find('a[aria-current="page"]')
     expect(activeLink.text()).toBe('Home')
   })
 })
