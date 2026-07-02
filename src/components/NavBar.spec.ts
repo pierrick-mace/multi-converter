@@ -10,8 +10,8 @@ async function mountWithRouter() {
       { path: '/home', component: { template: '<div />' } },
       { path: '/temperature', component: { template: '<div />' } },
       { path: '/currencies', component: { template: '<div />' } },
-      { path: '/bases', component: { template: '<div />' } },
       { path: '/units', component: { template: '<div />' } },
+      { path: '/bases', component: { template: '<div />' } },
       { path: '/data', component: { template: '<div />' } },
     ],
   })
@@ -28,8 +28,8 @@ describe('NavBar', () => {
       'Home',
       'Temperature',
       'Currencies',
-      'Bases',
       'Units',
+      'Bases',
       'Data',
     ])
   })

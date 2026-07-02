@@ -1,11 +1,9 @@
 <script setup lang="ts">
+import { modules } from '@/router/modules'
+
 const links = [
   { to: '/home', label: 'Home' },
-  { to: '/temperature', label: 'Temperature' },
-  { to: '/currencies', label: 'Currencies' },
-  { to: '/bases', label: 'Bases' },
-  { to: '/units', label: 'Units' },
-  { to: '/data', label: 'Data' },
+  ...modules.map((mod) => ({ to: mod.path, label: mod.label })),
 ]
 </script>
 

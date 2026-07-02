@@ -12,6 +12,7 @@ entry:
   src/App.vue: Root layout, renders NavBar and RouterView
 
 routing:
+  src/router/modules.ts: Module registry (path, name, label, description, lucide icon) feeding NavBar links and HomeView cards
   src/router/index.ts: |
     Routes (all lazy-loaded views):
       /            -> redirect /home
@@ -24,7 +25,8 @@ routing:
       catch-all    -> redirect /home
 
 views:
-  src/views/HomeView.vue: Landing page listing the conversion modules
+  src/views/HomeView.vue: Landing page, responsive card grid driven by the module registry
+  src/views/HomeView.spec.ts: Component test for the module card grid
   src/views/TemperatureView.vue: Celsius/Fahrenheit/Kelvin converter with copy-to-clipboard
   src/views/CurrenciesView.vue: Currency converter with live rates and rate history chart
   src/views/BasesView.vue: Number base converter (binary/octal/decimal/hex), unsigned BigInt
@@ -34,7 +36,7 @@ views:
   src/views/DataSizeView.spec.ts: Component test for the data size panel
 
 components:
-  src/components/NavBar.vue: Top navigation (Home, Temperature, Currencies, Bases, Units, Data)
+  src/components/NavBar.vue: Top navigation, Home plus links derived from the module registry (Temperature, Currencies, Units, Bases, Data)
   src/components/NavBar.spec.ts: Component test for NavBar
   src/components/RateChart.vue: SVG line chart of exchange-rate history, hover tooltip
 
