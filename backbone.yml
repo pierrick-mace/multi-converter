@@ -95,6 +95,7 @@ config:
   .oxlintrc.json: oxlint rules
   dprint.json: dprint formatter config (semicolons, single quotes, Allman braces except lambdas, 2-space indent, width 120)
   .editorconfig: Editor defaults
+  .github/workflows/ci.yml: GitHub Actions CI (lint, typecheck, test, build on push/PR to master)
 
 claude:
   CLAUDE.md: Project instructions for Claude Code
