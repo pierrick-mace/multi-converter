@@ -64,3 +64,9 @@ config:
 claude:
   CLAUDE.md: Project instructions for Claude Code
   .claude/agents/: Curated project subagents (frontend, tests, review, a11y, perf, security, deps, TS, UI, Vue)
+
+planning:
+  tasks/README.md: Roadmap overview, architecture principles, definition of done, phase 0 housekeeping
+  tasks/01-breadth.md: Phase 1 tasks, generic unit-converter core + new conversion modules
+  tasks/02-depth.md: Phase 2 tasks, richer currency tooling (URL state, deltas, history, rate board, chart)
+  tasks/03-stickiness.md: Phase 3 tasks, localStorage persistence, rate caching/offline, PWA decision gate
