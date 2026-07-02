@@ -18,7 +18,7 @@ npm run build      # vue-tsc --noEmit && vite build
 npm run test       # Vitest, single run
 npm run test:watch # Vitest watch mode
 npm run lint       # oxlint src/
-npm run format     # prettier --write .
+npm run format     # oxfmt, formats in place (npm run format:check to verify)
 npm run typecheck  # vue-tsc --noEmit
 ```
 

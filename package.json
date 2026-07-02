@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "oxlint src/",
-    "format": "prettier --write .",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
@@ -26,8 +27,8 @@
     "@vue/test-utils": "^2.4.11",
     "@vue/tsconfig": "^0.9.1",
     "jsdom": "^29.1.1",
+    "oxfmt": "^0.57.0",
     "oxlint": "^1.72.0",
-    "prettier": "^3.9.4",
     "tailwindcss": "^4.3.2",
     "typescript": "^5.9.3",
     "vite": "^8.1.2",

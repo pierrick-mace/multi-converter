@@ -93,7 +93,7 @@ config:
   tsconfig.app.json: App TS config ('@' path alias)
   tsconfig.node.json: TS config for Vite config files
   .oxlintrc.json: oxlint rules
-  .prettierrc.json: Prettier config
+  .oxfmtrc.json: oxfmt config (no semicolons, single quotes, width 120; oxfmt also honors .editorconfig)
   .editorconfig: Editor defaults
 
 claude:
