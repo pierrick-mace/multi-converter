@@ -47,7 +47,6 @@ function formatResult(result: number | null): string
 <template>
   <div class="mx-auto max-w-xl px-4 py-14 md:py-20">
     <div class="panel reveal mb-8 px-6 py-10 text-center md:px-12">
-      <p class="label-mono mb-4">Module 05</p>
       <h1 class="font-display text-5xl text-ink md:text-6xl">Data</h1>
       <p class="mx-auto mt-4 max-w-sm text-sm text-ink-dim">
         Bits and bytes, decimal (kB, MB, GB, TB) and binary (KiB, MiB, GiB, TiB) prefixes, one factor table.

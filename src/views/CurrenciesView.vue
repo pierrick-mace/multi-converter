@@ -398,7 +398,6 @@ onMounted(async () => {
 <template>
   <div class="mx-auto max-w-xl px-4 py-14 md:py-20">
     <div class="panel reveal mb-8 px-6 py-10 text-center md:px-12">
-      <p class="label-mono mb-4">Module 02</p>
       <h1 class="font-display text-5xl text-ink md:text-6xl">Currencies</h1>
       <p class="mx-auto mt-4 max-w-sm text-sm text-ink-dim">Live mid-market rates, sourced from the Frankfurter API.</p>
     </div>

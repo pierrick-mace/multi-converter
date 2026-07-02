@@ -10,7 +10,6 @@ const { copied, copy } = useClipboard();
 const fields = [
   {
     id: 'celsius',
-    index: '01',
     label: 'Celsius',
     unit: '°C',
     model: celsius,
@@ -18,7 +17,6 @@ const fields = [
   },
   {
     id: 'fahrenheit',
-    index: '02',
     label: 'Fahrenheit',
     unit: '°F',
     model: fahrenheit,
@@ -26,7 +24,6 @@ const fields = [
   },
   {
     id: 'kelvin',
-    index: '03',
     label: 'Kelvin',
     unit: 'K',
     model: kelvin,
@@ -38,7 +35,6 @@ const fields = [
 <template>
   <div class="mx-auto max-w-xl px-4 py-14 md:py-20">
     <div class="panel reveal mb-8 px-6 py-10 text-center md:px-12">
-      <p class="label-mono mb-4">Module 01</p>
       <h1 class="font-display text-5xl text-ink md:text-6xl">Temperature</h1>
       <p class="mx-auto mt-4 max-w-sm text-sm text-ink-dim">
         Enter a value in any field. The other two update instantly.
@@ -49,7 +45,6 @@ const fields = [
       <form class="flex flex-col gap-6" @submit.prevent>
         <div v-for="field in fields" :key="field.label" class="flex items-end gap-3">
           <label :for="field.id" class="w-24 shrink-0">
-            <span class="label-mono block">{{ field.index }}</span>
             <span class="font-mono text-sm text-ink-dim">{{ field.label }}</span>
           </label>
 

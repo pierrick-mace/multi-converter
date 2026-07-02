@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import { modules } from '@/router/modules';
 import { ArrowRightLeft } from '@lucide/vue';
-
-function moduleIndex(i: number): string
-{
-  return String(i + 1).padStart(2, '0');
-}
 </script>
 
 <template>
@@ -29,8 +24,7 @@ function moduleIndex(i: number): string
         class="panel reveal group flex flex-col gap-4 px-6 py-8 text-left transition-colors hover:border-accent"
         :style="{ animationDelay: `${0.15 + i * 0.15}s` }"
       >
-        <div class="flex items-center justify-between">
-          <span class="label-mono">{{ moduleIndex(i) }}</span>
+        <div class="flex items-center justify-end">
           <component :is="mod.icon" class="size-5 text-ink-dim transition-colors group-hover:text-accent" />
         </div>
         <h2 class="font-display text-3xl text-ink">{{ mod.label }}</h2>
