@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { ArrowRightLeft, ArrowDown, ArrowUp, Minus, X } from '@lucide/vue'
+import { ArrowRightLeft, ArrowDown, ArrowUp, Minus, X, Copy, Check, Link2 } from '@lucide/vue'
 import RateChart from '@/components/RateChart.vue'
 import { useCurrencyRates } from '@/composables/useCurrencyRates'
 import { HISTORY_RANGES, useRateHistory } from '@/composables/useRateHistory'
@@ -8,6 +8,8 @@ import type { HistoryRangeDays } from '@/composables/useRateHistory'
 import { defaultBoardFor, useRateBoard } from '@/composables/useRateBoard'
 import { useQuerySync } from '@/composables/useQuerySync'
 import type { QueryBinding } from '@/composables/useQuerySync'
+import { useClipboard } from '@/composables/useClipboard'
+import { formatCurrencyAmount } from '@/composables/formatCurrency'
 
 const DEFAULT_FROM = 'EUR'
 const DEFAULT_TO = 'USD'
@@ -88,6 +90,22 @@ const deltaPercentFormatter = new Intl.NumberFormat('en', {
   maximumFractionDigits: 2,
   signDisplay: 'always',
 })
+
+// One `useClipboard` instance per button, per the Phase 1 convention: sharing
+// a single instance would make both buttons flash "copied" together.
+const amountClipboard = useClipboard()
+const shareClipboard = useClipboard()
+
+function copyConvertedAmount() {
+  amountClipboard.copy(formatCurrencyAmount(amountConverted.value, targetCurrency.value.code))
+}
+
+function copyShareLink() {
+  // The app's entire state (pair, amount, range, date, board) already lives
+  // in the URL query via `useQuerySync`, so the current URL IS the share
+  // payload: no need to build it by hand.
+  shareClipboard.copy(window.location.href)
+}
 
 // Thin string adapters over the Currency-object refs, so the URL only ever
 // deals with plain currency codes. Setting them looks up the matching
@@ -326,6 +344,15 @@ onMounted(async () => {
                 {{ currency.code }}
               </option>
             </select>
+            <button
+              type="button"
+              class="btn-tick"
+              aria-label="Copy converted amount"
+              @click="copyConvertedAmount"
+            >
+              <Check v-if="amountClipboard.copied.value" class="size-4 text-accent" />
+              <Copy v-else class="size-4" />
+            </button>
           </div>
         </div>
 
@@ -375,12 +402,23 @@ onMounted(async () => {
               >
             </span>
           </p>
-          <div class="text-right">
-            <p v-if="conversionDate && rateDate" class="label-mono">Rates as of {{ rateDate }}</p>
-            <p v-else-if="rateDate" class="font-mono text-xs text-ink-dim">
-              ECB reference rate: {{ rateDate }}
-            </p>
-            <p v-if="previousRateDate" class="label-mono">vs {{ previousRateDate }}</p>
+          <div class="flex items-center gap-3">
+            <div class="text-right">
+              <p v-if="conversionDate && rateDate" class="label-mono">Rates as of {{ rateDate }}</p>
+              <p v-else-if="rateDate" class="font-mono text-xs text-ink-dim">
+                ECB reference rate: {{ rateDate }}
+              </p>
+              <p v-if="previousRateDate" class="label-mono">vs {{ previousRateDate }}</p>
+            </div>
+            <button
+              type="button"
+              class="btn-tick"
+              aria-label="Copy share link"
+              @click="copyShareLink"
+            >
+              <Check v-if="shareClipboard.copied.value" class="size-4 text-accent" />
+              <Link2 v-else class="size-4" />
+            </button>
           </div>
         </div>
       </form>

@@ -185,6 +185,13 @@ describe('CurrenciesView', () => {
     expect(wrapper.text()).not.toContain('NOT-A-CODE')
   })
 
+  it('renders a copy button for the converted amount and a share-link button', async () => {
+    const { wrapper } = await mountWithRouter()
+
+    expect(wrapper.find('[aria-label="Copy converted amount"]').exists()).toBe(true)
+    expect(wrapper.find('[aria-label="Copy share link"]').exists()).toBe(true)
+  })
+
   it('omits the ?board= param once a customized basket is set back to the default', async () => {
     const { wrapper, router } = await mountWithRouter()
 
