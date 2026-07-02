@@ -50,7 +50,10 @@ export function useRateHistory(baseCode: () => string, targetCode: () => string)
     try
     {
       const data = await fetchRateHistory(base, target, startDateFor(rangeDays.value));
-      if (id !== requestId) return;
+      if (id !== requestId)
+      {
+        return;
+      }
       stale.value = data.stale === true;
       points.value = Object.entries(data.rates)
         .map(([date, symbols]) => ({ date, rate: symbols[target] }))
@@ -59,13 +62,19 @@ export function useRateHistory(baseCode: () => string, targetCode: () => string)
     }
     catch (err)
     {
-      if (id !== requestId) return;
+      if (id !== requestId)
+      {
+        return;
+      }
       points.value = [];
       error.value = err instanceof Error ? err.message : 'Failed to load rate history';
     }
     finally
     {
-      if (id === requestId) loading.value = false;
+      if (id === requestId)
+      {
+        loading.value = false;
+      }
     }
   }
 

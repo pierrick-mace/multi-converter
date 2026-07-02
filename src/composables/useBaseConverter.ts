@@ -50,7 +50,10 @@ export function formatInBase(value: bigint, base: Base): string
   {
     throw new Error('Negative values are not supported');
   }
-  if (value === 0n) return '0';
+  if (value === 0n)
+  {
+    return '0';
+  }
 
   const bigBase = BigInt(base);
   let remaining = value;

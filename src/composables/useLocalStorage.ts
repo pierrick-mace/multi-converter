@@ -40,7 +40,10 @@ function readStorage<T>(key: string, defaultValue: T): T
   try
   {
     const raw = localStorage.getItem(key);
-    if (raw === null) return defaultValue;
+    if (raw === null)
+    {
+      return defaultValue;
+    }
     return JSON.parse(raw) as T;
   }
   catch

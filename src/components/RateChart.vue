@@ -51,7 +51,10 @@ const ticks = computed(() => {
 
 function xAt(index: number): number
 {
-  if (props.points.length < 2) return PAD.left + PLOT_W / 2;
+  if (props.points.length < 2)
+  {
+    return PAD.left + PLOT_W / 2;
+  }
   return PAD.left + (index / (props.points.length - 1)) * PLOT_W;
 }
 
@@ -68,7 +71,10 @@ const linePath = computed(() =>
 );
 
 const areaPath = computed(() => {
-  if (coords.value.length < 2) return '';
+  if (coords.value.length < 2)
+  {
+    return '';
+  }
   const first = coords.value[0];
   const last = coords.value[coords.value.length - 1];
   const floor = PAD.top + PLOT_H;
@@ -82,7 +88,10 @@ const endPoint = computed(() => {
 });
 
 const xLabels = computed(() => {
-  if (props.points.length < 2) return [];
+  if (props.points.length < 2)
+  {
+    return [];
+  }
   const mid = Math.floor((props.points.length - 1) / 2);
   return [0, mid, props.points.length - 1].map((i) => ({
     x: xAt(i),
@@ -97,7 +106,10 @@ const LABEL_COLLISION_PX = 14;
 
 const statLines = computed(() => {
   const s = stats.value;
-  if (!s) return [];
+  if (!s)
+  {
+    return [];
+  }
 
   // Flat series: min, max, and average all coincide, so a single reference
   // line says everything three overlapping lines would.
@@ -138,21 +150,33 @@ const changeTone = computed(() => deltaTone(change.value));
 
 const changeLabel = computed(() => {
   const value = change.value;
-  if (value === null) return null;
+  if (value === null)
+  {
+    return null;
+  }
   const sign = value >= 0 ? '+' : '';
   return `${sign}${value.toFixed(2)}%`;
 });
 
 const active = computed(() => {
-  if (activeIndex.value === null) return null;
+  if (activeIndex.value === null)
+  {
+    return null;
+  }
   const point = props.points[activeIndex.value];
   const coord = coords.value[activeIndex.value];
-  if (!point || !coord) return null;
+  if (!point || !coord)
+  {
+    return null;
+  }
   return { ...coord, date: point.date, label: rateFormatter.format(point.rate) };
 });
 
 const tooltipStyle = computed(() => {
-  if (!active.value) return {};
+  if (!active.value)
+  {
+    return {};
+  }
   const xRatio = active.value.x / VIEW_W;
   return {
     left: `${xRatio * 100}%`,
@@ -170,9 +194,15 @@ const chartLabel = computed(() => {
 function onPointerMove(event: PointerEvent)
 {
   const svg = svgEl.value;
-  if (!svg || props.points.length === 0) return;
+  if (!svg || props.points.length === 0)
+  {
+    return;
+  }
   const rect = svg.getBoundingClientRect();
-  if (rect.width === 0) return;
+  if (rect.width === 0)
+  {
+    return;
+  }
   const x = ((event.clientX - rect.left) / rect.width) * VIEW_W;
   const ratio = Math.min(1, Math.max(0, (x - PAD.left) / PLOT_W));
   activeIndex.value = Math.round(ratio * (props.points.length - 1));
@@ -181,7 +211,10 @@ function onPointerMove(event: PointerEvent)
 function onKeydown(event: KeyboardEvent)
 {
   const max = props.points.length - 1;
-  if (max < 0) return;
+  if (max < 0)
+  {
+    return;
+  }
   const current = activeIndex.value ?? max;
   const next = event.key === 'ArrowLeft'
     ? Math.max(0, current - 1)
@@ -192,7 +225,10 @@ function onKeydown(event: KeyboardEvent)
     : event.key === 'End'
     ? max
     : null;
-  if (next === null) return;
+  if (next === null)
+  {
+    return;
+  }
   event.preventDefault();
   activeIndex.value = next;
 }

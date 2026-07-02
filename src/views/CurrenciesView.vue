@@ -95,7 +95,10 @@ const addableBoardCurrencies = computed(() =>
 function onAddBoardTarget(event: Event)
 {
   const select = event.target as HTMLSelectElement;
-  if (select.value) addBoardTarget(select.value);
+  if (select.value)
+  {
+    addBoardTarget(select.value);
+  }
   select.value = '';
 }
 
@@ -131,7 +134,10 @@ const fromCode = computed<string>({
   get: () => selectedCurrency.value.code,
   set: (code) => {
     const match = currencies.value.find((currency) => currency.code === code);
-    if (!match || match.code === selectedCurrency.value.code) return;
+    if (!match || match.code === selectedCurrency.value.code)
+    {
+      return;
+    }
     selectedCurrency.value = match;
     loadRatesForSelectedCurrency();
   },
@@ -141,7 +147,10 @@ const toCode = computed<string>({
   get: () => targetCurrency.value.code,
   set: (code) => {
     const match = currencies.value.find((currency) => currency.code === code);
-    if (!match) return;
+    if (!match)
+    {
+      return;
+    }
     targetCurrency.value = match;
   },
 });
@@ -153,7 +162,10 @@ const toCode = computed<string>({
 const dateQuery = computed<string | null>({
   get: () => conversionDate.value,
   set: (value) => {
-    if (value === conversionDate.value) return;
+    if (value === conversionDate.value)
+    {
+      return;
+    }
     conversionDate.value = value;
     loadRatesForSelectedCurrency();
   },
@@ -193,7 +205,10 @@ function parseRange(raw: string): HistoryRangeDays | undefined
 
 function parseConversionDate(raw: string): string | undefined
 {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return undefined;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw))
+  {
+    return undefined;
+  }
   return raw >= MIN_DATE && raw <= todayDate ? raw : undefined;
 }
 
@@ -202,7 +217,10 @@ function parseConversionDate(raw: string): string | undefined
 // validation), so a length check plus a one-way membership check is enough.
 function sameCodes(a: string[], b: string[]): boolean
 {
-  if (a.length !== b.length) return false;
+  if (a.length !== b.length)
+  {
+    return false;
+  }
   const setA = new Set(a);
   return b.every((code) => setA.has(code));
 }
@@ -228,8 +246,14 @@ function parseBoardCodes(raw: string): string[]
       .filter(Boolean)
   )
   {
-    if (code === base || seen.has(code)) continue;
-    if (!currencies.value.some((currency) => currency.code === code)) continue;
+    if (code === base || seen.has(code))
+    {
+      continue;
+    }
+    if (!currencies.value.some((currency) => currency.code === code))
+    {
+      continue;
+    }
     seen.add(code);
     valid.push(code);
   }
@@ -245,7 +269,10 @@ function parseBoardCodes(raw: string): string[]
 const boardCodesQuery = computed<string[]>({
   get: () => boardCodes.value,
   set: (codes) => {
-    if (sameCodes(codes, boardCodes.value)) return;
+    if (sameCodes(codes, boardCodes.value))
+    {
+      return;
+    }
     setBoardCodes(codes);
   },
 });
@@ -342,8 +369,14 @@ onMounted(async () => {
   // (here, already set from storage) untouched on parse failure.
   if (storedPair)
   {
-    if (typeof route.query.from !== 'string') fromCode.value = storedPair.from;
-    if (typeof route.query.to !== 'string') toCode.value = storedPair.to;
+    if (typeof route.query.from !== 'string')
+    {
+      fromCode.value = storedPair.from;
+    }
+    if (typeof route.query.to !== 'string')
+    {
+      toCode.value = storedPair.to;
+    }
   }
   if (Array.isArray(storedBoard) && typeof route.query.board !== 'string')
   {

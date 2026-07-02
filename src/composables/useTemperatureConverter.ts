@@ -28,21 +28,30 @@ export function useTemperatureConverter()
 
   function updateFromCelsius()
   {
-    if (celsius.value === null) return;
+    if (celsius.value === null)
+    {
+      return;
+    }
     fahrenheit.value = celsiusToFahrenheit(celsius.value);
     kelvin.value = celsiusToKelvin(celsius.value);
   }
 
   function updateFromFahrenheit()
   {
-    if (fahrenheit.value === null) return;
+    if (fahrenheit.value === null)
+    {
+      return;
+    }
     celsius.value = fahrenheitToCelsius(fahrenheit.value);
     kelvin.value = celsiusToKelvin(celsius.value);
   }
 
   function updateFromKelvin()
   {
-    if (kelvin.value === null) return;
+    if (kelvin.value === null)
+    {
+      return;
+    }
     celsius.value = kelvinToCelsius(kelvin.value);
     fahrenheit.value = celsiusToFahrenheit(celsius.value);
   }

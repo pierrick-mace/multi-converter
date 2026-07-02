@@ -48,7 +48,10 @@ export function useCurrencyRates()
   });
 
   const delta = computed(() => {
-    if (unitRate.value === null || previousUnitRate.value === null) return null;
+    if (unitRate.value === null || previousUnitRate.value === null)
+    {
+      return null;
+    }
     return unitRate.value - previousUnitRate.value;
   });
 
@@ -61,7 +64,10 @@ export function useCurrencyRates()
   });
 
   const amountConverted = computed(() => {
-    if (amountToConvert.value === null || unitRate.value === null) return 0;
+    if (amountToConvert.value === null || unitRate.value === null)
+    {
+      return 0;
+    }
     return amountToConvert.value * unitRate.value;
   });
 
@@ -134,7 +140,10 @@ export function useCurrencyRates()
   // day-before logic needs no historical-mode special case.
   async function loadPreviousRates()
   {
-    if (!rateDate.value) return;
+    if (!rateDate.value)
+    {
+      return;
+    }
     try
     {
       const data = await fetchRatesOn(dayBefore(rateDate.value), selectedCurrency.value.code);

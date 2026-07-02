@@ -31,7 +31,10 @@ export function useTemperatureConverter()
   const fahrenheit = ref<number | null>(null);
   function updateFromCelsius()
   {
-    if (celsius.value === null) return;
+    if (celsius.value === null)
+    {
+      return;
+    }
     fahrenheit.value = celsiusToFahrenheit(celsius.value);
   }
   return { celsius, fahrenheit, updateFromCelsius };

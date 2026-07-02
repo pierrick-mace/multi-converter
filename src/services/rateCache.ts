@@ -37,7 +37,10 @@ export function readCache<T>(key: string): CacheEntry<T> | null
   try
   {
     const raw = localStorage.getItem(key);
-    if (raw === null) return null;
+    if (raw === null)
+    {
+      return null;
+    }
     return JSON.parse(raw) as CacheEntry<T>;
   }
   catch

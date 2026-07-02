@@ -33,7 +33,10 @@ function buildUrl(path: string, params: Record<string, string | undefined>): URL
   const url = new URL(path, `${API_BASE}/`);
   for (const [key, value] of Object.entries(params))
   {
-    if (value) url.searchParams.set(key, value);
+    if (value)
+    {
+      url.searchParams.set(key, value);
+    }
   }
   return url;
 }
@@ -66,7 +69,10 @@ async function fetchWithFallback<T extends object>(url: URL, notOkError: (status
   catch (err)
   {
     const cached = readCache<T>(key);
-    if (cached) return withStaleFlag(cached);
+    if (cached)
+    {
+      return withStaleFlag(cached);
+    }
     throw err;
   }
 }

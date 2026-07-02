@@ -16,15 +16,24 @@ export interface SeriesStats
  */
 export function seriesStats(points: RatePoint[]): SeriesStats | null
 {
-  if (points.length === 0) return null;
+  if (points.length === 0)
+  {
+    return null;
+  }
 
   let min = Infinity;
   let max = -Infinity;
   let sum = 0;
   for (const point of points)
   {
-    if (point.rate < min) min = point.rate;
-    if (point.rate > max) max = point.rate;
+    if (point.rate < min)
+    {
+      min = point.rate;
+    }
+    if (point.rate > max)
+    {
+      max = point.rate;
+    }
     sum += point.rate;
   }
 
@@ -39,11 +48,17 @@ export function seriesStats(points: RatePoint[]): SeriesStats | null
  */
 export function percentChange(points: RatePoint[]): number | null
 {
-  if (points.length < 2) return null;
+  if (points.length < 2)
+  {
+    return null;
+  }
 
   const first = points[0].rate;
   const last = points[points.length - 1].rate;
-  if (first === 0) return null;
+  if (first === 0)
+  {
+    return null;
+  }
 
   return ((last - first) / first) * 100;
 }
@@ -64,6 +79,9 @@ export const FLAT_CHANGE_THRESHOLD = 0.005;
  */
 export function deltaTone(percent: number | null): DeltaTone
 {
-  if (percent === null || Math.abs(percent) < FLAT_CHANGE_THRESHOLD) return 'flat';
+  if (percent === null || Math.abs(percent) < FLAT_CHANGE_THRESHOLD)
+  {
+    return 'flat';
+  }
   return percent > 0 ? 'up' : 'down';
 }

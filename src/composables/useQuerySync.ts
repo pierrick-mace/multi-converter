@@ -51,9 +51,15 @@ export function useQuerySync(bindings: QueryBindings)
     for (const [key, binding] of Object.entries(bindings))
     {
       const raw = route.query[key];
-      if (typeof raw !== 'string') continue;
+      if (typeof raw !== 'string')
+      {
+        continue;
+      }
       const parsed = binding.fromQuery(raw);
-      if (parsed === undefined) continue;
+      if (parsed === undefined)
+      {
+        continue;
+      }
       binding.ref.value = parsed;
     }
   }
@@ -85,7 +91,10 @@ export function useQuerySync(bindings: QueryBindings)
       }
     }
 
-    if (changed) router.replace({ query });
+    if (changed)
+    {
+      router.replace({ query });
+    }
   }
 
   readFromRoute();

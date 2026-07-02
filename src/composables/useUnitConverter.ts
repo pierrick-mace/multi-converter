@@ -5,8 +5,14 @@ export function convertUnit(value: number, from: string, to: string, factors: Re
 {
   const fromFactor = factors[from];
   const toFactor = factors[to];
-  if (fromFactor === undefined) throw new Error(`Unknown unit id: ${from}`);
-  if (toFactor === undefined) throw new Error(`Unknown unit id: ${to}`);
+  if (fromFactor === undefined)
+  {
+    throw new Error(`Unknown unit id: ${from}`);
+  }
+  if (toFactor === undefined)
+  {
+    throw new Error(`Unknown unit id: ${to}`);
+  }
 
   const baseValue = value * fromFactor;
   return baseValue / toFactor;
@@ -21,7 +27,10 @@ export function useUnitConverter(definition: UnitModule)
   const to = ref(definition.defaultTo);
 
   const result = computed(() => {
-    if (typeof value.value !== 'number' || Number.isNaN(value.value)) return null;
+    if (typeof value.value !== 'number' || Number.isNaN(value.value))
+    {
+      return null;
+    }
     return convertUnit(value.value, from.value, to.value, factors);
   });
 

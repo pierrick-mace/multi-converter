@@ -7,7 +7,8 @@
     "bracePosition": "nextLine",
     "arrowFunction.bracePosition": "sameLine",
     "functionExpression.bracePosition": "sameLine",
-    "nextControlFlowPosition": "nextLine"
+    "nextControlFlowPosition": "nextLine",
+    "useBraces": "always"
   },
   "json": {},
   "markdown": {},

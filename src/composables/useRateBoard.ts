@@ -78,8 +78,14 @@ export function useRateBoard(
     const valid: string[] = [];
     for (const code of codes)
     {
-      if (code === base || seen.has(code)) continue;
-      if (!known.some((currency) => currency.code === code)) continue;
+      if (code === base || seen.has(code))
+      {
+        continue;
+      }
+      if (!known.some((currency) => currency.code === code))
+      {
+        continue;
+      }
       seen.add(code);
       valid.push(code);
     }
@@ -103,8 +109,14 @@ export function useRateBoard(
   function addTarget(code: string)
   {
     const current = targetCodes.value;
-    if (code === baseCode() || current.includes(code)) return;
-    if (!availableCurrencies().some((currency) => currency.code === code)) return;
+    if (code === baseCode() || current.includes(code))
+    {
+      return;
+    }
+    if (!availableCurrencies().some((currency) => currency.code === code))
+    {
+      return;
+    }
     customCodes.value = [...current, code];
   }
 
@@ -142,7 +154,10 @@ export function useRateBoard(
       const latest = requestedDate
         ? await fetchRatesOn(requestedDate, base, symbolsParam)
         : await fetchRates(base, symbolsParam);
-      if (id !== requestId) return;
+      if (id !== requestId)
+      {
+        return;
+      }
       stale.value = latest.stale === true;
 
       let previousRates: Record<string, number> = {};
@@ -152,7 +167,10 @@ export function useRateBoard(
         // the requested one: same non-trading-day resolution caveat as
         // `useCurrencyRates.loadPreviousRates`.
         const previous = await fetchRatesOn(dayBefore(latest.date), base, symbolsParam);
-        if (id !== requestId) return;
+        if (id !== requestId)
+        {
+          return;
+        }
         previousRates = previous.rates;
       }
       catch
@@ -161,7 +179,10 @@ export function useRateBoard(
         // feeds the delta indicator, so a failure here shouldn't take down
         // the whole board.
       }
-      if (id !== requestId) return;
+      if (id !== requestId)
+      {
+        return;
+      }
 
       rows.value = symbols
         .filter((code) => typeof latest.rates[code] === 'number')
@@ -175,13 +196,19 @@ export function useRateBoard(
     }
     catch (err)
     {
-      if (id !== requestId) return;
+      if (id !== requestId)
+      {
+        return;
+      }
       rows.value = [];
       error.value = err instanceof Error ? err.message : 'Failed to load rate board';
     }
     finally
     {
-      if (id === requestId) loading.value = false;
+      if (id === requestId)
+      {
+        loading.value = false;
+      }
     }
   }
 
