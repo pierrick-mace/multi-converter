@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { ArrowRightLeft } from '@lucide/vue'
 import RateChart from '@/components/RateChart.vue'
 import { useCurrencyRates } from '@/composables/useCurrencyRates'
 import { HISTORY_RANGES, useRateHistory } from '@/composables/useRateHistory'
+import type { HistoryRangeDays } from '@/composables/useRateHistory'
+import { useQuerySync } from '@/composables/useQuerySync'
+import type { QueryBinding } from '@/composables/useQuerySync'
+
+const DEFAULT_FROM = 'EUR'
+const DEFAULT_TO = 'USD'
 
 const {
   currencies,
@@ -32,7 +38,75 @@ const {
 
 const rateFormatter = new Intl.NumberFormat('en', { maximumSignificantDigits: 5 })
 
-onMounted(loadCurrencies)
+// Thin string adapters over the Currency-object refs, so the URL only ever
+// deals with plain currency codes. Setting them looks up the matching
+// Currency in the (possibly still empty) loaded list and silently ignores
+// anything that does not resolve.
+const fromCode = computed<string>({
+  get: () => selectedCurrency.value.code,
+  set: (code) => {
+    const match = currencies.value.find((currency) => currency.code === code)
+    if (!match || match.code === selectedCurrency.value.code) return
+    selectedCurrency.value = match
+    loadRatesForSelectedCurrency()
+  },
+})
+
+const toCode = computed<string>({
+  get: () => targetCurrency.value.code,
+  set: (code) => {
+    const match = currencies.value.find((currency) => currency.code === code)
+    if (!match) return
+    targetCurrency.value = match
+  },
+})
+
+function parseCurrencyCode(raw: string): string | undefined {
+  const code = raw.toUpperCase()
+  return currencies.value.some((currency) => currency.code === code) ? code : undefined
+}
+
+function parseAmount(raw: string): number | undefined {
+  const value = Number(raw)
+  return Number.isFinite(value) && value > 0 ? value : undefined
+}
+
+function parseRange(raw: string): HistoryRangeDays | undefined {
+  const upper = raw.toUpperCase()
+  return HISTORY_RANGES.find((range) => range.label === upper)?.days
+}
+
+const { readFromRoute } = useQuerySync({
+  from: {
+    ref: fromCode,
+    fromQuery: parseCurrencyCode,
+    toQuery: (value) => (value === DEFAULT_FROM ? undefined : value),
+  } satisfies QueryBinding<string>,
+  to: {
+    ref: toCode,
+    fromQuery: parseCurrencyCode,
+    toQuery: (value) => (value === DEFAULT_TO ? undefined : value),
+  } satisfies QueryBinding<string>,
+  amount: {
+    ref: amountToConvert,
+    fromQuery: parseAmount,
+    toQuery: (value) => (value === null ? undefined : String(value)),
+  } satisfies QueryBinding<number | null>,
+  range: {
+    ref: rangeDays,
+    fromQuery: parseRange,
+    toQuery: (value) =>
+      value === 30 ? undefined : HISTORY_RANGES.find((range) => range.days === value)?.label,
+  } satisfies QueryBinding<HistoryRangeDays>,
+})
+
+onMounted(async () => {
+  await loadCurrencies()
+  // The currency list just finished loading async, so `from`/`to` query
+  // params (invalid until now, since there was nothing to validate them
+  // against) can be re-applied on top of the freshly loaded defaults.
+  readFromRoute()
+})
 </script>
 
 <template>

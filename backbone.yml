@@ -28,7 +28,7 @@ views:
   src/views/HomeView.vue: Landing page, responsive card grid driven by the module registry
   src/views/HomeView.spec.ts: Component test for the module card grid
   src/views/TemperatureView.vue: Celsius/Fahrenheit/Kelvin converter with copy-to-clipboard
-  src/views/CurrenciesView.vue: Currency converter with live rates and rate history chart
+  src/views/CurrenciesView.vue: Currency converter with live rates and rate history chart; pair/amount/range synced to URL query
   src/views/BasesView.vue: Number base converter (binary/octal/decimal/hex), unsigned BigInt
   src/views/BasesView.spec.ts: Component test for field sync and error/aria wiring
   src/views/UnitsView.vue: Length and mass converters driven by useUnitConverter
@@ -55,6 +55,8 @@ composables:
   src/composables/useBaseConverter.spec.ts: Tests for base round-trips, invalid input, 64-bit values
   src/composables/unitModules.ts: Factor tables (UnitModule data) for length, mass, and data size
   src/composables/unitModules.spec.ts: Factor-table sanity tests
+  src/composables/useQuerySync.ts: Generic ref/route-query sync (fromQuery validates, toQuery omits defaults, router.replace)
+  src/composables/useQuerySync.spec.ts: Tests for query/ref sync, fallback, loop guard
 
 services:
   src/services/exchangeRates.ts: fetchRates() and fetchRateHistory() against https://api.frankfurter.dev/v1
