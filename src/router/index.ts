@@ -20,6 +20,11 @@ const router = createRouter({
       name: 'bases',
       component: () => import('@/views/BasesView.vue'),
     },
+    {
+      path: '/units',
+      name: 'units',
+      component: () => import('@/views/UnitsView.vue'),
+    },
     { path: '/:pathMatch(.*)*', redirect: '/home' },
   ],
 })

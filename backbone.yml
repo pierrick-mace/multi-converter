@@ -19,6 +19,7 @@ routing:
       /temperature -> TemperatureView
       /currencies  -> CurrenciesView
       /bases       -> BasesView
+      /units       -> UnitsView
       catch-all    -> redirect /home
 
 views:
@@ -26,9 +27,11 @@ views:
   src/views/TemperatureView.vue: Celsius/Fahrenheit/Kelvin converter with copy-to-clipboard
   src/views/CurrenciesView.vue: Currency converter with live rates and rate history chart
   src/views/BasesView.vue: Number base converter (binary/octal/decimal/hex), unsigned BigInt
+  src/views/UnitsView.vue: Length and mass converters driven by useUnitConverter
+  src/views/UnitsView.spec.ts: Component test for the length/mass panels
 
 components:
-  src/components/NavBar.vue: Top navigation (Home, Temperature, Currencies, Bases)
+  src/components/NavBar.vue: Top navigation (Home, Temperature, Currencies, Bases, Units)
   src/components/NavBar.spec.ts: Component test for NavBar
   src/components/RateChart.vue: SVG line chart of exchange-rate history, hover tooltip
 
@@ -44,6 +47,8 @@ composables:
   src/composables/useUnitConverter.spec.ts: Tests for factor math and composable state
   src/composables/useBaseConverter.ts: Pure BigInt parse/format per base + reactive binary/octal/decimal/hex sync with per-field error state
   src/composables/useBaseConverter.spec.ts: Tests for base round-trips, invalid input, 64-bit values
+  src/composables/unitModules.ts: Factor tables (UnitModule data) for length and mass
+  src/composables/unitModules.spec.ts: Factor-table sanity tests
 
 services:
   src/services/exchangeRates.ts: fetchRates() and fetchRateHistory() against https://api.frankfurter.dev/v1
