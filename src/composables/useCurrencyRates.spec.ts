@@ -140,6 +140,88 @@ describe('useCurrencyRates', () => {
     expect(error.value).toBeNull()
   })
 
+  it('loads rates for a historical date and exposes the API-returned effective date', async () => {
+    // 2023-04-29 was a Saturday; Frankfurter resolves it back to Friday.
+    mockedFetchRatesOn
+      .mockResolvedValueOnce({
+        base: 'EUR',
+        date: '2023-04-28',
+        rates: { USD: 1.1 },
+      })
+      .mockResolvedValueOnce({
+        base: 'EUR',
+        date: '2023-04-27',
+        rates: { USD: 1.09 },
+      })
+
+    const { conversionDate, targetCurrency, loadRatesForSelectedCurrency, rateDate, unitRate } =
+      useCurrencyRates()
+    targetCurrency.value = { code: 'USD', rate: 1.1 }
+    conversionDate.value = '2023-04-29'
+    await loadRatesForSelectedCurrency()
+
+    expect(mockedFetchRates).not.toHaveBeenCalled()
+    expect(mockedFetchRatesOn).toHaveBeenNthCalledWith(1, '2023-04-29', 'EUR')
+    expect(rateDate.value).toBe('2023-04-28')
+    expect(unitRate.value).toBeCloseTo(1.1)
+  })
+
+  it('compares a historical rate against the day before its effective (not requested) date', async () => {
+    mockedFetchRatesOn
+      .mockResolvedValueOnce({
+        base: 'EUR',
+        date: '2023-04-28',
+        rates: { USD: 1.1 },
+      })
+      .mockResolvedValueOnce({
+        base: 'EUR',
+        date: '2023-04-27',
+        rates: { USD: 1.09 },
+      })
+
+    const {
+      conversionDate,
+      targetCurrency,
+      loadRatesForSelectedCurrency,
+      previousRateDate,
+      delta,
+    } = useCurrencyRates()
+    targetCurrency.value = { code: 'USD', rate: 1.1 }
+    conversionDate.value = '2023-04-29'
+    await loadRatesForSelectedCurrency()
+
+    // dayBefore('2023-04-28'), not dayBefore('2023-04-29').
+    expect(mockedFetchRatesOn).toHaveBeenNthCalledWith(2, '2023-04-27', 'EUR')
+    expect(previousRateDate.value).toBe('2023-04-27')
+    expect(delta.value).toBeCloseTo(0.01)
+  })
+
+  it('returns to fetching latest rates once conversionDate is cleared', async () => {
+    mockedFetchRatesOn.mockResolvedValue({
+      base: 'EUR',
+      date: '2023-04-28',
+      rates: { USD: 1.1 },
+    })
+    mockedFetchRates.mockResolvedValueOnce({
+      base: 'EUR',
+      date: '2026-07-01',
+      rates: { USD: 1.2 },
+    })
+
+    const { conversionDate, targetCurrency, loadRatesForSelectedCurrency, rateDate } =
+      useCurrencyRates()
+    targetCurrency.value = { code: 'USD', rate: 1.1 }
+    conversionDate.value = '2023-04-29'
+    await loadRatesForSelectedCurrency()
+    expect(rateDate.value).toBe('2023-04-28')
+
+    conversionDate.value = null
+    await loadRatesForSelectedCurrency()
+
+    expect(mockedFetchRates).toHaveBeenCalledWith('EUR')
+    expect(rateDate.value).toBe('2026-07-01')
+  })
+
   it('swaps the base and target currencies and reloads rates for the new base', async () => {
     mockedFetchRates
       .mockResolvedValueOnce({

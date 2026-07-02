@@ -11,6 +11,10 @@ import type { QueryBinding } from '@/composables/useQuerySync'
 const DEFAULT_FROM = 'EUR'
 const DEFAULT_TO = 'USD'
 
+// Frankfurter's data starts here; the date input is clamped to this range.
+const MIN_DATE = '1999-01-04'
+const todayDate = new Date().toISOString().slice(0, 10)
+
 const {
   currencies,
   selectedCurrency,
@@ -23,6 +27,7 @@ const {
   previousRateDate,
   delta,
   deltaPercent,
+  conversionDate,
   loading,
   error,
   loadCurrencies,
@@ -69,6 +74,32 @@ const toCode = computed<string>({
   },
 })
 
+// Domain-shaped adapter (string | null, null meaning "latest") over
+// `conversionDate`, used for URL sync. Setting it (and only actually
+// changing the value) triggers a reload, same as `fromCode` does for a base
+// currency change.
+const dateQuery = computed<string | null>({
+  get: () => conversionDate.value,
+  set: (value) => {
+    if (value === conversionDate.value) return
+    conversionDate.value = value
+    loadRatesForSelectedCurrency()
+  },
+})
+
+// DOM-shaped adapter over `dateQuery`: native <input type="date"> wants a
+// plain string, using '' for "no date selected", never null.
+const dateInputValue = computed<string>({
+  get: () => dateQuery.value ?? '',
+  set: (value) => {
+    dateQuery.value = value === '' ? null : value
+  },
+})
+
+function backToLatest() {
+  dateQuery.value = null
+}
+
 function parseCurrencyCode(raw: string): string | undefined {
   const code = raw.toUpperCase()
   return currencies.value.some((currency) => currency.code === code) ? code : undefined
@@ -82,6 +113,11 @@ function parseAmount(raw: string): number | undefined {
 function parseRange(raw: string): HistoryRangeDays | undefined {
   const upper = raw.toUpperCase()
   return HISTORY_RANGES.find((range) => range.label === upper)?.days
+}
+
+function parseConversionDate(raw: string): string | undefined {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return undefined
+  return raw >= MIN_DATE && raw <= todayDate ? raw : undefined
 }
 
 const { readFromRoute } = useQuerySync({
@@ -106,6 +142,11 @@ const { readFromRoute } = useQuerySync({
     toQuery: (value) =>
       value === 30 ? undefined : HISTORY_RANGES.find((range) => range.days === value)?.label,
   } satisfies QueryBinding<HistoryRangeDays>,
+  date: {
+    ref: dateQuery,
+    fromQuery: parseConversionDate,
+    toQuery: (value) => value ?? undefined,
+  } satisfies QueryBinding<string | null>,
 })
 
 onMounted(async () => {
@@ -192,6 +233,29 @@ onMounted(async () => {
             </select>
           </div>
         </div>
+
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <label for="conversion-date" class="label-mono">Historical date</label>
+            <button
+              v-if="conversionDate"
+              type="button"
+              class="font-mono text-xs text-ink-dim uppercase transition-colors hover:text-accent"
+              @click="backToLatest"
+            >
+              Back to latest
+            </button>
+          </div>
+          <input
+            id="conversion-date"
+            v-model="dateInputValue"
+            type="date"
+            :min="MIN_DATE"
+            :max="todayDate"
+            class="w-full border border-rule bg-panel-raised px-3 py-2 font-mono text-sm text-ink [color-scheme:dark]"
+          />
+        </div>
+
         <div
           v-if="unitRate !== null"
           class="flex flex-wrap items-baseline justify-between gap-2 border-t border-rule pt-4"
@@ -217,7 +281,8 @@ onMounted(async () => {
             </span>
           </p>
           <div class="text-right">
-            <p v-if="rateDate" class="font-mono text-xs text-ink-dim">
+            <p v-if="conversionDate && rateDate" class="label-mono">Rates as of {{ rateDate }}</p>
+            <p v-else-if="rateDate" class="font-mono text-xs text-ink-dim">
               ECB reference rate: {{ rateDate }}
             </p>
             <p v-if="previousRateDate" class="label-mono">vs {{ previousRateDate }}</p>

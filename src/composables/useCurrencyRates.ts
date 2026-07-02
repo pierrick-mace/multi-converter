@@ -22,6 +22,11 @@ export function useCurrencyRates() {
   const previousRateDate = ref<string | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
+  // Requested historical date (YYYY-MM-DD), null meaning "latest". Frankfurter
+  // resolves non-trading days to the closest trading day at or before, so the
+  // date actually shown to users is `rateDate` (the API-returned date), not
+  // this one: they can legitimately differ.
+  const conversionDate = ref<string | null>(null)
 
   const unitRate = computed(() => {
     const target = rates.value.find((rate) => rate.code === targetCurrency.value.code)
@@ -77,7 +82,9 @@ export function useCurrencyRates() {
 
   async function loadRatesForSelectedCurrency() {
     try {
-      const data = await fetchRates(selectedCurrency.value.code)
+      const data = conversionDate.value
+        ? await fetchRatesOn(conversionDate.value, selectedCurrency.value.code)
+        : await fetchRates(selectedCurrency.value.code)
       rateDate.value = data.date
       rates.value = [
         { code: selectedCurrency.value.code, rate: 1 },
@@ -92,7 +99,9 @@ export function useCurrencyRates() {
 
   // The previous trading day's rate feeds the up/down delta indicator only,
   // so a failure here is swallowed rather than surfaced through `error`:
-  // it should never take down the main converter.
+  // it should never take down the main converter. `rateDate` already holds
+  // the effective date (latest or historical), so this comparison-to-the-
+  // day-before logic needs no historical-mode special case.
   async function loadPreviousRates() {
     if (!rateDate.value) return
     try {
@@ -127,6 +136,7 @@ export function useCurrencyRates() {
     previousRateDate,
     delta,
     deltaPercent,
+    conversionDate,
     loading,
     error,
     loadCurrencies,

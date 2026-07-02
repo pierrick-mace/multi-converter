@@ -81,4 +81,49 @@ describe('CurrenciesView', () => {
     expect(wrapper.text()).toContain('+0.92%')
     expect(wrapper.text()).toContain('vs 2026-06-30')
   })
+
+  it('switches to historical rates from a ?date= query param and shows the effective date', async () => {
+    const { wrapper, router } = await mountWithRouter()
+
+    await router.push('/currencies?date=2026-06-29')
+    await flushPromises()
+
+    const dateInput = wrapper.find<HTMLInputElement>('#conversion-date')
+    expect(dateInput.element.value).toBe('2026-06-29')
+    // fetchRatesOn is mocked to resolve to 2026-06-30 regardless of the
+    // requested date, standing in for Frankfurter resolving a non-trading
+    // day back to the closest prior trading day.
+    expect(wrapper.text()).toContain('Rates as of 2026-06-30')
+  })
+
+  it('returns to latest rates and clears the date query param via the back-to-latest button', async () => {
+    const { wrapper, router } = await mountWithRouter()
+
+    await router.push('/currencies?date=2026-06-29')
+    await flushPromises()
+    expect(wrapper.text()).toContain('Rates as of 2026-06-30')
+
+    const backButton = wrapper
+      .findAll('button')
+      .find((button) => button.text() === 'Back to latest')
+    expect(backButton).toBeDefined()
+    await backButton!.trigger('click')
+    await flushPromises()
+
+    expect(router.currentRoute.value.query.date).toBeUndefined()
+    expect(wrapper.text()).not.toContain('Rates as of')
+    expect(wrapper.text()).toContain('ECB reference rate: 2026-07-01')
+  })
+
+  it('ignores an out-of-range date query param and keeps showing latest rates', async () => {
+    const { wrapper, router } = await mountWithRouter()
+
+    await router.push('/currencies?date=1900-01-01')
+    await flushPromises()
+
+    // Falls back silently, same as any other invalid query param: the
+    // conversion date stays unset, latest rates keep showing.
+    expect(wrapper.text()).not.toContain('Rates as of')
+    expect(wrapper.text()).toContain('ECB reference rate: 2026-07-01')
+  })
 })
