@@ -1,15 +1,18 @@
 # Converter
 
 A multi-conversion tool built with Vue 3, TypeScript, and Vite, wrapped in a dark
-instrument-panel design. Convert temperatures (Celsius, Fahrenheit, Kelvin) and
-currencies with live rates and a historical rate chart, powered by the
-[Frankfurter API](https://frankfurter.dev).
+instrument-panel design. Convert temperatures, currencies (live rates from the
+[Frankfurter API](https://frankfurter.dev)), number bases, units, and data sizes.
 
 ## Features
 
 - **Temperature**: Celsius, Fahrenheit, and Kelvin kept in sync, with copy-to-clipboard.
-- **Currencies**: live exchange rates, unit and inverse rates, and an SVG rate-history
-  chart with 1M/3M/1Y ranges.
+- **Currencies**: live exchange rates, unit and inverse rates, historical dates, a
+  multi-target rate board, and an SVG rate-history chart with 1M/3M/1Y ranges. State
+  syncs to the URL, and rates are cached for offline use.
+- **Bases**: binary, octal, decimal, and hexadecimal, using unsigned BigInt.
+- **Units**: length and mass converters.
+- **Data size**: bits and bytes across decimal and binary prefixes.
 
 ## Stack
 
@@ -50,3 +53,8 @@ npm run lint       # oxlint
 npm run format     # dprint fmt, formats in place
 npm run typecheck  # vue-tsc --noEmit
 ```
+
+## CI
+
+[GitHub Actions](.github/workflows/ci.yml) runs lint, typecheck, tests, and build
+on every push and pull request to `master`.
