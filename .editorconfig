@@ -21,7 +21,6 @@ ij_smart_tabs = false
 ij_blade_keep_indents_on_empty_lines = false
 
 [*.css]
-indent_style = tab
 ij_continuation_indent_size = 2
 ij_smart_tabs = false
 ij_css_align_closing_brace_with_properties = false
@@ -352,7 +351,6 @@ ij_shell_switch_cases_indented = false
 ij_shell_use_unix_line_separator = true
 
 [{*.cjs,*.es6,*.js,*.mjs}]
-indent_style = tab
 ij_continuation_indent_size = 2
 ij_smart_tabs = false
 ij_javascript_align_imports = true
@@ -780,7 +778,6 @@ ij_json_spaces_within_brackets = false
 ij_json_wrap_long_lines = false
 
 [{*.htm,*.html,*.sht,*.shtm,*.shtml}]
-indent_style = tab
 ij_continuation_indent_size = 2
 ij_smart_tabs = false
 ij_html_add_new_line_before_tags = body,div,p,form,h1,h2,h3

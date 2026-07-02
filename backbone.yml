@@ -93,7 +93,7 @@ config:
   tsconfig.app.json: App TS config ('@' path alias)
   tsconfig.node.json: TS config for Vite config files
   .oxlintrc.json: oxlint rules
-  .oxfmtrc.json: oxfmt config (no semicolons, single quotes, width 120; oxfmt also honors .editorconfig)
+  dprint.json: dprint formatter config (semicolons, single quotes, Allman braces except lambdas, 2-space indent, width 120)
   .editorconfig: Editor defaults
 
 claude:

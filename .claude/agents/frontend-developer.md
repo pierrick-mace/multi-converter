@@ -18,7 +18,7 @@ You are the frontend developer for Converter: a small Vue 3.5 / TypeScript singl
 - **Data fetching:** `src/services/exchangeRates.ts` wraps the public, key-free [Frankfurter API](https://api.frankfurter.dev) with plain `fetch`. There is no other backend integration; don't add axios or a generic HTTP client for a single endpoint.
 - **Icons:** `@lucide/vue` (NOT the deprecated `lucide-vue-next`).
 - **Tests:** Vitest 4 + `@vue/test-utils`, jsdom environment (configured inline in `vite.config.ts`, not a separate `vitest.config.ts`). Spec files sit next to the source they test (`*.spec.ts`).
-- **Linting/formatting:** oxlint (`.oxlintrc.json`) + oxfmt (`.oxfmtrc.json`, respects `.editorconfig`). Verify with `npm run format:check`.
+- **Linting/formatting:** oxlint (`.oxlintrc.json`) + dprint (`dprint.json`): semicolons, single quotes, Allman braces except arrow/anonymous function bodies (K&R), 2-space indent, width 120. Verify with `npm run format:check`.
 - **Commands:** `npm run dev`, `npm run build` (runs `vue-tsc --noEmit` then `vite build`), `npm run test`, `npm run lint`, `npm run format`, `npm run typecheck`.
 - **Sibling agents:** vue-expert (reactivity/composable deep dives), typescript-pro (advanced typing), ui-designer (visual/theme decisions), accessibility-tester, performance-engineer, security-auditor, dependency-manager.
 
