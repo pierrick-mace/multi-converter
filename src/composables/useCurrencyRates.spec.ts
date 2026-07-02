@@ -24,18 +24,12 @@ describe('useCurrencyRates', () => {
     })
   })
 
-  it('loads currencies with EUR as base and computes the converted amount', async () => {
-    mockedFetchRates
-      .mockResolvedValueOnce({
-        base: 'EUR',
-        date: '2026-07-01',
-        rates: { USD: 1.1, GBP: 0.9 },
-      })
-      .mockResolvedValueOnce({
-        base: 'EUR',
-        date: '2026-07-01',
-        rates: { USD: 1.1, GBP: 0.9 },
-      })
+  it('loads currencies with EUR as base and computes the converted amount, from a single fetch', async () => {
+    mockedFetchRates.mockResolvedValueOnce({
+      base: 'EUR',
+      date: '2026-07-01',
+      rates: { USD: 1.1, GBP: 0.9 },
+    })
 
     const {
       currencies,
@@ -60,6 +54,11 @@ describe('useCurrencyRates', () => {
 
     amountToConvert.value = 10
     expect(amountConverted.value).toBeCloseTo(11)
+
+    // Performance: the no-base /latest fetch above is already EUR-based, the
+    // same request the initial rates load would otherwise repeat: it's
+    // reused instead of firing a second, identical fetchRates call.
+    expect(mockedFetchRates).toHaveBeenCalledTimes(1)
   })
 
   it('surfaces an error message when the API call fails', async () => {
@@ -100,6 +99,26 @@ describe('useCurrencyRates', () => {
     expect(unitRate.value).toBeCloseTo(1.1)
     expect(delta.value).toBeCloseTo(0.05)
     expect(deltaPercent.value).toBeCloseTo((0.05 / 1.05) * 100)
+  })
+
+  it('crosses a month boundary correctly when computing the previous trading day', async () => {
+    mockedFetchRates.mockResolvedValueOnce({
+      base: 'EUR',
+      date: '2026-03-01',
+      rates: { USD: 1.1 },
+    })
+    mockedFetchRatesOn.mockResolvedValueOnce({
+      base: 'EUR',
+      date: '2026-02-28',
+      rates: { USD: 1.08 },
+    })
+
+    const { targetCurrency, loadRatesForSelectedCurrency, previousRateDate } = useCurrencyRates()
+    targetCurrency.value = { code: 'USD', rate: 1.1 }
+    await loadRatesForSelectedCurrency()
+
+    expect(mockedFetchRatesOn).toHaveBeenLastCalledWith('2026-02-28', 'EUR')
+    expect(previousRateDate.value).toBe('2026-02-28')
   })
 
   it('reports a neutral (zero) delta when the rate is unchanged', async () => {
@@ -223,17 +242,11 @@ describe('useCurrencyRates', () => {
   })
 
   it('swaps the base and target currencies and reloads rates for the new base', async () => {
-    mockedFetchRates
-      .mockResolvedValueOnce({
-        base: 'EUR',
-        date: '2026-07-01',
-        rates: { USD: 1.1, GBP: 0.9 },
-      })
-      .mockResolvedValueOnce({
-        base: 'EUR',
-        date: '2026-07-01',
-        rates: { USD: 1.1, GBP: 0.9 },
-      })
+    mockedFetchRates.mockResolvedValueOnce({
+      base: 'EUR',
+      date: '2026-07-01',
+      rates: { USD: 1.1, GBP: 0.9 },
+    })
 
     const { selectedCurrency, targetCurrency, loadCurrencies, swapCurrencies } = useCurrencyRates()
     await loadCurrencies()

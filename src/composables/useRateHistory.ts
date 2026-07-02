@@ -53,6 +53,10 @@ export function useRateHistory(baseCode: () => string, targetCode: () => string)
     }
   }
 
+  // `immediate: true` means this fires on mount, as soon as the composable is
+  // constructed, not just on later base/target/range changes: a request-
+  // triggering point future composables reusing this pattern should account
+  // for in the app's mount-time fetch cascade.
   watch([baseCode, targetCode, rangeDays], loadHistory, { immediate: true })
 
   return { points, rangeDays, loading, error, loadHistory }

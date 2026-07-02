@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { percentChange, seriesStats } from '@/composables/chartStats'
+import { deltaTone, percentChange, seriesStats } from '@/composables/chartStats'
 import type { RatePoint } from '@/types/currency'
 
 const props = defineProps<{
@@ -130,11 +130,7 @@ const statLines = computed(() => {
 
 const change = computed(() => percentChange(props.points))
 
-const changeTone = computed<'up' | 'down' | 'flat'>(() => {
-  const value = change.value
-  if (value === null || Math.abs(value) < 0.005) return 'flat'
-  return value > 0 ? 'up' : 'down'
-})
+const changeTone = computed(() => deltaTone(change.value))
 
 const changeLabel = computed(() => {
   const value = change.value

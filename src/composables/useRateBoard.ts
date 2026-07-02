@@ -25,16 +25,25 @@ function dayBefore(dateStr: string): string {
 }
 
 /**
- * A basket of target currencies rated against a single base: one `latest`
- * request with multiple `symbols` plus one dated request (mirroring
- * `useCurrencyRates`' dayBefore pattern) for the previous-day delta.
+ * A basket of target currencies rated against a single base: one main
+ * request (`latest`, or a dated request when `date` is set) with multiple
+ * `symbols`, plus one dated request (mirroring `useCurrencyRates`' dayBefore
+ * pattern) for the previous-day delta.
  *
- * `baseCode` and `availableCurrencies` are read-only accessors, not refs, so
- * this stays reactive to state owned elsewhere (the shared "from" currency
- * and the loaded currency list) without taking ownership of it, the same
- * pattern `useRateHistory` uses for its base/target pair.
+ * `baseCode`, `availableCurrencies`, and `date` are read-only accessors, not
+ * refs, so this stays reactive to state owned elsewhere (the shared "from"
+ * currency, the loaded currency list, and the converter's historical-date
+ * mode) without taking ownership of it, the same pattern `useRateHistory`
+ * uses for its base/target pair.
+ *
+ * `date` defaults to "always latest" so existing callers (and the board's own
+ * tests) that don't care about historical mode need no changes.
  */
-export function useRateBoard(baseCode: () => string, availableCurrencies: () => Currency[]) {
+export function useRateBoard(
+  baseCode: () => string,
+  availableCurrencies: () => Currency[],
+  date: () => string | null = () => null,
+) {
   // `null` means "not customized": track the default basket for the current
   // base reactively rather than needing an imperative seed step once the
   // currency list finishes loading. Set to an explicit array once the user
@@ -95,6 +104,11 @@ export function useRateBoard(baseCode: () => string, availableCurrencies: () => 
     const symbols = targetCodes.value
 
     if (!base || symbols.length === 0) {
+      // Bump requestId even though there's nothing to fetch: this invalidates
+      // any still-in-flight request from a previous, non-empty basket, so its
+      // response can't land after `rows` was just cleared and repopulate it
+      // with stale data.
+      ++requestId
       rows.value = []
       error.value = null
       loading.value = false
@@ -106,11 +120,17 @@ export function useRateBoard(baseCode: () => string, availableCurrencies: () => 
     error.value = null
     try {
       const symbolsParam = symbols.join(',')
-      const latest = await fetchRates(base, symbolsParam)
+      const requestedDate = date()
+      const latest = requestedDate
+        ? await fetchRatesOn(requestedDate, base, symbolsParam)
+        : await fetchRates(base, symbolsParam)
       if (id !== requestId) return
 
       let previousRates: Record<string, number> = {}
       try {
+        // dayBefore the API-returned *effective* date (`latest.date`), not
+        // the requested one: same non-trading-day resolution caveat as
+        // `useCurrencyRates.loadPreviousRates`.
         const previous = await fetchRatesOn(dayBefore(latest.date), base, symbolsParam)
         if (id !== requestId) return
         previousRates = previous.rates
@@ -139,7 +159,11 @@ export function useRateBoard(baseCode: () => string, availableCurrencies: () => 
     }
   }
 
-  watch([baseCode, targetCodes], loadBoard, { immediate: true })
+  // `immediate: true` means this fires on mount, as soon as the composable is
+  // constructed, not just on later base/basket/date changes: a request-
+  // triggering point future composables reusing this pattern should account
+  // for in the app's mount-time fetch cascade.
+  watch([baseCode, targetCodes, date], loadBoard, { immediate: true })
 
   return {
     targetCodes,

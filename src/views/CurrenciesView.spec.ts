@@ -14,12 +14,12 @@ const mockedFetchRates = vi.mocked(fetchRates)
 const mockedFetchRatesOn = vi.mocked(fetchRatesOn)
 const mockedFetchRateHistory = vi.mocked(fetchRateHistory)
 
-async function mountWithRouter() {
+async function mountWithRouter(path = '/currencies') {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [{ path: '/currencies', component: { template: '<div />' } }],
   })
-  router.push('/currencies')
+  router.push(path)
   await router.isReady()
   const wrapper = mount(CurrenciesView, { global: { plugins: [router] } })
   await flushPromises()
@@ -113,6 +113,43 @@ describe('CurrenciesView', () => {
     expect(router.currentRoute.value.query.date).toBeUndefined()
     expect(wrapper.text()).not.toContain('Rates as of')
     expect(wrapper.text()).toContain('ECB reference rate: 2026-07-01')
+  })
+
+  it('converges on the deep-linked target currency when mounting directly at a ?to= URL', async () => {
+    const { wrapper } = await mountWithRouter('/currencies?to=GBP')
+
+    const toSelect = wrapper.find<HTMLSelectElement>('[aria-label="Target currency"]')
+    expect(toSelect.element.selectedOptions[0]?.textContent?.trim()).toBe('GBP')
+    // The currency-list load (which resolves after the component mounts)
+    // must not clobber the query-provided selection once applied.
+    expect(wrapper.find('[role="alert"]').exists()).toBe(false)
+  })
+
+  it('converges on the deep-linked base currency and historical date when mounting directly at a ?from=&date= URL', async () => {
+    // Base currencies other than the default EUR/USD need their own branch:
+    // the `from` query binding resolves (and fetches for) GBP before the
+    // `date` binding is applied in the same readFromRoute() pass.
+    mockedFetchRates.mockImplementation(async (base?: string) => {
+      if (!base || base === 'EUR')
+        return { base: 'EUR', date: '2026-07-01', rates: { USD: 1.1, GBP: 0.9 } }
+      if (base === 'USD')
+        return { base: 'USD', date: '2026-07-01', rates: { EUR: 0.9091, GBP: 0.818 } }
+      if (base === 'GBP')
+        return { base: 'GBP', date: '2026-07-01', rates: { EUR: 1.11, USD: 1.22 } }
+      throw new Error(`unexpected base "${base}"`)
+    })
+
+    const { wrapper } = await mountWithRouter('/currencies?from=GBP&date=2026-06-15')
+
+    const fromSelect = wrapper.find<HTMLSelectElement>('[aria-label="Source currency"]')
+    expect(fromSelect.element.selectedOptions[0]?.textContent?.trim()).toBe('GBP')
+    const dateInput = wrapper.find<HTMLInputElement>('#conversion-date')
+    expect(dateInput.element.value).toBe('2026-06-15')
+    // fetchRatesOn is mocked to resolve to 2026-06-30 regardless of args, so
+    // this holds whichever of the two in-flight requests (the base change's,
+    // the date's) lands last.
+    expect(wrapper.text()).toContain('Rates as of 2026-06-30')
+    expect(wrapper.find('[role="alert"]').exists()).toBe(false)
   })
 
   it('ignores an out-of-range date query param and keeps showing latest rates', async () => {

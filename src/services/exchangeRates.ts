@@ -1,12 +1,40 @@
 import type { ExchangeRatesResponse, RateHistoryResponse } from '@/types/currency'
 
 const API_BASE = 'https://api.frankfurter.dev/v1'
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+
+/**
+ * Security: guards against path traversal / request smuggling via a
+ * date-shaped path segment. Only strings that look like YYYY-MM-DD are ever
+ * concatenated into a URL path; everything else (e.g. `../latest`, or a
+ * segment carrying its own query string) is rejected before it reaches
+ * `fetch`. Every caller already produces dates in this shape, so this should
+ * never trip in practice: it's defense in depth against a future caller
+ * accidentally forwarding raw user input.
+ */
+function assertDateShape(value: string): string {
+  if (!DATE_PATTERN.test(value)) {
+    throw new Error(`Invalid date: expected YYYY-MM-DD, got "${value}"`)
+  }
+  return value
+}
+
+/**
+ * Builds an API URL from a validated path segment plus query params.
+ * `URLSearchParams` (via `URL#searchParams`) auto-encodes every param value,
+ * so caller-supplied strings (base/symbols codes) can't break out of the
+ * query string or inject extra params.
+ */
+function buildUrl(path: string, params: Record<string, string | undefined>): URL {
+  const url = new URL(path, `${API_BASE}/`)
+  for (const [key, value] of Object.entries(params)) {
+    if (value) url.searchParams.set(key, value)
+  }
+  return url
+}
 
 export async function fetchRates(base?: string, symbols?: string): Promise<ExchangeRatesResponse> {
-  const params = [base ? `base=${base}` : '', symbols ? `symbols=${symbols}` : '']
-    .filter(Boolean)
-    .join('&')
-  const url = params ? `${API_BASE}/latest?${params}` : `${API_BASE}/latest`
+  const url = buildUrl('latest', { base, symbols })
   const response = await fetch(url)
   if (!response.ok) {
     throw new Error(`Failed to fetch exchange rates: ${response.status}`)
@@ -25,8 +53,8 @@ export async function fetchRatesOn(
   base: string,
   symbols?: string,
 ): Promise<ExchangeRatesResponse> {
-  const symbolParam = symbols ? `&symbols=${symbols}` : ''
-  const response = await fetch(`${API_BASE}/${date}?base=${base}${symbolParam}`)
+  const url = buildUrl(assertDateShape(date), { base, symbols })
+  const response = await fetch(url)
   if (!response.ok) {
     throw new Error(`Failed to fetch exchange rates: ${response.status}`)
   }
@@ -38,7 +66,8 @@ export async function fetchRateHistory(
   symbol: string,
   startDate: string,
 ): Promise<RateHistoryResponse> {
-  const response = await fetch(`${API_BASE}/${startDate}..?base=${base}&symbols=${symbol}`)
+  const url = buildUrl(`${assertDateShape(startDate)}..`, { base, symbols: symbol })
+  const response = await fetch(url)
   if (!response.ok) {
     throw new Error(`Failed to fetch rate history: ${response.status}`)
   }

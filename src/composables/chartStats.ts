@@ -43,3 +43,22 @@ export function percentChange(points: RatePoint[]): number | null {
 
   return ((last - first) / first) * 100
 }
+
+export type DeltaTone = 'up' | 'down' | 'flat'
+
+/**
+ * Below this |percent| threshold, a change is treated as flat/neutral rather
+ * than up/down: a rounding-noise move (e.g. +0.001%) would otherwise still
+ * render an up/down arrow next to a badge that visually reads "+0.00%".
+ */
+export const FLAT_CHANGE_THRESHOLD = 0.005
+
+/**
+ * Classifies a percent change into up/down/flat for delta badges (rate board
+ * rows, the converter's unit-rate delta, RateChart's range header), applying
+ * `FLAT_CHANGE_THRESHOLD` consistently across all of them.
+ */
+export function deltaTone(percent: number | null): DeltaTone {
+  if (percent === null || Math.abs(percent) < FLAT_CHANGE_THRESHOLD) return 'flat'
+  return percent > 0 ? 'up' : 'down'
+}

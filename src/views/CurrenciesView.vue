@@ -10,6 +10,7 @@ import { useQuerySync } from '@/composables/useQuerySync'
 import type { QueryBinding } from '@/composables/useQuerySync'
 import { useClipboard } from '@/composables/useClipboard'
 import { formatCurrencyAmount } from '@/composables/formatCurrency'
+import { deltaTone } from '@/composables/chartStats'
 
 const DEFAULT_FROM = 'EUR'
 const DEFAULT_TO = 'USD'
@@ -59,6 +60,7 @@ const {
 } = useRateBoard(
   () => selectedCurrency.value.code,
   () => currencies.value,
+  () => conversionDate.value,
 )
 
 const boardDisplayRows = computed(() =>
@@ -69,9 +71,17 @@ const boardDisplayRows = computed(() =>
       rate: row?.rate ?? null,
       delta: row?.delta ?? null,
       deltaPercent: row?.deltaPercent ?? null,
+      // Classified off deltaPercent (not the raw delta) so a tiny non-zero
+      // move that still rounds to "+0.00%" reads as neutral, same threshold
+      // RateChart's range-change header uses.
+      tone: deltaTone(row?.deltaPercent ?? null),
     }
   }),
 )
+
+// Same flat-threshold classification as the board rows, for the converter's
+// own unit-rate delta badge.
+const converterDeltaTone = computed(() => deltaTone(deltaPercent.value))
 
 const addableBoardCurrencies = computed(() =>
   currencies.value.filter(
@@ -392,10 +402,18 @@ onMounted(async () => {
             <span
               v-if="delta !== null"
               class="ml-2 inline-flex items-center gap-1 align-middle"
-              :class="delta > 0 ? 'text-accent' : delta < 0 ? 'text-danger' : 'text-ink-dim'"
+              :class="{
+                'text-accent': converterDeltaTone === 'up',
+                'text-danger': converterDeltaTone === 'down',
+                'text-ink-dim': converterDeltaTone === 'flat',
+              }"
             >
-              <ArrowUp v-if="delta > 0" class="size-3" aria-hidden="true" />
-              <ArrowDown v-else-if="delta < 0" class="size-3" aria-hidden="true" />
+              <ArrowUp v-if="converterDeltaTone === 'up'" class="size-3" aria-hidden="true" />
+              <ArrowDown
+                v-else-if="converterDeltaTone === 'down'"
+                class="size-3"
+                aria-hidden="true"
+              />
               <Minus v-else class="size-3" aria-hidden="true" />
               <span v-if="deltaPercent !== null"
                 >{{ deltaPercentFormatter.format(deltaPercent) }}%</span
@@ -471,17 +489,19 @@ onMounted(async () => {
           <p class="font-mono text-sm text-ink">{{ row.code }}</p>
           <div class="flex items-center gap-4">
             <p class="font-mono text-sm tabular-nums text-ink">
-              {{ row.rate !== null ? rateFormatter.format(row.rate) : '—' }}
+              {{ row.rate !== null ? rateFormatter.format(row.rate) : '--' }}
             </p>
             <span
               v-if="row.delta !== null"
               class="inline-flex w-16 items-center gap-1 font-mono text-xs tabular-nums"
-              :class="
-                row.delta > 0 ? 'text-accent' : row.delta < 0 ? 'text-danger' : 'text-ink-dim'
-              "
+              :class="{
+                'text-accent': row.tone === 'up',
+                'text-danger': row.tone === 'down',
+                'text-ink-dim': row.tone === 'flat',
+              }"
             >
-              <ArrowUp v-if="row.delta > 0" class="size-3" aria-hidden="true" />
-              <ArrowDown v-else-if="row.delta < 0" class="size-3" aria-hidden="true" />
+              <ArrowUp v-if="row.tone === 'up'" class="size-3" aria-hidden="true" />
+              <ArrowDown v-else-if="row.tone === 'down'" class="size-3" aria-hidden="true" />
               <Minus v-else class="size-3" aria-hidden="true" />
               <span v-if="row.deltaPercent !== null"
                 >{{ deltaPercentFormatter.format(row.deltaPercent) }}%</span

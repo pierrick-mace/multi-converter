@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 import { fetchRates, fetchRatesOn } from '@/services/exchangeRates'
-import type { Currency } from '@/types/currency'
+import type { Currency, ExchangeRatesResponse } from '@/types/currency'
 
 const BASE_CURRENCY: Currency = { code: 'EUR', rate: 1 }
 
@@ -59,6 +59,15 @@ export function useCurrencyRates() {
     return amountToConvert.value * unitRate.value
   })
 
+  /** Populates `rateDate`/`rates` from an already-fetched response for the current `selectedCurrency`. */
+  function applyRatesResponse(data: ExchangeRatesResponse) {
+    rateDate.value = data.date
+    rates.value = [
+      { code: selectedCurrency.value.code, rate: 1 },
+      ...Object.entries(data.rates).map(([code, rate]) => ({ code, rate })),
+    ]
+  }
+
   async function loadCurrencies() {
     loading.value = true
     error.value = null
@@ -72,7 +81,15 @@ export function useCurrencyRates() {
       selectedCurrency.value = currencies.value.find((c) => c.code === 'EUR') ?? BASE_CURRENCY
       targetCurrency.value = currencies.value.find((c) => c.code === 'USD') ?? BASE_CURRENCY
 
-      await loadRatesForSelectedCurrency()
+      // Performance: `fetchRates()` above (no base) is already EUR-based
+      // (Frankfurter's plain /latest defaults to EUR), and `selectedCurrency`
+      // always resolves to EUR right after a fresh load, with `conversionDate`
+      // still unset at this point (any `?date=` query param is re-applied
+      // later, in `CurrenciesView`'s `readFromRoute`). So this response IS the
+      // initial rates load: reuse it instead of firing the same request again
+      // through `loadRatesForSelectedCurrency`.
+      applyRatesResponse(data)
+      await loadPreviousRates()
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to load currencies'
     } finally {
@@ -85,11 +102,7 @@ export function useCurrencyRates() {
       const data = conversionDate.value
         ? await fetchRatesOn(conversionDate.value, selectedCurrency.value.code)
         : await fetchRates(selectedCurrency.value.code)
-      rateDate.value = data.date
-      rates.value = [
-        { code: selectedCurrency.value.code, rate: 1 },
-        ...Object.entries(data.rates).map(([code, rate]) => ({ code, rate })),
-      ]
+      applyRatesResponse(data)
 
       await loadPreviousRates()
     } catch (err) {

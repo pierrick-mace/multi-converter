@@ -312,6 +312,47 @@ describe('useRateBoard', () => {
     expect(mockedFetchRates).toHaveBeenLastCalledWith('AUD', 'CAD')
   })
 
+  it('ignores a stale in-flight response when the basket is emptied before it resolves', async () => {
+    mockedFetchRates.mockResolvedValueOnce({
+      base: 'EUR',
+      date: '2026-07-01',
+      rates: { USD: 1.1, GBP: 0.9, CHF: 0.95, JPY: 160 },
+    })
+
+    const board = useRateBoard(
+      () => 'EUR',
+      () => CURRENCIES,
+    )
+    await flushPromises() // settle the automatic default-basket fetch first
+
+    let resolveFirst!: (value: {
+      base: string
+      date: string
+      rates: Record<string, number>
+    }) => void
+    const first = new Promise((resolve) => {
+      resolveFirst = resolve
+    })
+    mockedFetchRates.mockReturnValueOnce(first as ReturnType<typeof fetchRates>)
+
+    board.setTargetCodes(['USD'])
+    await flushPromises()
+    expect(board.loading.value).toBe(true)
+
+    board.setTargetCodes([])
+    await flushPromises()
+    expect(board.rows.value).toEqual([])
+
+    // The now-stale first request resolves after the basket was emptied: it
+    // must not repopulate `rows` (regression guard for requestId being
+    // bumped on the empty-basket early return, not just the happy path).
+    resolveFirst({ base: 'EUR', date: '2026-07-01', rates: { USD: 1.1 } })
+    await flushPromises()
+
+    expect(board.rows.value).toEqual([])
+    expect(board.loading.value).toBe(false)
+  })
+
   it('ignores a stale in-flight response when the basket changes again before it resolves', async () => {
     // NEUTRAL_CURRENCIES has no default-basket matches, so construction
     // itself issues no fetch: the queue below is consumed entirely by the
@@ -351,5 +392,66 @@ describe('useRateBoard', () => {
 
     expect(board.rows.value.map((row) => row.code)).toEqual(['CAD'])
     expect(board.loading.value).toBe(false)
+  })
+
+  describe('historical date mode', () => {
+    it('fetches the requested historical date via fetchRatesOn (not latest) when a date getter is provided', async () => {
+      mockedFetchRatesOn.mockReset()
+      mockedFetchRatesOn.mockResolvedValue({
+        base: 'EUR',
+        date: '2023-04-28',
+        rates: { USD: 1.09, GBP: 0.88, CHF: 0.94, JPY: 158 },
+      })
+
+      const board = useRateBoard(
+        () => 'EUR',
+        () => CURRENCIES,
+        () => '2023-04-29',
+      )
+      await flushPromises()
+
+      expect(mockedFetchRates).not.toHaveBeenCalled()
+      // First fetchRatesOn call: the main dated fetch, for the requested date.
+      expect(mockedFetchRatesOn).toHaveBeenNthCalledWith(1, '2023-04-29', 'EUR', 'USD,GBP,CHF,JPY')
+      // Second call: the previous-day delta, based on the API-returned
+      // *effective* date (2023-04-28), not the requested one.
+      expect(mockedFetchRatesOn).toHaveBeenNthCalledWith(2, '2023-04-27', 'EUR', 'USD,GBP,CHF,JPY')
+      expect(board.rows.value.map((row) => row.code)).toEqual(['USD', 'GBP', 'CHF', 'JPY'])
+    })
+
+    it('reacts to the date getter changing, switching from live to historical mode', async () => {
+      const date = ref<string | null>(null)
+      mockedFetchRates.mockResolvedValueOnce({
+        base: 'EUR',
+        date: '2026-07-01',
+        rates: { USD: 1.1, GBP: 0.9, CHF: 0.95, JPY: 160 },
+      })
+
+      const board = useRateBoard(
+        () => 'EUR',
+        () => CURRENCIES,
+        () => date.value,
+      )
+      await flushPromises()
+
+      expect(mockedFetchRates).toHaveBeenCalledTimes(1)
+      expect(board.rows.value.map((row) => row.code)).toEqual(['USD', 'GBP', 'CHF', 'JPY'])
+
+      mockedFetchRatesOn.mockReset()
+      mockedFetchRatesOn.mockResolvedValue({
+        base: 'EUR',
+        date: '2023-04-28',
+        rates: { USD: 1.09, GBP: 0.88, CHF: 0.94, JPY: 158 },
+      })
+      date.value = '2023-04-29'
+      await nextTick()
+      await flushPromises()
+
+      // Switching into historical mode re-fetches via fetchRatesOn, no
+      // further fetchRates ("latest") calls: the board no longer shows live
+      // rates once a historical date is active.
+      expect(mockedFetchRates).toHaveBeenCalledTimes(1)
+      expect(mockedFetchRatesOn).toHaveBeenNthCalledWith(1, '2023-04-29', 'EUR', 'USD,GBP,CHF,JPY')
+    })
   })
 })
