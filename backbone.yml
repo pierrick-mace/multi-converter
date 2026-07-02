@@ -38,12 +38,15 @@ composables:
   src/composables/useRateHistory.ts: Loads historical rate points for a base/target pair, range presets (1M/3M/1Y), stale-request guard
   src/composables/useRateHistory.spec.ts: Tests with mocked fetch
   src/composables/useClipboard.ts: navigator.clipboard wrapper with transient copied flag
+  src/composables/useUnitConverter.ts: Generic linear-unit converter, pure convertUnit(value, from, to, factors) + stateful composable over a UnitModule definition
+  src/composables/useUnitConverter.spec.ts: Tests for factor math and composable state
 
 services:
   src/services/exchangeRates.ts: fetchRates() and fetchRateHistory() against https://api.frankfurter.dev/v1
 
 types:
   src/types/currency.ts: Currency, ExchangeRatesResponse, RateHistoryResponse, RatePoint
+  src/types/units.ts: UnitDefinition and UnitModule interfaces for factor-based converters
   src/env.d.ts: Vite client type references
 
 assets:
