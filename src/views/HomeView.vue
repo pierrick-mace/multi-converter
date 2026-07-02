@@ -27,7 +27,7 @@ function moduleIndex(i: number): string {
         :key="mod.path"
         :to="mod.path"
         class="panel reveal group flex flex-col gap-4 px-6 py-8 text-left transition-colors hover:border-accent"
-        :style="{ animationDelay: `${0.15 + i * 0.1}s` }"
+        :style="{ animationDelay: `${0.15 + i * 0.15}s` }"
       >
         <div class="flex items-center justify-between">
           <span class="label-mono">{{ moduleIndex(i) }}</span>

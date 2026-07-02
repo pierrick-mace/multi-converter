@@ -15,7 +15,6 @@ const {
   updateFromDecimal,
   updateFromHex,
 } = useBaseConverter()
-const { copied, copy } = useClipboard()
 
 const fields = [
   {
@@ -26,6 +25,7 @@ const fields = [
     placeholder: 'BASE 2',
     model: binary,
     onInput: updateFromBinary,
+    clipboard: useClipboard(),
   },
   {
     id: 'octal',
@@ -35,6 +35,7 @@ const fields = [
     placeholder: 'BASE 8',
     model: octal,
     onInput: updateFromOctal,
+    clipboard: useClipboard(),
   },
   {
     id: 'decimal',
@@ -44,6 +45,7 @@ const fields = [
     placeholder: 'BASE 10',
     model: decimal,
     onInput: updateFromDecimal,
+    clipboard: useClipboard(),
   },
   {
     id: 'hex',
@@ -53,6 +55,7 @@ const fields = [
     placeholder: 'BASE 16',
     model: hex,
     onInput: updateFromHex,
+    clipboard: useClipboard(),
   },
 ] as const
 
@@ -74,6 +77,8 @@ function fieldHasError(base: Base) {
     </div>
 
     <div class="panel reveal px-6 py-8 md:px-10" style="animation-delay: 0.15s">
+      <h2 class="label-mono mb-6">Number bases</h2>
+
       <form class="flex flex-col gap-6" @submit.prevent>
         <div v-for="field in fields" :key="field.label" class="flex items-end gap-3">
           <label :for="field.id" class="w-24 shrink-0">
@@ -93,9 +98,14 @@ function fieldHasError(base: Base) {
               class="field"
               :class="{ 'border-danger!': fieldHasError(field.base) }"
               :aria-invalid="fieldHasError(field.base)"
+              :aria-describedby="fieldHasError(field.base) ? 'base-error' : undefined"
               @input="field.onInput()"
             />
-            <p v-if="fieldHasError(field.base)" class="mt-1 font-mono text-xs text-danger">
+            <p
+              v-if="fieldHasError(field.base)"
+              id="base-error"
+              class="mt-1 font-mono text-xs text-danger"
+            >
               {{ errorMessage }}
             </p>
           </div>
@@ -104,9 +114,9 @@ function fieldHasError(base: Base) {
             type="button"
             class="btn-tick"
             :aria-label="`Copy ${field.label} value`"
-            @click="field.model.value !== '' && copy(field.model.value)"
+            @click="field.model.value !== '' && field.clipboard.copy(field.model.value)"
           >
-            <Check v-if="copied" class="size-4 text-accent" />
+            <Check v-if="field.clipboard.copied.value" class="size-4 text-accent" />
             <Copy v-else class="size-4" />
           </button>
         </div>

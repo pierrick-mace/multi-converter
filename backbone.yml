@@ -30,6 +30,7 @@ views:
   src/views/TemperatureView.vue: Celsius/Fahrenheit/Kelvin converter with copy-to-clipboard
   src/views/CurrenciesView.vue: Currency converter with live rates and rate history chart
   src/views/BasesView.vue: Number base converter (binary/octal/decimal/hex), unsigned BigInt
+  src/views/BasesView.spec.ts: Component test for field sync and error/aria wiring
   src/views/UnitsView.vue: Length and mass converters driven by useUnitConverter
   src/views/UnitsView.spec.ts: Component test for the length/mass panels
   src/views/DataSizeView.vue: Data size converter (bits/bytes, decimal and binary prefixes)

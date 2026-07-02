@@ -24,7 +24,7 @@ export function useUnitConverter(definition: UnitModule) {
   const to = ref(definition.defaultTo)
 
   const result = computed(() => {
-    if (value.value === null || Number.isNaN(value.value)) return null
+    if (typeof value.value !== 'number' || Number.isNaN(value.value)) return null
     return convertUnit(value.value, from.value, to.value, factors)
   })
 

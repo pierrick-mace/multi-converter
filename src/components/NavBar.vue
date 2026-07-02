@@ -32,7 +32,7 @@ const links = [
 
 <style scoped>
 .nav-list {
-  counter-reset: nav;
+  counter-reset: nav -1;
 }
 
 .nav-link {

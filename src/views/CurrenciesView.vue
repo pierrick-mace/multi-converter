@@ -59,7 +59,7 @@ onMounted(loadCurrencies)
                 v-model.number="amountToConvert"
                 type="number"
                 placeholder="0.00"
-                class="w-full bg-transparent px-1 py-2 font-mono text-2xl tabular-nums text-ink placeholder-ink-dim/40 focus:outline-none"
+                class="w-full bg-transparent px-1 py-2 font-mono text-2xl tabular-nums text-ink placeholder-ink-dim/85"
               />
             </div>
             <select
@@ -89,7 +89,7 @@ onMounted(loadCurrencies)
                 type="text"
                 readonly
                 aria-live="polite"
-                class="w-full bg-transparent px-1 py-2 font-mono text-2xl tabular-nums text-accent focus:outline-none"
+                class="w-full bg-transparent px-1 py-2 font-mono text-2xl tabular-nums text-accent"
               />
             </div>
             <select
@@ -122,11 +122,13 @@ onMounted(loadCurrencies)
       </form>
     </div>
 
-    <div v-if="!loading && !error" class="panel reveal mt-8 px-6 py-8 md:px-10" style="animation-delay: 0.3s">
+    <div
+      v-if="!loading && !error"
+      class="panel reveal mt-8 px-6 py-8 md:px-10"
+      style="animation-delay: 0.3s"
+    >
       <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <h2 class="label-mono">
-          {{ selectedCurrency.code }} / {{ targetCurrency.code }} history
-        </h2>
+        <h2 class="label-mono">{{ selectedCurrency.code }} / {{ targetCurrency.code }} history</h2>
         <div class="flex gap-2" role="group" aria-label="History range">
           <button
             v-for="range in HISTORY_RANGES"
@@ -155,7 +157,10 @@ onMounted(loadCurrencies)
       >
         Select two different currencies to chart their exchange rate.
       </p>
-      <p v-else-if="historyLoading && historyPoints.length === 0" class="font-mono text-sm text-ink-dim">
+      <p
+        v-else-if="historyLoading && historyPoints.length === 0"
+        class="font-mono text-sm text-ink-dim"
+      >
         Loading rate history&hellip;
       </p>
       <div v-else :class="{ 'opacity-50': historyLoading }" class="transition-opacity">

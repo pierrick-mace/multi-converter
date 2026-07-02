@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { ArrowLeftRight, Copy, Check } from '@lucide/vue'
+import { ArrowRightLeft, Copy, Check } from '@lucide/vue'
 import { useClipboard } from '@/composables/useClipboard'
 import { useUnitConverter } from '@/composables/useUnitConverter'
 import { lengthModule, massModule } from '@/composables/unitModules'
-
-const { copied, copy } = useClipboard()
 
 const displayFormatter = new Intl.NumberFormat('en', { maximumFractionDigits: 6 })
 const copyFormatter = new Intl.NumberFormat('en', {
@@ -23,6 +21,7 @@ const panels = [
     module: lengthModule,
     converter: useUnitConverter(lengthModule),
     delay: '0.15s',
+    clipboard: useClipboard(),
   },
   {
     id: 'mass',
@@ -30,6 +29,7 @@ const panels = [
     module: massModule,
     converter: useUnitConverter(massModule),
     delay: '0.3s',
+    clipboard: useClipboard(),
   },
 ] as const
 </script>
@@ -51,7 +51,7 @@ const panels = [
       :class="{ 'mt-8': panelIndex > 0 }"
       :style="{ animationDelay: panel.delay }"
     >
-      <p class="label-mono mb-6">{{ panel.label }}</p>
+      <h2 class="label-mono mb-6">{{ panel.label }}</h2>
 
       <form class="flex flex-col gap-6" @submit.prevent>
         <div class="flex items-end gap-3">
@@ -83,7 +83,7 @@ const panels = [
             :aria-label="`Swap ${panel.label} units`"
             @click="panel.converter.swap()"
           >
-            <ArrowLeftRight class="size-4" />
+            <ArrowRightLeft class="size-4" />
           </button>
         </div>
 
@@ -114,10 +114,10 @@ const panels = [
             :aria-label="`Copy ${panel.label} result`"
             @click="
               panel.converter.result.value !== null &&
-              copy(copyFormatter.format(panel.converter.result.value))
+              panel.clipboard.copy(copyFormatter.format(panel.converter.result.value))
             "
           >
-            <Check v-if="copied" class="size-4 text-accent" />
+            <Check v-if="panel.clipboard.copied.value" class="size-4 text-accent" />
             <Copy v-else class="size-4" />
           </button>
         </div>

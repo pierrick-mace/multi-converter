@@ -131,7 +131,7 @@
   }
 
   .field {
-    @apply w-full border-b-2 border-rule bg-transparent px-1 py-2 font-mono text-lg tabular-nums text-ink placeholder-ink-dim/60 transition-colors;
+    @apply w-full border-b-2 border-rule bg-transparent px-1 py-2 font-mono text-2xl tabular-nums text-ink placeholder-ink-dim/85 transition-colors;
   }
   .field:focus {
     border-color: var(--color-accent);

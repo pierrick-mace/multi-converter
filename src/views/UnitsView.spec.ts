@@ -38,4 +38,16 @@ describe('UnitsView', () => {
     const resultInput = wrapper.find<HTMLInputElement>('#mass-result')
     expect(resultInput.element.value).toBe('')
   })
+
+  it('shows an empty result after entering a value then clearing the input', async () => {
+    const wrapper = mount(UnitsView)
+    const amountInput = wrapper.find('#length-value')
+    await amountInput.setValue('10')
+
+    const resultInput = wrapper.find<HTMLInputElement>('#length-result')
+    expect(resultInput.element.value).toBe('6.213712')
+
+    await amountInput.setValue('')
+    expect(resultInput.element.value).toBe('')
+  })
 })

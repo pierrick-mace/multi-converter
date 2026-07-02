@@ -61,7 +61,7 @@ const fields = [
               v-model.number="field.model.value"
               type="number"
               :placeholder="field.unit"
-              class="w-full bg-transparent px-1 py-2 font-mono text-2xl tabular-nums text-ink placeholder-ink-dim/40 focus:outline-none"
+              class="w-full bg-transparent px-1 py-2 font-mono text-2xl tabular-nums text-ink placeholder-ink-dim/85"
               @input="field.onInput()"
             />
             <span class="pr-1 font-mono text-lg text-ink-dim">{{ field.unit }}</span>

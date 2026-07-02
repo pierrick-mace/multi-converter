@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeftRight, Copy, Check } from '@lucide/vue'
+import { ArrowRightLeft, Copy, Check } from '@lucide/vue'
 import { useClipboard } from '@/composables/useClipboard'
 import { useUnitConverter } from '@/composables/useUnitConverter'
 import { dataSizeModule } from '@/composables/unitModules'
@@ -30,7 +30,7 @@ function formatResult(result: number | null): string {
     </div>
 
     <div class="panel reveal px-6 py-8 md:px-10" style="animation-delay: 0.15s">
-      <p class="label-mono mb-6">Data size</p>
+      <h2 class="label-mono mb-6">Data size</h2>
 
       <form class="flex flex-col gap-6" @submit.prevent>
         <div class="flex items-end gap-3">
@@ -47,7 +47,7 @@ function formatResult(result: number | null): string {
           <select
             v-model="converter.from.value"
             aria-label="Data size source unit"
-            class="w-24 shrink-0 appearance-none border border-rule bg-panel-raised px-3 py-2 font-mono text-sm text-ink uppercase [color-scheme:dark]"
+            class="w-24 shrink-0 appearance-none border border-rule bg-panel-raised px-3 py-2 font-mono text-sm text-ink [color-scheme:dark]"
           >
             <option v-for="unit in dataSizeModule.units" :key="unit.id" :value="unit.id">
               {{ unit.symbol }}
@@ -62,7 +62,7 @@ function formatResult(result: number | null): string {
             aria-label="Swap Data size units"
             @click="converter.swap()"
           >
-            <ArrowLeftRight class="size-4" />
+            <ArrowRightLeft class="size-4" />
           </button>
         </div>
 
@@ -81,7 +81,7 @@ function formatResult(result: number | null): string {
           <select
             v-model="converter.to.value"
             aria-label="Data size target unit"
-            class="w-24 shrink-0 appearance-none border border-rule bg-panel-raised px-3 py-2 font-mono text-sm text-ink uppercase [color-scheme:dark]"
+            class="w-24 shrink-0 appearance-none border border-rule bg-panel-raised px-3 py-2 font-mono text-sm text-ink [color-scheme:dark]"
           >
             <option v-for="unit in dataSizeModule.units" :key="unit.id" :value="unit.id">
               {{ unit.symbol }}
