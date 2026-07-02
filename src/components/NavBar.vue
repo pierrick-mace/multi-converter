@@ -5,6 +5,7 @@ const links = [
   { to: '/currencies', label: 'Currencies' },
   { to: '/bases', label: 'Bases' },
   { to: '/units', label: 'Units' },
+  { to: '/data', label: 'Data' },
 ]
 </script>
 

@@ -29,3 +29,22 @@ export const massModule: UnitModule = {
   defaultFrom: 'kg',
   defaultTo: 'lb',
 }
+
+// Base unit: byte. Decimal and binary prefixes share one factor table:
+// decimal steps by 1000 (kB, MB, GB, TB), binary steps by 1024 (KiB, MiB, GiB, TiB).
+export const dataSizeModule: UnitModule = {
+  units: [
+    { id: 'bit', label: 'Bit', symbol: 'bit', factor: 0.125 },
+    { id: 'B', label: 'Byte', symbol: 'B', factor: 1 },
+    { id: 'kB', label: 'Kilobyte', symbol: 'kB', factor: 1e3 },
+    { id: 'MB', label: 'Megabyte', symbol: 'MB', factor: 1e6 },
+    { id: 'GB', label: 'Gigabyte', symbol: 'GB', factor: 1e9 },
+    { id: 'TB', label: 'Terabyte', symbol: 'TB', factor: 1e12 },
+    { id: 'KiB', label: 'Kibibyte', symbol: 'KiB', factor: 1024 },
+    { id: 'MiB', label: 'Mebibyte', symbol: 'MiB', factor: 1024 ** 2 },
+    { id: 'GiB', label: 'Gibibyte', symbol: 'GiB', factor: 1024 ** 3 },
+    { id: 'TiB', label: 'Tebibyte', symbol: 'TiB', factor: 1024 ** 4 },
+  ],
+  defaultFrom: 'GB',
+  defaultTo: 'GiB',
+}

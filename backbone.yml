@@ -20,6 +20,7 @@ routing:
       /currencies  -> CurrenciesView
       /bases       -> BasesView
       /units       -> UnitsView
+      /data        -> DataSizeView
       catch-all    -> redirect /home
 
 views:
@@ -29,9 +30,11 @@ views:
   src/views/BasesView.vue: Number base converter (binary/octal/decimal/hex), unsigned BigInt
   src/views/UnitsView.vue: Length and mass converters driven by useUnitConverter
   src/views/UnitsView.spec.ts: Component test for the length/mass panels
+  src/views/DataSizeView.vue: Data size converter (bits/bytes, decimal and binary prefixes)
+  src/views/DataSizeView.spec.ts: Component test for the data size panel
 
 components:
-  src/components/NavBar.vue: Top navigation (Home, Temperature, Currencies, Bases, Units)
+  src/components/NavBar.vue: Top navigation (Home, Temperature, Currencies, Bases, Units, Data)
   src/components/NavBar.spec.ts: Component test for NavBar
   src/components/RateChart.vue: SVG line chart of exchange-rate history, hover tooltip
 
@@ -47,7 +50,7 @@ composables:
   src/composables/useUnitConverter.spec.ts: Tests for factor math and composable state
   src/composables/useBaseConverter.ts: Pure BigInt parse/format per base + reactive binary/octal/decimal/hex sync with per-field error state
   src/composables/useBaseConverter.spec.ts: Tests for base round-trips, invalid input, 64-bit values
-  src/composables/unitModules.ts: Factor tables (UnitModule data) for length and mass
+  src/composables/unitModules.ts: Factor tables (UnitModule data) for length, mass, and data size
   src/composables/unitModules.spec.ts: Factor-table sanity tests
 
 services:

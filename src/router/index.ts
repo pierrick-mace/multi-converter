@@ -25,6 +25,11 @@ const router = createRouter({
       name: 'units',
       component: () => import('@/views/UnitsView.vue'),
     },
+    {
+      path: '/data',
+      name: 'data',
+      component: () => import('@/views/DataSizeView.vue'),
+    },
     { path: '/:pathMatch(.*)*', redirect: '/home' },
   ],
 })
