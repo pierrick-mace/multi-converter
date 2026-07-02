@@ -14,12 +14,12 @@ The architectural keystone of the phase. Length, mass, volume, speed, area, and 
 size are all "multiply by a factor relative to a base unit". Build it once.
 
 - New: `src/composables/useUnitConverter.ts`
-  - Pure part: `convertUnit(value, from, to, factors)` where `factors` maps unit id to
-    its ratio relative to a base unit. Framework-free, exported for direct testing.
-  - Stateful part: `useUnitConverter(definition)` taking a module definition
-    (`{ units: [{ id, label, symbol, factor }], defaultFrom, defaultTo }`) and exposing
-    `value`, `from`, `to`, `result`, and a `swap()` helper. Derive `result` with
-    `computed`, per the vue-expert pattern.
+    - Pure part: `convertUnit(value, from, to, factors)` where `factors` maps unit id to
+      its ratio relative to a base unit. Framework-free, exported for direct testing.
+    - Stateful part: `useUnitConverter(definition)` taking a module definition
+      (`{ units: [{ id, label, symbol, factor }], defaultFrom, defaultTo }`) and exposing
+      `value`, `from`, `to`, `result`, and a `swap()` helper. Derive `result` with
+      `computed`, per the vue-expert pattern.
 - New: `src/types/units.ts` for `UnitDefinition` and `UnitModule` interfaces.
 - Spec: pure conversion math (round-trip A to B to A, identity, factor edge cases) and
   composable state (null input, swap, unit change recomputes).

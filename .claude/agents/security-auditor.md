@@ -21,6 +21,7 @@ Don't audit for: SQL injection, auth/session vulnerabilities, server-side reques
 ## If a new external integration is proposed
 
 Before approving any new third-party API call or embedded script:
+
 1. Confirm it's served over HTTPS.
 2. Confirm no API keys/secrets would need to be embedded in client-side code (anything in `src/` ships to every visitor's browser — never put a real secret there).
 3. Confirm what data leaves the browser and check it's not more than the feature needs.

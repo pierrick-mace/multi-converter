@@ -38,9 +38,7 @@ export function useCurrencyRates() {
     return target?.rate ?? null
   })
 
-  const inverseRate = computed(() =>
-    unitRate.value !== null && unitRate.value !== 0 ? 1 / unitRate.value : null,
-  )
+  const inverseRate = computed(() => (unitRate.value !== null && unitRate.value !== 0 ? 1 / unitRate.value : null))
 
   const previousUnitRate = computed(() => {
     const target = previousRates.value.find((rate) => rate.code === targetCurrency.value.code)
@@ -79,10 +77,9 @@ export function useCurrencyRates() {
     error.value = null
     try {
       const data = await fetchRates()
-      currencies.value = [
-        BASE_CURRENCY,
-        ...Object.entries(data.rates).map(([code, rate]) => ({ code, rate })),
-      ].sort((a, b) => a.code.localeCompare(b.code))
+      currencies.value = [BASE_CURRENCY, ...Object.entries(data.rates).map(([code, rate]) => ({ code, rate }))].sort(
+        (a, b) => a.code.localeCompare(b.code),
+      )
 
       selectedCurrency.value = currencies.value.find((c) => c.code === 'EUR') ?? BASE_CURRENCY
       targetCurrency.value = currencies.value.find((c) => c.code === 'USD') ?? BASE_CURRENCY

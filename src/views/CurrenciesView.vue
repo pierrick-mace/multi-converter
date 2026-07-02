@@ -89,9 +89,7 @@ const boardDisplayRows = computed(() =>
 const converterDeltaTone = computed(() => deltaTone(deltaPercent.value))
 
 const addableBoardCurrencies = computed(() =>
-  currencies.value.filter(
-    (currency) => currency.code !== fromCode.value && !boardCodes.value.includes(currency.code),
-  ),
+  currencies.value.filter((currency) => currency.code !== fromCode.value && !boardCodes.value.includes(currency.code)),
 )
 
 function onAddBoardTarget(event: Event) {
@@ -206,9 +204,7 @@ function sameCodes(a: string[], b: string[]): boolean {
 // (rather than the raw `defaultBoardFor`) is what keeps default-state URLs
 // free of a `board` param.
 const defaultBoardCodes = computed<string[]>(() =>
-  defaultBoardFor(fromCode.value).filter((code) =>
-    currencies.value.some((currency) => currency.code === code),
-  ),
+  defaultBoardFor(fromCode.value).filter((code) => currencies.value.some((currency) => currency.code === code)),
 )
 
 function parseBoardCodes(raw: string): string[] {
@@ -260,8 +256,7 @@ const { readFromRoute } = useQuerySync({
   range: {
     ref: rangeDays,
     fromQuery: parseRange,
-    toQuery: (value) =>
-      value === 30 ? undefined : HISTORY_RANGES.find((range) => range.days === value)?.label,
+    toQuery: (value) => (value === 30 ? undefined : HISTORY_RANGES.find((range) => range.days === value)?.label),
   } satisfies QueryBinding<HistoryRangeDays>,
   date: {
     ref: dateQuery,
@@ -355,9 +350,7 @@ onMounted(async () => {
     <div class="panel reveal mb-8 px-6 py-10 text-center md:px-12">
       <p class="label-mono mb-4">Module 02</p>
       <h1 class="font-display text-5xl text-ink md:text-6xl">Currencies</h1>
-      <p class="mx-auto mt-4 max-w-sm text-sm text-ink-dim">
-        Live mid-market rates, sourced from the Frankfurter API.
-      </p>
+      <p class="mx-auto mt-4 max-w-sm text-sm text-ink-dim">Live mid-market rates, sourced from the Frankfurter API.</p>
     </div>
 
     <div class="panel reveal px-6 py-8 md:px-10" style="animation-delay: 0.15s">
@@ -373,9 +366,7 @@ onMounted(async () => {
           <div class="flex flex-col gap-2">
             <label for="amount-from" class="label-mono">From</label>
             <div class="flex items-stretch gap-3">
-              <div
-                class="flex flex-1 items-center border-b-2 border-rule focus-within:border-accent"
-              >
+              <div class="flex flex-1 items-center border-b-2 border-rule focus-within:border-accent">
                 <input
                   id="amount-from"
                   v-model.number="amountToConvert"
@@ -398,12 +389,7 @@ onMounted(async () => {
           </div>
 
           <div class="flex justify-center">
-            <button
-              type="button"
-              class="btn-tick"
-              aria-label="Swap currencies"
-              @click="swapCurrencies"
-            >
+            <button type="button" class="btn-tick" aria-label="Swap currencies" @click="swapCurrencies">
               <ArrowRightLeft class="size-4" />
             </button>
           </div>
@@ -430,12 +416,7 @@ onMounted(async () => {
                   {{ currency.code }}
                 </option>
               </select>
-              <button
-                type="button"
-                class="btn-tick"
-                aria-label="Copy converted amount"
-                @click="copyConvertedAmount"
-              >
+              <button type="button" class="btn-tick" aria-label="Copy converted amount" @click="copyConvertedAmount">
                 <Check v-if="amountClipboard.copied.value" class="size-4 text-accent" />
                 <Copy v-else class="size-4" />
               </button>
@@ -485,33 +466,18 @@ onMounted(async () => {
                 }"
               >
                 <ArrowUp v-if="converterDeltaTone === 'up'" class="size-3" aria-hidden="true" />
-                <ArrowDown
-                  v-else-if="converterDeltaTone === 'down'"
-                  class="size-3"
-                  aria-hidden="true"
-                />
+                <ArrowDown v-else-if="converterDeltaTone === 'down'" class="size-3" aria-hidden="true" />
                 <Minus v-else class="size-3" aria-hidden="true" />
-                <span v-if="deltaPercent !== null"
-                  >{{ deltaPercentFormatter.format(deltaPercent) }}%</span
-                >
+                <span v-if="deltaPercent !== null">{{ deltaPercentFormatter.format(deltaPercent) }}%</span>
               </span>
             </p>
             <div class="flex items-center gap-3">
               <div class="text-right">
-                <p v-if="conversionDate && rateDate" class="label-mono">
-                  Rates as of {{ rateDate }}
-                </p>
-                <p v-else-if="rateDate" class="font-mono text-xs text-ink-dim">
-                  ECB reference rate: {{ rateDate }}
-                </p>
+                <p v-if="conversionDate && rateDate" class="label-mono">Rates as of {{ rateDate }}</p>
+                <p v-else-if="rateDate" class="font-mono text-xs text-ink-dim">ECB reference rate: {{ rateDate }}</p>
                 <p v-if="previousRateDate" class="label-mono">vs {{ previousRateDate }}</p>
               </div>
-              <button
-                type="button"
-                class="btn-tick"
-                aria-label="Copy share link"
-                @click="copyShareLink"
-              >
+              <button type="button" class="btn-tick" aria-label="Copy share link" @click="copyShareLink">
                 <Check v-if="shareClipboard.copied.value" class="size-4 text-accent" />
                 <Link2 v-else class="size-4" />
               </button>
@@ -521,11 +487,7 @@ onMounted(async () => {
       </template>
     </div>
 
-    <div
-      v-if="!loading && !error"
-      class="panel reveal mt-8 px-6 py-8 md:px-10"
-      style="animation-delay: 0.3s"
-    >
+    <div v-if="!loading && !error" class="panel reveal mt-8 px-6 py-8 md:px-10" style="animation-delay: 0.3s">
       <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
         <h2 class="label-mono">{{ selectedCurrency.code }} rate board</h2>
         <div class="flex items-center gap-2">
@@ -536,21 +498,14 @@ onMounted(async () => {
             @change="onAddBoardTarget"
           >
             <option value="" disabled>Add&hellip;</option>
-            <option
-              v-for="currency in addableBoardCurrencies"
-              :key="currency.code"
-              :value="currency.code"
-            >
+            <option v-for="currency in addableBoardCurrencies" :key="currency.code" :value="currency.code">
               {{ currency.code }}
             </option>
           </select>
         </div>
       </div>
 
-      <p
-        v-if="boardLoading && boardDisplayRows.length === 0"
-        class="font-mono text-sm text-ink-dim"
-      >
+      <p v-if="boardLoading && boardDisplayRows.length === 0" class="font-mono text-sm text-ink-dim">
         Loading rate board&hellip;
       </p>
       <p v-else-if="boardError" class="font-mono text-sm text-danger" role="alert">
@@ -582,9 +537,7 @@ onMounted(async () => {
               <ArrowUp v-if="row.tone === 'up'" class="size-3" aria-hidden="true" />
               <ArrowDown v-else-if="row.tone === 'down'" class="size-3" aria-hidden="true" />
               <Minus v-else class="size-3" aria-hidden="true" />
-              <span v-if="row.deltaPercent !== null"
-                >{{ deltaPercentFormatter.format(row.deltaPercent) }}%</span
-              >
+              <span v-if="row.deltaPercent !== null">{{ deltaPercentFormatter.format(row.deltaPercent) }}%</span>
             </span>
             <button
               type="button"
@@ -599,11 +552,7 @@ onMounted(async () => {
       </ul>
     </div>
 
-    <div
-      v-if="!loading && !error"
-      class="panel reveal mt-8 px-6 py-8 md:px-10"
-      style="animation-delay: 0.45s"
-    >
+    <div v-if="!loading && !error" class="panel reveal mt-8 px-6 py-8 md:px-10" style="animation-delay: 0.45s">
       <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
         <h2 class="label-mono">{{ selectedCurrency.code }} / {{ targetCurrency.code }} history</h2>
         <div class="flex gap-2" role="group" aria-label="History range">
@@ -628,24 +577,14 @@ onMounted(async () => {
       <p v-if="historyError" class="font-mono text-sm text-danger" role="alert">
         {{ historyError }}
       </p>
-      <p
-        v-else-if="selectedCurrency.code === targetCurrency.code"
-        class="font-mono text-sm text-ink-dim"
-      >
+      <p v-else-if="selectedCurrency.code === targetCurrency.code" class="font-mono text-sm text-ink-dim">
         Select two different currencies to chart their exchange rate.
       </p>
-      <p
-        v-else-if="historyLoading && historyPoints.length === 0"
-        class="font-mono text-sm text-ink-dim"
-      >
+      <p v-else-if="historyLoading && historyPoints.length === 0" class="font-mono text-sm text-ink-dim">
         Loading rate history&hellip;
       </p>
       <div v-else :class="{ 'opacity-50': historyLoading }" class="transition-opacity">
-        <RateChart
-          :points="historyPoints"
-          :base-code="selectedCurrency.code"
-          :target-code="targetCurrency.code"
-        />
+        <RateChart :points="historyPoints" :base-code="selectedCurrency.code" :target-code="targetCurrency.code" />
       </div>
     </div>
   </div>

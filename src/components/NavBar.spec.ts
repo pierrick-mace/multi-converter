@@ -24,14 +24,7 @@ describe('NavBar', () => {
   it('renders a link for every route', async () => {
     const wrapper = await mountWithRouter()
     const links = wrapper.findAll('a')
-    expect(links.map((link) => link.text())).toEqual([
-      'Home',
-      'Temperature',
-      'Currencies',
-      'Units',
-      'Bases',
-      'Data',
-    ])
+    expect(links.map((link) => link.text())).toEqual(['Home', 'Temperature', 'Currencies', 'Units', 'Bases', 'Data'])
   })
 
   it('marks the active route link', async () => {

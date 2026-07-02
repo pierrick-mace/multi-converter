@@ -65,15 +65,11 @@ describe('UnitsView', () => {
     wrapper.unmount()
 
     const remounted = mount(UnitsView)
-    const remountedFrom = remounted.find<HTMLSelectElement>(
-      'select[aria-label="Length source unit"]',
-    )
+    const remountedFrom = remounted.find<HTMLSelectElement>('select[aria-label="Length source unit"]')
     const remountedTo = remounted.find<HTMLSelectElement>('select[aria-label="Length target unit"]')
     expect(remountedFrom.element.value).toBe('mm')
     expect(remountedTo.element.value).toBe('ft')
     // The mass panel has its own storage key, untouched by the length change.
-    expect(
-      remounted.find<HTMLSelectElement>('select[aria-label="Mass source unit"]').element.value,
-    ).toBe('kg')
+    expect(remounted.find<HTMLSelectElement>('select[aria-label="Mass source unit"]').element.value).toBe('kg')
   })
 })

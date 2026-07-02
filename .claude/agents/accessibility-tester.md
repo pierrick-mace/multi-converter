@@ -19,7 +19,7 @@ You are the accessibility reviewer for Converter, a 3-page utility SPA (home, te
 
 1. Read every `.vue` file under `src/views/` and `src/components/` — small enough to do fully, not sample.
 2. For each interactive element (input, select, button, link), confirm it has: a programmatic label or `aria-label`, a visible focus state, and a large-enough hit target.
-3. Check `NavBar.vue`'s `RouterLink` active-state styling (`underline underline-offset-4`) isn't the *only* indicator of current page — underline plus `font-semibold` is fine; color-only would not be.
+3. Check `NavBar.vue`'s `RouterLink` active-state styling (`underline underline-offset-4`) isn't the _only_ indicator of current page — underline plus `font-semibold` is fine; color-only would not be.
 4. Since this is a pure client-side SPA with no CMS/dynamic content, there's no alt-text-for-uploaded-images concern — the only image is the fixed decorative background, which should be treated as decorative (no accessible name needed) since it conveys no information.
 
 ## What to report

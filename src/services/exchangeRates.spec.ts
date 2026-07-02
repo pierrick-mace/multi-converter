@@ -18,9 +18,7 @@ describe('exchangeRates service', () => {
     // can never be picked up as a fallback by a later, unrelated test that
     // happens to build the same request URL.
     localStorage.clear()
-    fetchMock = vi
-      .fn()
-      .mockResolvedValue(jsonResponse({ base: 'EUR', date: '2026-07-01', rates: {} }))
+    fetchMock = vi.fn().mockResolvedValue(jsonResponse({ base: 'EUR', date: '2026-07-01', rates: {} }))
     vi.stubGlobal('fetch', fetchMock)
   })
 
@@ -79,9 +77,7 @@ describe('exchangeRates service', () => {
     })
 
     it('rejects a path-traversal-shaped start date instead of building a request', async () => {
-      await expect(fetchRateHistory('EUR', 'USD', '../../etc/passwd')).rejects.toThrow(
-        /invalid date/i,
-      )
+      await expect(fetchRateHistory('EUR', 'USD', '../../etc/passwd')).rejects.toThrow(/invalid date/i)
       expect(fetchMock).not.toHaveBeenCalled()
     })
   })
@@ -93,9 +89,7 @@ describe('exchangeRates service', () => {
 
   describe('offline fallback', () => {
     it('serves the cached payload, flagged stale, when a later fetch for the same signature fails', async () => {
-      fetchMock.mockResolvedValueOnce(
-        jsonResponse({ base: 'EUR', date: '2026-07-01', rates: { USD: 1.1 } }),
-      )
+      fetchMock.mockResolvedValueOnce(jsonResponse({ base: 'EUR', date: '2026-07-01', rates: { USD: 1.1 } }))
       await fetchRates('EUR', 'USD')
 
       fetchMock.mockRejectedValueOnce(new Error('network down'))
@@ -111,9 +105,7 @@ describe('exchangeRates service', () => {
     })
 
     it('also falls back on a non-ok response, not just a network error', async () => {
-      fetchMock.mockResolvedValueOnce(
-        jsonResponse({ base: 'EUR', date: '2026-07-01', rates: { USD: 1.1 } }),
-      )
+      fetchMock.mockResolvedValueOnce(jsonResponse({ base: 'EUR', date: '2026-07-01', rates: { USD: 1.1 } }))
       await fetchRates('EUR', 'USD')
 
       fetchMock.mockResolvedValueOnce(jsonResponse({}, false, 503))
@@ -128,9 +120,7 @@ describe('exchangeRates service', () => {
     })
 
     it('does not let a different base or symbols pair serve a mismatched cache entry', async () => {
-      fetchMock.mockResolvedValueOnce(
-        jsonResponse({ base: 'EUR', date: '2026-07-01', rates: { USD: 1.1 } }),
-      )
+      fetchMock.mockResolvedValueOnce(jsonResponse({ base: 'EUR', date: '2026-07-01', rates: { USD: 1.1 } }))
       await fetchRates('EUR', 'USD')
 
       fetchMock.mockRejectedValueOnce(new Error('network down'))
@@ -138,9 +128,7 @@ describe('exchangeRates service', () => {
     })
 
     it('does not let a different date serve a mismatched cache entry', async () => {
-      fetchMock.mockResolvedValueOnce(
-        jsonResponse({ base: 'EUR', date: '2026-06-30', rates: { USD: 1.09 } }),
-      )
+      fetchMock.mockResolvedValueOnce(jsonResponse({ base: 'EUR', date: '2026-06-30', rates: { USD: 1.09 } }))
       await fetchRatesOn('2026-06-30', 'EUR')
 
       fetchMock.mockRejectedValueOnce(new Error('network down'))
@@ -173,9 +161,7 @@ describe('exchangeRates service', () => {
       })
 
       try {
-        fetchMock.mockResolvedValueOnce(
-          jsonResponse({ base: 'EUR', date: '2026-07-01', rates: { USD: 1.1 } }),
-        )
+        fetchMock.mockResolvedValueOnce(jsonResponse({ base: 'EUR', date: '2026-07-01', rates: { USD: 1.1 } }))
         await expect(fetchRates('EUR', 'USD')).resolves.toMatchObject({ rates: { USD: 1.1 } })
 
         fetchMock.mockRejectedValueOnce(new Error('network down'))

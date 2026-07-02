@@ -325,11 +325,7 @@ describe('useRateBoard', () => {
     )
     await flushPromises() // settle the automatic default-basket fetch first
 
-    let resolveFirst!: (value: {
-      base: string
-      date: string
-      rates: Record<string, number>
-    }) => void
+    let resolveFirst!: (value: { base: string; date: string; rates: Record<string, number> }) => void
     const first = new Promise((resolve) => {
       resolveFirst = resolve
     })
@@ -364,11 +360,7 @@ describe('useRateBoard', () => {
     await flushPromises()
     expect(mockedFetchRates).not.toHaveBeenCalled()
 
-    let resolveFirst!: (value: {
-      base: string
-      date: string
-      rates: Record<string, number>
-    }) => void
+    let resolveFirst!: (value: { base: string; date: string; rates: Record<string, number> }) => void
     const first = new Promise((resolve) => {
       resolveFirst = resolve
     })

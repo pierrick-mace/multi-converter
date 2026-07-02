@@ -1,18 +1,13 @@
 <script setup lang="ts">
 import { modules } from '@/router/modules'
 
-const links = [
-  { to: '/home', label: 'Home' },
-  ...modules.map((mod) => ({ to: mod.path, label: mod.label })),
-]
+const links = [{ to: '/home', label: 'Home' }, ...modules.map((mod) => ({ to: mod.path, label: mod.label }))]
 </script>
 
 <template>
   <header class="relative border-b border-rule bg-panel/60">
     <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-5 md:px-8">
-      <span class="font-display text-2xl tracking-wide text-ink">
-        Converter<span class="text-accent">.</span>
-      </span>
+      <span class="font-display text-2xl tracking-wide text-ink"> Converter<span class="text-accent">.</span> </span>
 
       <ul class="nav-list flex items-center gap-1 md:gap-2">
         <li v-for="link in links" :key="link.to">

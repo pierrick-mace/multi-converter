@@ -16,8 +16,7 @@ function moduleIndex(i: number): string {
         <span class="text-accent">anything.</span>
       </h1>
       <p class="mx-auto mt-6 max-w-md text-sm text-ink-dim md:text-base">
-        A small instrument panel for everyday unit conversion. Precise, fast, and legible at a
-        glance.
+        A small instrument panel for everyday unit conversion. Precise, fast, and legible at a glance.
       </p>
     </div>
 
@@ -31,16 +30,11 @@ function moduleIndex(i: number): string {
       >
         <div class="flex items-center justify-between">
           <span class="label-mono">{{ moduleIndex(i) }}</span>
-          <component
-            :is="mod.icon"
-            class="size-5 text-ink-dim transition-colors group-hover:text-accent"
-          />
+          <component :is="mod.icon" class="size-5 text-ink-dim transition-colors group-hover:text-accent" />
         </div>
         <h2 class="font-display text-3xl text-ink">{{ mod.label }}</h2>
         <p class="text-sm text-ink-dim">{{ mod.description }}</p>
-        <span
-          class="mt-2 flex items-center gap-2 font-mono text-xs tracking-[0.2em] text-accent uppercase"
-        >
+        <span class="mt-2 flex items-center gap-2 font-mono text-xs tracking-[0.2em] text-accent uppercase">
           Open module
           <ArrowRightLeft class="size-3.5 transition-transform group-hover:translate-x-1" />
         </span>

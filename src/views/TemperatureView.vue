@@ -53,9 +53,7 @@ const fields = [
             <span class="font-mono text-sm text-ink-dim">{{ field.label }}</span>
           </label>
 
-          <div
-            class="flex flex-1 items-center gap-3 border-b-2 border-rule focus-within:border-accent"
-          >
+          <div class="flex flex-1 items-center gap-3 border-b-2 border-rule focus-within:border-accent">
             <input
               :id="field.id"
               v-model.number="field.model.value"

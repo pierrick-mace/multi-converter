@@ -1,6 +1,6 @@
 ---
 name: typescript-pro
-description: "TypeScript 5.9 typing questions for the Converter SPA: prop/emit typing, composable return types, the Currency/ExchangeRatesResponse types, and tsconfig/vue-tsc issues. This is a small frontend-only project — no full-stack or monorepo type-sharing concerns."
+description: 'TypeScript 5.9 typing questions for the Converter SPA: prop/emit typing, composable return types, the Currency/ExchangeRatesResponse types, and tsconfig/vue-tsc issues. This is a small frontend-only project — no full-stack or monorepo type-sharing concerns.'
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: sonnet
 ---

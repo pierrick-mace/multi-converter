@@ -76,9 +76,7 @@ describe('rateCache', () => {
       })
 
       it('never throws on write', () => {
-        expect(() =>
-          writeCache('converter:cache:/v1/latest?base=EUR', { base: 'EUR' }),
-        ).not.toThrow()
+        expect(() => writeCache('converter:cache:/v1/latest?base=EUR', { base: 'EUR' })).not.toThrow()
       })
     })
   })

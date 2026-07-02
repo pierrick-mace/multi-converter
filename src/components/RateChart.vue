@@ -112,8 +112,7 @@ const statLines = computed(() => {
   const maxY = yAt(s.max)
   const minY = yAt(s.min)
   const avgY = yAt(s.average)
-  const avgCollides =
-    Math.abs(avgY - maxY) < LABEL_COLLISION_PX || Math.abs(avgY - minY) < LABEL_COLLISION_PX
+  const avgCollides = Math.abs(avgY - maxY) < LABEL_COLLISION_PX || Math.abs(avgY - minY) < LABEL_COLLISION_PX
 
   return [
     { key: 'max', label: 'MAX', value: rateFormatter.format(s.max), y: maxY, showLabel: true },
@@ -307,24 +306,12 @@ watch(() => props.points, clearActive)
           class="stroke-ink-dim/60"
           stroke-width="1"
         />
-        <circle
-          :cx="active.x"
-          :cy="active.y"
-          r="5"
-          class="fill-accent stroke-panel"
-          stroke-width="2"
-        />
+        <circle :cx="active.x" :cy="active.y" r="5" class="fill-accent stroke-panel" stroke-width="2" />
       </g>
 
       <!-- end marker + direct end label -->
       <g v-if="endPoint">
-        <circle
-          :cx="endPoint.x"
-          :cy="endPoint.y"
-          r="4"
-          class="fill-accent stroke-panel"
-          stroke-width="2"
-        />
+        <circle :cx="endPoint.x" :cy="endPoint.y" r="4" class="fill-accent stroke-panel" stroke-width="2" />
         <text
           :x="endPoint.x + 10"
           :y="endPoint.y"

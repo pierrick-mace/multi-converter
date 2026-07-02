@@ -21,11 +21,7 @@ interface StoredUnitPair {
 const storedUnits = useLocalStorage<StoredUnitPair | null>('converter:data:units', null)
 const validUnitIds = new Set(dataSizeModule.units.map((unit) => unit.id))
 
-if (
-  storedUnits.value &&
-  validUnitIds.has(storedUnits.value.from) &&
-  validUnitIds.has(storedUnits.value.to)
-) {
+if (storedUnits.value && validUnitIds.has(storedUnits.value.from) && validUnitIds.has(storedUnits.value.to)) {
   converter.from.value = storedUnits.value.from
   converter.to.value = storedUnits.value.to
 }
@@ -51,8 +47,7 @@ function formatResult(result: number | null): string {
       <p class="label-mono mb-4">Module 05</p>
       <h1 class="font-display text-5xl text-ink md:text-6xl">Data</h1>
       <p class="mx-auto mt-4 max-w-sm text-sm text-ink-dim">
-        Bits and bytes, decimal (kB, MB, GB, TB) and binary (KiB, MiB, GiB, TiB) prefixes, one
-        factor table.
+        Bits and bytes, decimal (kB, MB, GB, TB) and binary (KiB, MiB, GiB, TiB) prefixes, one factor table.
       </p>
     </div>
 
@@ -63,13 +58,7 @@ function formatResult(result: number | null): string {
         <div class="flex items-end gap-3">
           <div class="flex flex-1 flex-col gap-2">
             <label for="data-value" class="label-mono">Amount</label>
-            <input
-              id="data-value"
-              v-model.number="converter.value.value"
-              type="number"
-              placeholder="0"
-              class="field"
-            />
+            <input id="data-value" v-model.number="converter.value.value" type="number" placeholder="0" class="field" />
           </div>
           <select
             v-model="converter.from.value"
@@ -83,12 +72,7 @@ function formatResult(result: number | null): string {
         </div>
 
         <div class="flex justify-center">
-          <button
-            type="button"
-            class="btn-tick"
-            aria-label="Swap Data size units"
-            @click="converter.swap()"
-          >
+          <button type="button" class="btn-tick" aria-label="Swap Data size units" @click="converter.swap()">
             <ArrowRightLeft class="size-4" />
           </button>
         </div>
@@ -118,9 +102,7 @@ function formatResult(result: number | null): string {
             type="button"
             class="btn-tick"
             aria-label="Copy Data size result"
-            @click="
-              converter.result.value !== null && copy(copyFormatter.format(converter.result.value))
-            "
+            @click="converter.result.value !== null && copy(copyFormatter.format(converter.result.value))"
           >
             <Check v-if="copied" class="size-4 text-accent" />
             <Copy v-else class="size-4" />

@@ -83,14 +83,8 @@ describe('useCurrencyRates', () => {
       rates: { USD: 1.05, GBP: 0.9 },
     })
 
-    const {
-      targetCurrency,
-      loadRatesForSelectedCurrency,
-      unitRate,
-      delta,
-      deltaPercent,
-      previousRateDate,
-    } = useCurrencyRates()
+    const { targetCurrency, loadRatesForSelectedCurrency, unitRate, delta, deltaPercent, previousRateDate } =
+      useCurrencyRates()
     targetCurrency.value = { code: 'USD', rate: 1.1 }
     await loadRatesForSelectedCurrency()
 
@@ -149,8 +143,7 @@ describe('useCurrencyRates', () => {
     })
     mockedFetchRatesOn.mockRejectedValueOnce(new Error('previous day unavailable'))
 
-    const { targetCurrency, loadRatesForSelectedCurrency, delta, deltaPercent, error } =
-      useCurrencyRates()
+    const { targetCurrency, loadRatesForSelectedCurrency, delta, deltaPercent, error } = useCurrencyRates()
     targetCurrency.value = { code: 'USD', rate: 1.1 }
     await loadRatesForSelectedCurrency()
 
@@ -173,8 +166,7 @@ describe('useCurrencyRates', () => {
         rates: { USD: 1.09 },
       })
 
-    const { conversionDate, targetCurrency, loadRatesForSelectedCurrency, rateDate, unitRate } =
-      useCurrencyRates()
+    const { conversionDate, targetCurrency, loadRatesForSelectedCurrency, rateDate, unitRate } = useCurrencyRates()
     targetCurrency.value = { code: 'USD', rate: 1.1 }
     conversionDate.value = '2023-04-29'
     await loadRatesForSelectedCurrency()
@@ -198,13 +190,7 @@ describe('useCurrencyRates', () => {
         rates: { USD: 1.09 },
       })
 
-    const {
-      conversionDate,
-      targetCurrency,
-      loadRatesForSelectedCurrency,
-      previousRateDate,
-      delta,
-    } = useCurrencyRates()
+    const { conversionDate, targetCurrency, loadRatesForSelectedCurrency, previousRateDate, delta } = useCurrencyRates()
     targetCurrency.value = { code: 'USD', rate: 1.1 }
     conversionDate.value = '2023-04-29'
     await loadRatesForSelectedCurrency()
@@ -227,8 +213,7 @@ describe('useCurrencyRates', () => {
       rates: { USD: 1.2 },
     })
 
-    const { conversionDate, targetCurrency, loadRatesForSelectedCurrency, rateDate } =
-      useCurrencyRates()
+    const { conversionDate, targetCurrency, loadRatesForSelectedCurrency, rateDate } = useCurrencyRates()
     targetCurrency.value = { code: 'USD', rate: 1.1 }
     conversionDate.value = '2023-04-29'
     await loadRatesForSelectedCurrency()
@@ -307,8 +292,7 @@ describe('useCurrencyRates', () => {
         cachedAt: '2026-07-01T00:00:00.000Z',
       })
 
-      const { stale, targetCurrency, loadCurrencies, loadRatesForSelectedCurrency } =
-        useCurrencyRates()
+      const { stale, targetCurrency, loadCurrencies, loadRatesForSelectedCurrency } = useCurrencyRates()
       await loadCurrencies()
       expect(stale.value).toBe(true)
 

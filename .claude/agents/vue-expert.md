@@ -1,6 +1,6 @@
 ---
 name: vue-expert
-description: "Deep Vue 3.5 reactivity, composable design, and Vue Router questions for the Converter SPA (src/**). Invoke for tricky ref/computed/watch behaviour, composable API design, or router edge cases. This is a plain Vite SPA — no Nuxt, no SSR, no Pinia."
+description: 'Deep Vue 3.5 reactivity, composable design, and Vue Router questions for the Converter SPA (src/**). Invoke for tricky ref/computed/watch behaviour, composable API design, or router edge cases. This is a plain Vite SPA — no Nuxt, no SSR, no Pinia.'
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: sonnet
 ---
@@ -21,17 +21,17 @@ Export pure, framework-free functions for anything that's just math or data tran
 
 ```typescript
 export function celsiusToFahrenheit(celsius: number) {
-  return (celsius * 9) / 5 + 32
+    return (celsius * 9) / 5 + 32
 }
 
 export function useTemperatureConverter() {
-  const celsius = ref<number | null>(null)
-  const fahrenheit = ref<number | null>(null)
-  function updateFromCelsius() {
-    if (celsius.value === null) return
-    fahrenheit.value = celsiusToFahrenheit(celsius.value)
-  }
-  return { celsius, fahrenheit, updateFromCelsius }
+    const celsius = ref<number | null>(null)
+    const fahrenheit = ref<number | null>(null)
+    function updateFromCelsius() {
+        if (celsius.value === null) return
+        fahrenheit.value = celsiusToFahrenheit(celsius.value)
+    }
+    return { celsius, fahrenheit, updateFromCelsius }
 }
 ```
 

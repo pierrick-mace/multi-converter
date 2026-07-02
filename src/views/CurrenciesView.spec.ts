@@ -104,9 +104,7 @@ describe('CurrenciesView', () => {
     await flushPromises()
     expect(wrapper.text()).toContain('Rates as of 2026-06-30')
 
-    const backButton = wrapper
-      .findAll('button')
-      .find((button) => button.text() === 'Back to latest')
+    const backButton = wrapper.findAll('button').find((button) => button.text() === 'Back to latest')
     expect(backButton).toBeDefined()
     await backButton!.trigger('click')
     await flushPromises()
@@ -131,12 +129,9 @@ describe('CurrenciesView', () => {
     // the `from` query binding resolves (and fetches for) GBP before the
     // `date` binding is applied in the same readFromRoute() pass.
     mockedFetchRates.mockImplementation(async (base?: string) => {
-      if (!base || base === 'EUR')
-        return { base: 'EUR', date: '2026-07-01', rates: { USD: 1.1, GBP: 0.9 } }
-      if (base === 'USD')
-        return { base: 'USD', date: '2026-07-01', rates: { EUR: 0.9091, GBP: 0.818 } }
-      if (base === 'GBP')
-        return { base: 'GBP', date: '2026-07-01', rates: { EUR: 1.11, USD: 1.22 } }
+      if (!base || base === 'EUR') return { base: 'EUR', date: '2026-07-01', rates: { USD: 1.1, GBP: 0.9 } }
+      if (base === 'USD') return { base: 'USD', date: '2026-07-01', rates: { EUR: 0.9091, GBP: 0.818 } }
+      if (base === 'GBP') return { base: 'GBP', date: '2026-07-01', rates: { EUR: 1.11, USD: 1.22 } }
       throw new Error(`unexpected base "${base}"`)
     })
 
@@ -262,12 +257,9 @@ describe('CurrenciesView', () => {
   it('lets a ?from= query param win over a stored pair, while storage still fills in the missing ?to=', async () => {
     localStorage.setItem('converter:currencies:pair', JSON.stringify({ from: 'USD', to: 'EUR' }))
     mockedFetchRates.mockImplementation(async (base?: string) => {
-      if (!base || base === 'EUR')
-        return { base: 'EUR', date: '2026-07-01', rates: { USD: 1.1, GBP: 0.9 } }
-      if (base === 'USD')
-        return { base: 'USD', date: '2026-07-01', rates: { EUR: 0.9091, GBP: 0.818 } }
-      if (base === 'GBP')
-        return { base: 'GBP', date: '2026-07-01', rates: { EUR: 1.11, USD: 1.22 } }
+      if (!base || base === 'EUR') return { base: 'EUR', date: '2026-07-01', rates: { USD: 1.1, GBP: 0.9 } }
+      if (base === 'USD') return { base: 'USD', date: '2026-07-01', rates: { EUR: 0.9091, GBP: 0.818 } }
+      if (base === 'GBP') return { base: 'GBP', date: '2026-07-01', rates: { EUR: 1.11, USD: 1.22 } }
       throw new Error(`unexpected base "${base}"`)
     })
 

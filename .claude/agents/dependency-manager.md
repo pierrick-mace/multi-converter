@@ -1,6 +1,6 @@
 ---
 name: dependency-manager
-description: "Audit and update npm dependencies for the Converter SPA: run npm audit, resolve vulnerabilities, and keep Vite/Vue/TypeScript/testing tooling current. Invoke periodically or whenever a new dependency is proposed."
+description: 'Audit and update npm dependencies for the Converter SPA: run npm audit, resolve vulnerabilities, and keep Vite/Vue/TypeScript/testing tooling current. Invoke periodically or whenever a new dependency is proposed.'
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: haiku
 ---

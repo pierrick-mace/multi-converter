@@ -4,17 +4,8 @@ import { Copy, Check } from '@lucide/vue'
 import { useClipboard } from '@/composables/useClipboard'
 import { useBaseConverter, type Base } from '@/composables/useBaseConverter'
 
-const {
-  binary,
-  octal,
-  decimal,
-  hex,
-  error,
-  updateFromBinary,
-  updateFromOctal,
-  updateFromDecimal,
-  updateFromHex,
-} = useBaseConverter()
+const { binary, octal, decimal, hex, error, updateFromBinary, updateFromOctal, updateFromDecimal, updateFromHex } =
+  useBaseConverter()
 
 const fields = [
   {
@@ -101,11 +92,7 @@ function fieldHasError(base: Base) {
               :aria-describedby="fieldHasError(field.base) ? 'base-error' : undefined"
               @input="field.onInput()"
             />
-            <p
-              v-if="fieldHasError(field.base)"
-              id="base-error"
-              class="mt-1 font-mono text-xs text-danger"
-            >
+            <p v-if="fieldHasError(field.base)" id="base-error" class="mt-1 font-mono text-xs text-danger">
               {{ errorMessage }}
             </p>
           </div>

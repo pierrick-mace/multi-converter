@@ -1,12 +1,7 @@
 import { computed, ref } from 'vue'
 import type { UnitModule } from '@/types/units'
 
-export function convertUnit(
-  value: number,
-  from: string,
-  to: string,
-  factors: Record<string, number>,
-): number {
+export function convertUnit(value: number, from: string, to: string, factors: Record<string, number>): number {
   const fromFactor = factors[from]
   const toFactor = factors[to]
   if (fromFactor === undefined) throw new Error(`Unknown unit id: ${from}`)

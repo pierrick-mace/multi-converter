@@ -107,8 +107,7 @@ describe('useBaseConverter', () => {
   })
 
   it('sets a field-scoped error on invalid input and leaves other fields untouched', () => {
-    const { binary, octal, decimal, hex, error, updateFromDecimal, updateFromBinary } =
-      useBaseConverter()
+    const { binary, octal, decimal, hex, error, updateFromDecimal, updateFromBinary } = useBaseConverter()
 
     decimal.value = '255'
     updateFromDecimal()

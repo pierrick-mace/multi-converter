@@ -45,10 +45,7 @@ function buildUrl(path: string, params: Record<string, string | undefined>): URL
  * that signature, the original error propagates unchanged: callers see
  * exactly the same failure they did before caching existed.
  */
-async function fetchWithFallback<T extends object>(
-  url: URL,
-  notOkError: (status: number) => string,
-): Promise<T> {
+async function fetchWithFallback<T extends object>(url: URL, notOkError: (status: number) => string): Promise<T> {
   const key = cacheKeyFor(url)
   try {
     const response = await fetch(url)
@@ -67,10 +64,7 @@ async function fetchWithFallback<T extends object>(
 
 export async function fetchRates(base?: string, symbols?: string): Promise<ExchangeRatesResponse> {
   const url = buildUrl('latest', { base, symbols })
-  return fetchWithFallback<ExchangeRatesResponse>(
-    url,
-    (status) => `Failed to fetch exchange rates: ${status}`,
-  )
+  return fetchWithFallback<ExchangeRatesResponse>(url, (status) => `Failed to fetch exchange rates: ${status}`)
 }
 
 /**
@@ -79,26 +73,12 @@ export async function fetchRates(base?: string, symbols?: string): Promise<Excha
  * should read the resolved date back off the response rather than assume it
  * echoes the requested one.
  */
-export async function fetchRatesOn(
-  date: string,
-  base: string,
-  symbols?: string,
-): Promise<ExchangeRatesResponse> {
+export async function fetchRatesOn(date: string, base: string, symbols?: string): Promise<ExchangeRatesResponse> {
   const url = buildUrl(assertDateShape(date), { base, symbols })
-  return fetchWithFallback<ExchangeRatesResponse>(
-    url,
-    (status) => `Failed to fetch exchange rates: ${status}`,
-  )
+  return fetchWithFallback<ExchangeRatesResponse>(url, (status) => `Failed to fetch exchange rates: ${status}`)
 }
 
-export async function fetchRateHistory(
-  base: string,
-  symbol: string,
-  startDate: string,
-): Promise<RateHistoryResponse> {
+export async function fetchRateHistory(base: string, symbol: string, startDate: string): Promise<RateHistoryResponse> {
   const url = buildUrl(`${assertDateShape(startDate)}..`, { base, symbols: symbol })
-  return fetchWithFallback<RateHistoryResponse>(
-    url,
-    (status) => `Failed to fetch rate history: ${status}`,
-  )
+  return fetchWithFallback<RateHistoryResponse>(url, (status) => `Failed to fetch rate history: ${status}`)
 }

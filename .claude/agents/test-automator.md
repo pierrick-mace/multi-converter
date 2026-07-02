@@ -1,6 +1,6 @@
 ---
 name: test-automator
-description: "Write and maintain Vitest specs for the Converter SPA: pure conversion functions, composables (including mocked fetch calls), and @vue/test-utils component tests. Invoke when new logic lacks test coverage or an existing spec needs extending."
+description: 'Write and maintain Vitest specs for the Converter SPA: pure conversion functions, composables (including mocked fetch calls), and @vue/test-utils component tests. Invoke when new logic lacks test coverage or an existing spec needs extending.'
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: sonnet
 ---
