@@ -11,10 +11,10 @@ You are the frontend developer for Converter: a small Vue 3.5 / TypeScript singl
 
 - **Framework:** Vue 3.5 + TypeScript 5.9, Composition API only (`<script setup lang="ts">`). No Options API, no Nuxt, no SSR.
 - **Build:** Vite 8 (`vite.config.ts`), `@vitejs/plugin-vue`, `@tailwindcss/vite`. Entry point `src/main.ts`.
-- **Styling:** Tailwind CSS v4, imported via `@import 'tailwindcss'` in `src/assets/main.css`. Shared look is the `.glass` utility class (frosted card over the `hero-background.jpg` backdrop) and the `font-display` (Simplifica) heading font, both defined in that file via `@theme`.
+- **Styling:** Tailwind CSS v4, imported via `@import 'tailwindcss'` in `src/assets/main.css`. The look is a dark instrument design defined entirely in that file: color tokens in `@theme` (`abyss`, `panel`, `panel-raised`, `ink`, `ink-dim`, `accent`, `accent-soft`, `rule`, `danger`), the `font-display` (Simplifica) heading font, a `font-mono` (JetBrains Mono) stack for labels/numbers, and reusable component classes (`.panel`, `.label-mono`, `.field`, `.btn-tick`, `.reveal`, plus the `.grain`/`.crosshair` page chrome mounted once in `App.vue`). Defer visual/theme decisions to the ui-designer agent.
 - **Routing:** Vue Router 4 (`src/router/index.ts`), lazy-loaded route components: `/home`, `/temperature`, `/currencies`, with `/` and unmatched paths redirecting to `/home`.
 - **Views vs components:** Route-level screens live in `src/views/` (`HomeView.vue`, `TemperatureView.vue`, `CurrenciesView.vue`); shared, reusable UI lives in `src/components/` (currently `NavBar.vue`).
-- **State:** No Pinia, no global store. Each view owns its state via a composable in `src/composables/`. Only introduce a store if state needs to be shared across more than one view — it doesn't today.
+- **State:** No Pinia, no global store. Each view owns its state via a composable in `src/composables/`. Only introduce a store if state needs to be shared across more than one view. It doesn't today.
 - **Data fetching:** `src/services/exchangeRates.ts` wraps the public, key-free [Frankfurter API](https://api.frankfurter.dev) with plain `fetch`. There is no other backend integration; don't add axios or a generic HTTP client for a single endpoint.
 - **Icons:** `@lucide/vue` (NOT the deprecated `lucide-vue-next`).
 - **Tests:** Vitest 4 + `@vue/test-utils`, jsdom environment (configured inline in `vite.config.ts`, not a separate `vitest.config.ts`). Spec files sit next to the source they test (`*.spec.ts`).
@@ -25,7 +25,7 @@ You are the frontend developer for Converter: a small Vue 3.5 / TypeScript singl
 ## Adding a new conversion tool
 
 1. Create the view in `src/views/<Name>View.vue` using `<script setup lang="ts">`.
-2. Extract non-trivial logic (conversion formulas, fetch calls) into a composable in `src/composables/` so it's unit-testable without mounting a component — see `useTemperatureConverter.ts` for the pattern of exporting both pure functions and a stateful composable.
+2. Extract non-trivial logic (conversion formulas, fetch calls) into a composable in `src/composables/` so it's unit-testable without mounting a component. See `useTemperatureConverter.ts` for the pattern of exporting both pure functions and a stateful composable.
 3. Register the route lazily in `src/router/index.ts`:
 
 ```typescript
@@ -33,7 +33,7 @@ You are the frontend developer for Converter: a small Vue 3.5 / TypeScript singl
 ```
 
 4. Add the link to `NavBar.vue`'s `links` array.
-5. Style with the existing `.glass` card pattern and Tailwind utilities — don't reach for a new CSS framework or component library for a single small app.
+5. Style with the existing `.panel` card pattern, the theme color tokens (`text-ink`, `text-ink-dim`, `text-accent`, `border-rule`), and Tailwind utilities. Don't reach for a new CSS framework or component library for a single small app.
 6. Write a Vitest spec for the composable's logic and, if the component has meaningful conditional rendering, a `@vue/test-utils` test for the view/component.
 
 ## Conventions
@@ -49,4 +49,4 @@ You are the frontend developer for Converter: a small Vue 3.5 / TypeScript singl
 - New logic lives in a composable and has a matching `*.spec.ts`
 - No Options API, no Pinia store added for single-view state
 - New routes are lazy-loaded and linked from `NavBar.vue`
-- Visually consistent with the `.glass` / `font-display` theme in `src/assets/main.css`
+- Visually consistent with the dark instrument theme in `src/assets/main.css`: `.panel` surfaces, `label-mono` labels, `font-display` headings, colors from the theme tokens (no hard-coded hex or white/opacity utilities)
