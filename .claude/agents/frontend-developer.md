@@ -1,6 +1,6 @@
 ---
 name: frontend-developer
-description: 'Build or modify Vue 3.5 components, views, composables, and routes under src/. Invoke when adding a new conversion tool, wiring a new view into the router, or fixing UI behaviour. This agent covers Vue 3 only; there is no React, Angular, or backend in this repo.'
+description: "Build or modify Vue 3.5 components, views, composables, and routes under src/. Invoke when adding a new conversion tool, wiring a new view into the router, or fixing UI behaviour. This agent covers Vue 3 only; there is no React, Angular, or backend in this repo."
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: sonnet
 ---

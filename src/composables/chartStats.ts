@@ -1,9 +1,10 @@
-import type { RatePoint } from '@/types/currency'
+import type { RatePoint } from '@/types/currency';
 
-export interface SeriesStats {
-  min: number
-  max: number
-  average: number
+export interface SeriesStats
+{
+  min: number;
+  max: number;
+  average: number;
 }
 
 /**
@@ -13,19 +14,21 @@ export interface SeriesStats {
  * Returns null for an empty series (no meaningful stats to show). A
  * single-point series returns min = max = average = that point's rate.
  */
-export function seriesStats(points: RatePoint[]): SeriesStats | null {
-  if (points.length === 0) return null
+export function seriesStats(points: RatePoint[]): SeriesStats | null
+{
+  if (points.length === 0) return null;
 
-  let min = Infinity
-  let max = -Infinity
-  let sum = 0
-  for (const point of points) {
-    if (point.rate < min) min = point.rate
-    if (point.rate > max) max = point.rate
-    sum += point.rate
+  let min = Infinity;
+  let max = -Infinity;
+  let sum = 0;
+  for (const point of points)
+  {
+    if (point.rate < min) min = point.rate;
+    if (point.rate > max) max = point.rate;
+    sum += point.rate;
   }
 
-  return { min, max, average: sum / points.length }
+  return { min, max, average: sum / points.length };
 }
 
 /**
@@ -34,31 +37,33 @@ export function seriesStats(points: RatePoint[]): SeriesStats | null {
  * Returns null when there is no meaningful change to report: fewer than two
  * points (nothing to compare), or a first value of zero (division by zero).
  */
-export function percentChange(points: RatePoint[]): number | null {
-  if (points.length < 2) return null
+export function percentChange(points: RatePoint[]): number | null
+{
+  if (points.length < 2) return null;
 
-  const first = points[0].rate
-  const last = points[points.length - 1].rate
-  if (first === 0) return null
+  const first = points[0].rate;
+  const last = points[points.length - 1].rate;
+  if (first === 0) return null;
 
-  return ((last - first) / first) * 100
+  return ((last - first) / first) * 100;
 }
 
-export type DeltaTone = 'up' | 'down' | 'flat'
+export type DeltaTone = 'up' | 'down' | 'flat';
 
 /**
  * Below this |percent| threshold, a change is treated as flat/neutral rather
  * than up/down: a rounding-noise move (e.g. +0.001%) would otherwise still
  * render an up/down arrow next to a badge that visually reads "+0.00%".
  */
-export const FLAT_CHANGE_THRESHOLD = 0.005
+export const FLAT_CHANGE_THRESHOLD = 0.005;
 
 /**
  * Classifies a percent change into up/down/flat for delta badges (rate board
  * rows, the converter's unit-rate delta, RateChart's range header), applying
  * `FLAT_CHANGE_THRESHOLD` consistently across all of them.
  */
-export function deltaTone(percent: number | null): DeltaTone {
-  if (percent === null || Math.abs(percent) < FLAT_CHANGE_THRESHOLD) return 'flat'
-  return percent > 0 ? 'up' : 'down'
+export function deltaTone(percent: number | null): DeltaTone
+{
+  if (percent === null || Math.abs(percent) < FLAT_CHANGE_THRESHOLD) return 'flat';
+  return percent > 0 ? 'up' : 'down';
 }

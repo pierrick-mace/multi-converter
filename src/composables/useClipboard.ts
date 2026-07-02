@@ -1,13 +1,15 @@
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-export function useClipboard() {
-  const copied = ref(false)
+export function useClipboard()
+{
+  const copied = ref(false);
 
-  async function copy(text: string) {
-    await navigator.clipboard.writeText(text)
-    copied.value = true
-    setTimeout(() => (copied.value = false), 1500)
+  async function copy(text: string)
+  {
+    await navigator.clipboard.writeText(text);
+    copied.value = true;
+    setTimeout(() => (copied.value = false), 1500);
   }
 
-  return { copied, copy }
+  return { copied, copy };
 }

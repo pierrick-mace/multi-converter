@@ -1,6 +1,6 @@
 ---
 name: vue-expert
-description: 'Deep Vue 3.5 reactivity, composable design, and Vue Router questions for the Converter SPA (src/**). Invoke for tricky ref/computed/watch behaviour, composable API design, or router edge cases. This is a plain Vite SPA — no Nuxt, no SSR, no Pinia.'
+description: "Deep Vue 3.5 reactivity, composable design, and Vue Router questions for the Converter SPA (src/**). Invoke for tricky ref/computed/watch behaviour, composable API design, or router edge cases. This is a plain Vite SPA — no Nuxt, no SSR, no Pinia."
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: sonnet
 ---
@@ -20,18 +20,21 @@ You are a senior Vue 3.5 engineer working on Converter, a small Vite SPA with th
 Export pure, framework-free functions for anything that's just math or data transformation (easy to unit test in isolation), then a composable that wires them to refs:
 
 ```typescript
-export function celsiusToFahrenheit(celsius: number) {
-    return (celsius * 9) / 5 + 32
+export function celsiusToFahrenheit(celsius: number)
+{
+  return (celsius * 9) / 5 + 32;
 }
 
-export function useTemperatureConverter() {
-    const celsius = ref<number | null>(null)
-    const fahrenheit = ref<number | null>(null)
-    function updateFromCelsius() {
-        if (celsius.value === null) return
-        fahrenheit.value = celsiusToFahrenheit(celsius.value)
-    }
-    return { celsius, fahrenheit, updateFromCelsius }
+export function useTemperatureConverter()
+{
+  const celsius = ref<number | null>(null);
+  const fahrenheit = ref<number | null>(null);
+  function updateFromCelsius()
+  {
+    if (celsius.value === null) return;
+    fahrenheit.value = celsiusToFahrenheit(celsius.value);
+  }
+  return { celsius, fahrenheit, updateFromCelsius };
 }
 ```
 
@@ -50,10 +53,10 @@ Routes are lazy (`component: () => import(...)`), and the catch-all (`/:pathMatc
 Composables are tested directly (no component mount needed) by calling the returned functions and asserting on ref `.value`:
 
 ```typescript
-const { celsius, fahrenheit, updateFromCelsius } = useTemperatureConverter()
-celsius.value = 25
-updateFromCelsius()
-expect(fahrenheit.value).toBe(77)
+const { celsius, fahrenheit, updateFromCelsius } = useTemperatureConverter();
+celsius.value = 25;
+updateFromCelsius();
+expect(fahrenheit.value).toBe(77);
 ```
 
 For composables that call external services (`useCurrencyRates`), mock the service module with `vi.mock('@/services/exchangeRates', () => ({ fetchRates: vi.fn() }))` — don't hit the real network in tests.

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { modules } from '@/router/modules'
+import { modules } from '@/router/modules';
 
-const links = [{ to: '/home', label: 'Home' }, ...modules.map((mod) => ({ to: mod.path, label: mod.label }))]
+const links = [{ to: '/home', label: 'Home' }, ...modules.map((mod) => ({ to: mod.path, label: mod.label }))];
 </script>
 
 <template>
@@ -35,13 +35,13 @@ const links = [{ to: '/home', label: 'Home' }, ...modules.map((mod) => ({ to: mo
 }
 
 .nav-link::before {
-  content: '0' counter(nav) ' / ';
+  content: "0" counter(nav) " / ";
   color: var(--color-accent);
   opacity: 0.7;
 }
 
 .nav-link::after {
-  content: '';
+  content: "";
   position: absolute;
   right: 0.75rem;
   bottom: 0;

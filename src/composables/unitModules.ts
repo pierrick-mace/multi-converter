@@ -1,4 +1,4 @@
-import type { UnitModule } from '@/types/units'
+import type { UnitModule } from '@/types/units';
 
 // Base unit: meter.
 export const lengthModule: UnitModule = {
@@ -14,7 +14,7 @@ export const lengthModule: UnitModule = {
   ],
   defaultFrom: 'km',
   defaultTo: 'mi',
-}
+};
 
 // Base unit: kilogram.
 export const massModule: UnitModule = {
@@ -28,7 +28,7 @@ export const massModule: UnitModule = {
   ],
   defaultFrom: 'kg',
   defaultTo: 'lb',
-}
+};
 
 // Base unit: byte. Decimal and binary prefixes share one factor table:
 // decimal steps by 1000 (kB, MB, GB, TB), binary steps by 1024 (KiB, MiB, GiB, TiB).
@@ -47,4 +47,4 @@ export const dataSizeModule: UnitModule = {
   ],
   defaultFrom: 'GB',
   defaultTo: 'GiB',
-}
+};

@@ -1,19 +1,20 @@
 <script setup lang="ts">
-import { watch } from 'vue'
-import { ArrowRightLeft, Copy, Check } from '@lucide/vue'
-import { useClipboard } from '@/composables/useClipboard'
-import { useUnitConverter } from '@/composables/useUnitConverter'
-import { useLocalStorage } from '@/composables/useLocalStorage'
-import { lengthModule, massModule } from '@/composables/unitModules'
+import { lengthModule, massModule } from '@/composables/unitModules';
+import { useClipboard } from '@/composables/useClipboard';
+import { useLocalStorage } from '@/composables/useLocalStorage';
+import { useUnitConverter } from '@/composables/useUnitConverter';
+import { ArrowRightLeft, Check, Copy } from '@lucide/vue';
+import { watch } from 'vue';
 
-const displayFormatter = new Intl.NumberFormat('en', { maximumFractionDigits: 6 })
+const displayFormatter = new Intl.NumberFormat('en', { maximumFractionDigits: 6 });
 const copyFormatter = new Intl.NumberFormat('en', {
   maximumFractionDigits: 6,
   useGrouping: false,
-})
+});
 
-function formatResult(result: number | null): string {
-  return result === null ? '' : displayFormatter.format(result)
+function formatResult(result: number | null): string
+{
+  return result === null ? '' : displayFormatter.format(result);
 }
 
 const panels = [
@@ -33,11 +34,12 @@ const panels = [
     delay: '0.3s',
     clipboard: useClipboard(),
   },
-] as const
+] as const;
 
-interface StoredUnitPair {
-  from: string
-  to: string
+interface StoredUnitPair
+{
+  from: string;
+  to: string;
 }
 
 // Local persistence of the last from/to selection per panel
@@ -45,18 +47,20 @@ interface StoredUnitPair {
 // state to reconcile against (unlike currencies), so there's no precedence
 // rule here: the stored pair, when present and still valid for the module's
 // unit table, is simply applied once at setup, then kept in sync afterwards.
-for (const panel of panels) {
-  const stored = useLocalStorage<StoredUnitPair | null>(`converter:units:${panel.id}`, null)
-  const validIds = new Set(panel.module.units.map((unit) => unit.id))
+for (const panel of panels)
+{
+  const stored = useLocalStorage<StoredUnitPair | null>(`converter:units:${panel.id}`, null);
+  const validIds = new Set(panel.module.units.map((unit) => unit.id));
 
-  if (stored.value && validIds.has(stored.value.from) && validIds.has(stored.value.to)) {
-    panel.converter.from.value = stored.value.from
-    panel.converter.to.value = stored.value.to
+  if (stored.value && validIds.has(stored.value.from) && validIds.has(stored.value.to))
+  {
+    panel.converter.from.value = stored.value.from;
+    panel.converter.to.value = stored.value.to;
   }
 
   watch([panel.converter.from, panel.converter.to], ([from, to]) => {
-    stored.value = { from, to }
-  })
+    stored.value = { from, to };
+  });
 }
 </script>
 
@@ -138,10 +142,8 @@ for (const panel of panels) {
             type="button"
             class="btn-tick"
             :aria-label="`Copy ${panel.label} result`"
-            @click="
-              panel.converter.result.value !== null &&
-              panel.clipboard.copy(copyFormatter.format(panel.converter.result.value))
-            "
+            @click="panel.converter.result.value !== null
+            && panel.clipboard.copy(copyFormatter.format(panel.converter.result.value))"
           >
             <Check v-if="panel.clipboard.copied.value" class="size-4 text-accent" />
             <Copy v-else class="size-4" />

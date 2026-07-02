@@ -1,5 +1,5 @@
-import { ref, watch } from 'vue'
-import type { Ref } from 'vue'
+import { ref, watch } from 'vue';
+import type { Ref } from 'vue';
 
 /**
  * Typed wrapper around `localStorage`: returns a `Ref<T>` that reads its
@@ -19,8 +19,9 @@ import type { Ref } from 'vue'
  *   the default and writes are skipped. The returned ref keeps working as an
  *   ordinary in-memory ref either way, just without persistence.
  */
-export function useLocalStorage<T>(key: string, defaultValue: T): Ref<T> {
-  const state = ref<T>(readStorage(key, defaultValue)) as Ref<T>
+export function useLocalStorage<T>(key: string, defaultValue: T): Ref<T>
+{
+  const state = ref<T>(readStorage(key, defaultValue)) as Ref<T>;
 
   watch(
     state,
@@ -29,25 +30,33 @@ export function useLocalStorage<T>(key: string, defaultValue: T): Ref<T> {
     // values (push, property assignment, ...), not just whole-value
     // reassignment, also get persisted.
     { deep: true },
-  )
+  );
 
-  return state
+  return state;
 }
 
-function readStorage<T>(key: string, defaultValue: T): T {
-  try {
-    const raw = localStorage.getItem(key)
-    if (raw === null) return defaultValue
-    return JSON.parse(raw) as T
-  } catch {
-    return defaultValue
+function readStorage<T>(key: string, defaultValue: T): T
+{
+  try
+  {
+    const raw = localStorage.getItem(key);
+    if (raw === null) return defaultValue;
+    return JSON.parse(raw) as T;
+  }
+  catch
+  {
+    return defaultValue;
   }
 }
 
-function writeStorage<T>(key: string, value: T): void {
-  try {
-    localStorage.setItem(key, JSON.stringify(value))
-  } catch {
+function writeStorage<T>(key: string, value: T): void
+{
+  try
+  {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+  catch
+  {
     // Storage disabled, blocked, or full: keep working in-memory, just don't persist.
   }
 }

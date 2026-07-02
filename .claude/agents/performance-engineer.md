@@ -1,6 +1,6 @@
 ---
 name: performance-engineer
-description: 'Bundle size and load-performance review for the Converter SPA: Vite build output, the ~3.3MB hero background image, font loading, and route-level code splitting. Invoke when the build gets noticeably bigger or slower, or before adding a new asset/dependency.'
+description: "Bundle size and load-performance review for the Converter SPA: Vite build output, the ~3.3MB hero background image, font loading, and route-level code splitting. Invoke when the build gets noticeably bigger or slower, or before adding a new asset/dependency."
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: sonnet
 ---

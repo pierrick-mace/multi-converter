@@ -1,43 +1,46 @@
 <script setup lang="ts">
-import { watch } from 'vue'
-import { ArrowRightLeft, Copy, Check } from '@lucide/vue'
-import { useClipboard } from '@/composables/useClipboard'
-import { useUnitConverter } from '@/composables/useUnitConverter'
-import { useLocalStorage } from '@/composables/useLocalStorage'
-import { dataSizeModule } from '@/composables/unitModules'
+import { dataSizeModule } from '@/composables/unitModules';
+import { useClipboard } from '@/composables/useClipboard';
+import { useLocalStorage } from '@/composables/useLocalStorage';
+import { useUnitConverter } from '@/composables/useUnitConverter';
+import { ArrowRightLeft, Check, Copy } from '@lucide/vue';
+import { watch } from 'vue';
 
-const { copied, copy } = useClipboard()
-const converter = useUnitConverter(dataSizeModule)
+const { copied, copy } = useClipboard();
+const converter = useUnitConverter(dataSizeModule);
 
-interface StoredUnitPair {
-  from: string
-  to: string
+interface StoredUnitPair
+{
+  from: string;
+  to: string;
 }
 
 // Local persistence of the last from/to selection, same pattern as
 // `UnitsView`: no URL state here, so the stored pair (when present and still
 // valid for the module's unit table) is simply applied once at setup, then
 // kept in sync afterwards.
-const storedUnits = useLocalStorage<StoredUnitPair | null>('converter:data:units', null)
-const validUnitIds = new Set(dataSizeModule.units.map((unit) => unit.id))
+const storedUnits = useLocalStorage<StoredUnitPair | null>('converter:data:units', null);
+const validUnitIds = new Set(dataSizeModule.units.map((unit) => unit.id));
 
-if (storedUnits.value && validUnitIds.has(storedUnits.value.from) && validUnitIds.has(storedUnits.value.to)) {
-  converter.from.value = storedUnits.value.from
-  converter.to.value = storedUnits.value.to
+if (storedUnits.value && validUnitIds.has(storedUnits.value.from) && validUnitIds.has(storedUnits.value.to))
+{
+  converter.from.value = storedUnits.value.from;
+  converter.to.value = storedUnits.value.to;
 }
 
 watch([converter.from, converter.to], ([from, to]) => {
-  storedUnits.value = { from, to }
-})
+  storedUnits.value = { from, to };
+});
 
-const displayFormatter = new Intl.NumberFormat('en', { maximumFractionDigits: 6 })
+const displayFormatter = new Intl.NumberFormat('en', { maximumFractionDigits: 6 });
 const copyFormatter = new Intl.NumberFormat('en', {
   maximumFractionDigits: 6,
   useGrouping: false,
-})
+});
 
-function formatResult(result: number | null): string {
-  return result === null ? '' : displayFormatter.format(result)
+function formatResult(result: number | null): string
+{
+  return result === null ? '' : displayFormatter.format(result);
 }
 </script>
 

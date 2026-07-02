@@ -1,7 +1,7 @@
-import { watch } from 'vue'
-import type { Ref } from 'vue'
-import type { LocationQueryRaw } from 'vue-router'
-import { useRoute, useRouter } from 'vue-router'
+import { watch } from 'vue';
+import type { Ref } from 'vue';
+import type { LocationQueryRaw } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 /**
  * Binds a single query-string param to a ref.
@@ -14,13 +14,14 @@ import { useRoute, useRouter } from 'vue-router'
  * `toQuery` doubles as "is this the default value": return `undefined` to
  * omit the param from the URL entirely, keeping default-state URLs clean.
  */
-export interface QueryBinding<T = unknown> {
-  ref: Ref<T>
-  fromQuery: (raw: string) => T | undefined
-  toQuery: (value: T) => string | undefined
+export interface QueryBinding<T = unknown>
+{
+  ref: Ref<T>;
+  fromQuery: (raw: string) => T | undefined;
+  toQuery: (value: T) => string | undefined;
 }
 
-export type QueryBindings = Record<string, QueryBinding>
+export type QueryBindings = Record<string, QueryBinding>;
 
 /**
  * Keeps a set of refs in sync with the current route's query params, the
@@ -40,53 +41,61 @@ export type QueryBindings = Record<string, QueryBinding>
  * from what is already in the URL, so a ref set from the current query
  * always re-serializes to that same value and the write step is a no-op.
  */
-export function useQuerySync(bindings: QueryBindings) {
-  const route = useRoute()
-  const router = useRouter()
+export function useQuerySync(bindings: QueryBindings)
+{
+  const route = useRoute();
+  const router = useRouter();
 
-  function readFromRoute() {
-    for (const [key, binding] of Object.entries(bindings)) {
-      const raw = route.query[key]
-      if (typeof raw !== 'string') continue
-      const parsed = binding.fromQuery(raw)
-      if (parsed === undefined) continue
-      binding.ref.value = parsed
+  function readFromRoute()
+  {
+    for (const [key, binding] of Object.entries(bindings))
+    {
+      const raw = route.query[key];
+      if (typeof raw !== 'string') continue;
+      const parsed = binding.fromQuery(raw);
+      if (parsed === undefined) continue;
+      binding.ref.value = parsed;
     }
   }
 
-  function writeToRoute() {
-    const query: LocationQueryRaw = { ...route.query }
-    let changed = false
+  function writeToRoute()
+  {
+    const query: LocationQueryRaw = { ...route.query };
+    let changed = false;
 
-    for (const [key, binding] of Object.entries(bindings)) {
-      const serialized = binding.toQuery(binding.ref.value)
-      const current = route.query[key]
+    for (const [key, binding] of Object.entries(bindings))
+    {
+      const serialized = binding.toQuery(binding.ref.value);
+      const current = route.query[key];
 
-      if (serialized === undefined) {
-        if (key in query) {
-          delete query[key]
-          changed = true
+      if (serialized === undefined)
+      {
+        if (key in query)
+        {
+          delete query[key];
+          changed = true;
         }
-        continue
+        continue;
       }
 
-      if (current !== serialized) {
-        query[key] = serialized
-        changed = true
+      if (current !== serialized)
+      {
+        query[key] = serialized;
+        changed = true;
       }
     }
 
-    if (changed) router.replace({ query })
+    if (changed) router.replace({ query });
   }
 
-  readFromRoute()
+  readFromRoute();
 
   watch(
     Object.values(bindings).map((binding) => binding.ref),
     writeToRoute,
-  )
+  );
 
-  watch(() => route.query, readFromRoute)
+  watch(() => route.query, readFromRoute);
 
-  return { readFromRoute, writeToRoute }
+  return { readFromRoute, writeToRoute };
 }

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ArrowRightLeft } from '@lucide/vue'
-import { modules } from '@/router/modules'
+import { modules } from '@/router/modules';
+import { ArrowRightLeft } from '@lucide/vue';
 
-function moduleIndex(i: number): string {
-  return String(i + 1).padStart(2, '0')
+function moduleIndex(i: number): string
+{
+  return String(i + 1).padStart(2, '0');
 }
 </script>
 

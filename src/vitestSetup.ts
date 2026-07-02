@@ -11,16 +11,17 @@
 // Restore the real jsdom `Storage` instance so specs (and any app code
 // exercised by them, e.g. `useLocalStorage`) see an ordinary, working
 // `localStorage`, same as in a browser.
-const jsdomWindow = (globalThis as { jsdom?: { window?: Window } }).jsdom?.window
-if (jsdomWindow && !(globalThis.localStorage instanceof jsdomWindow.Storage)) {
+const jsdomWindow = (globalThis as { jsdom?: { window?: Window; }; }).jsdom?.window;
+if (jsdomWindow && !(globalThis.localStorage instanceof jsdomWindow.Storage))
+{
   Object.defineProperty(globalThis, 'localStorage', {
     value: jsdomWindow.localStorage,
     configurable: true,
     writable: true,
-  })
+  });
   Object.defineProperty(globalThis, 'sessionStorage', {
     value: jsdomWindow.sessionStorage,
     configurable: true,
     writable: true,
-  })
+  });
 }

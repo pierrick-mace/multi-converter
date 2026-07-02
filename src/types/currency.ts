@@ -1,6 +1,7 @@
-export interface Currency {
-  code: string
-  rate: number
+export interface Currency
+{
+  code: string;
+  rate: number;
 }
 
 /**
@@ -11,25 +12,29 @@ export interface Currency {
  * `.date` keeps working unchanged, with callers that care about staleness
  * opting in via `data.stale`.
  */
-export interface StaleMeta {
-  stale?: boolean
-  cachedAt?: string
+export interface StaleMeta
+{
+  stale?: boolean;
+  cachedAt?: string;
 }
 
-export interface ExchangeRatesResponse extends StaleMeta {
-  base: string
-  date: string
-  rates: Record<string, number>
+export interface ExchangeRatesResponse extends StaleMeta
+{
+  base: string;
+  date: string;
+  rates: Record<string, number>;
 }
 
-export interface RateHistoryResponse extends StaleMeta {
-  base: string
-  start_date: string
-  end_date: string
-  rates: Record<string, Record<string, number>>
+export interface RateHistoryResponse extends StaleMeta
+{
+  base: string;
+  start_date: string;
+  end_date: string;
+  rates: Record<string, Record<string, number>>;
 }
 
-export interface RatePoint {
-  date: string
-  rate: number
+export interface RatePoint
+{
+  date: string;
+  rate: number;
 }

@@ -1,27 +1,27 @@
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import { ArrowRightLeft, ArrowDown, ArrowUp, Minus, X, Copy, Check, Link2 } from '@lucide/vue'
-import RateChart from '@/components/RateChart.vue'
-import { useCurrencyRates } from '@/composables/useCurrencyRates'
-import { HISTORY_RANGES, useRateHistory } from '@/composables/useRateHistory'
-import type { HistoryRangeDays } from '@/composables/useRateHistory'
-import { defaultBoardFor, useRateBoard } from '@/composables/useRateBoard'
-import { useQuerySync } from '@/composables/useQuerySync'
-import type { QueryBinding } from '@/composables/useQuerySync'
-import { useLocalStorage } from '@/composables/useLocalStorage'
-import { useClipboard } from '@/composables/useClipboard'
-import { formatCurrencyAmount } from '@/composables/formatCurrency'
-import { deltaTone } from '@/composables/chartStats'
+import RateChart from '@/components/RateChart.vue';
+import { deltaTone } from '@/composables/chartStats';
+import { formatCurrencyAmount } from '@/composables/formatCurrency';
+import { useClipboard } from '@/composables/useClipboard';
+import { useCurrencyRates } from '@/composables/useCurrencyRates';
+import { useLocalStorage } from '@/composables/useLocalStorage';
+import { useQuerySync } from '@/composables/useQuerySync';
+import type { QueryBinding } from '@/composables/useQuerySync';
+import { defaultBoardFor, useRateBoard } from '@/composables/useRateBoard';
+import { HISTORY_RANGES, useRateHistory } from '@/composables/useRateHistory';
+import type { HistoryRangeDays } from '@/composables/useRateHistory';
+import { ArrowDown, ArrowRightLeft, ArrowUp, Check, Copy, Link2, Minus, X } from '@lucide/vue';
+import { computed, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 
-const route = useRoute()
+const route = useRoute();
 
-const DEFAULT_FROM = 'EUR'
-const DEFAULT_TO = 'USD'
+const DEFAULT_FROM = 'EUR';
+const DEFAULT_TO = 'USD';
 
 // Frankfurter's data starts here; the date input is clamped to this range.
-const MIN_DATE = '1999-01-04'
-const todayDate = new Date().toISOString().slice(0, 10)
+const MIN_DATE = '1999-01-04';
+const todayDate = new Date().toISOString().slice(0, 10);
 
 const {
   currencies,
@@ -42,7 +42,7 @@ const {
   loadCurrencies,
   loadRatesForSelectedCurrency,
   swapCurrencies,
-} = useCurrencyRates()
+} = useCurrencyRates();
 
 const {
   points: historyPoints,
@@ -52,7 +52,7 @@ const {
 } = useRateHistory(
   () => selectedCurrency.value.code,
   () => targetCurrency.value.code,
-)
+);
 
 const {
   targetCodes: boardCodes,
@@ -66,11 +66,11 @@ const {
   () => selectedCurrency.value.code,
   () => currencies.value,
   () => conversionDate.value,
-)
+);
 
 const boardDisplayRows = computed(() =>
   boardCodes.value.map((code) => {
-    const row = boardRows.value.find((entry) => entry.code === code)
+    const row = boardRows.value.find((entry) => entry.code === code);
     return {
       code,
       rate: row?.rate ?? null,
@@ -80,44 +80,47 @@ const boardDisplayRows = computed(() =>
       // move that still rounds to "+0.00%" reads as neutral, same threshold
       // RateChart's range-change header uses.
       tone: deltaTone(row?.deltaPercent ?? null),
-    }
-  }),
-)
+    };
+  })
+);
 
 // Same flat-threshold classification as the board rows, for the converter's
 // own unit-rate delta badge.
-const converterDeltaTone = computed(() => deltaTone(deltaPercent.value))
+const converterDeltaTone = computed(() => deltaTone(deltaPercent.value));
 
 const addableBoardCurrencies = computed(() =>
-  currencies.value.filter((currency) => currency.code !== fromCode.value && !boardCodes.value.includes(currency.code)),
-)
+  currencies.value.filter((currency) => currency.code !== fromCode.value && !boardCodes.value.includes(currency.code))
+);
 
-function onAddBoardTarget(event: Event) {
-  const select = event.target as HTMLSelectElement
-  if (select.value) addBoardTarget(select.value)
-  select.value = ''
+function onAddBoardTarget(event: Event)
+{
+  const select = event.target as HTMLSelectElement;
+  if (select.value) addBoardTarget(select.value);
+  select.value = '';
 }
 
-const rateFormatter = new Intl.NumberFormat('en', { maximumSignificantDigits: 5 })
+const rateFormatter = new Intl.NumberFormat('en', { maximumSignificantDigits: 5 });
 const deltaPercentFormatter = new Intl.NumberFormat('en', {
   maximumFractionDigits: 2,
   signDisplay: 'always',
-})
+});
 
 // One `useClipboard` instance per button, per the Phase 1 convention: sharing
 // a single instance would make both buttons flash "copied" together.
-const amountClipboard = useClipboard()
-const shareClipboard = useClipboard()
+const amountClipboard = useClipboard();
+const shareClipboard = useClipboard();
 
-function copyConvertedAmount() {
-  amountClipboard.copy(formatCurrencyAmount(amountConverted.value, targetCurrency.value.code))
+function copyConvertedAmount()
+{
+  amountClipboard.copy(formatCurrencyAmount(amountConverted.value, targetCurrency.value.code));
 }
 
-function copyShareLink() {
+function copyShareLink()
+{
   // The app's entire state (pair, amount, range, date, board) already lives
   // in the URL query via `useQuerySync`, so the current URL IS the share
   // payload: no need to build it by hand.
-  shareClipboard.copy(window.location.href)
+  shareClipboard.copy(window.location.href);
 }
 
 // Thin string adapters over the Currency-object refs, so the URL only ever
@@ -127,21 +130,21 @@ function copyShareLink() {
 const fromCode = computed<string>({
   get: () => selectedCurrency.value.code,
   set: (code) => {
-    const match = currencies.value.find((currency) => currency.code === code)
-    if (!match || match.code === selectedCurrency.value.code) return
-    selectedCurrency.value = match
-    loadRatesForSelectedCurrency()
+    const match = currencies.value.find((currency) => currency.code === code);
+    if (!match || match.code === selectedCurrency.value.code) return;
+    selectedCurrency.value = match;
+    loadRatesForSelectedCurrency();
   },
-})
+});
 
 const toCode = computed<string>({
   get: () => targetCurrency.value.code,
   set: (code) => {
-    const match = currencies.value.find((currency) => currency.code === code)
-    if (!match) return
-    targetCurrency.value = match
+    const match = currencies.value.find((currency) => currency.code === code);
+    if (!match) return;
+    targetCurrency.value = match;
   },
-})
+});
 
 // Domain-shaped adapter (string | null, null meaning "latest") over
 // `conversionDate`, used for URL sync. Setting it (and only actually
@@ -150,52 +153,58 @@ const toCode = computed<string>({
 const dateQuery = computed<string | null>({
   get: () => conversionDate.value,
   set: (value) => {
-    if (value === conversionDate.value) return
-    conversionDate.value = value
-    loadRatesForSelectedCurrency()
+    if (value === conversionDate.value) return;
+    conversionDate.value = value;
+    loadRatesForSelectedCurrency();
   },
-})
+});
 
 // DOM-shaped adapter over `dateQuery`: native <input type="date"> wants a
 // plain string, using '' for "no date selected", never null.
 const dateInputValue = computed<string>({
   get: () => dateQuery.value ?? '',
   set: (value) => {
-    dateQuery.value = value === '' ? null : value
+    dateQuery.value = value === '' ? null : value;
   },
-})
+});
 
-function backToLatest() {
-  dateQuery.value = null
+function backToLatest()
+{
+  dateQuery.value = null;
 }
 
-function parseCurrencyCode(raw: string): string | undefined {
-  const code = raw.toUpperCase()
-  return currencies.value.some((currency) => currency.code === code) ? code : undefined
+function parseCurrencyCode(raw: string): string | undefined
+{
+  const code = raw.toUpperCase();
+  return currencies.value.some((currency) => currency.code === code) ? code : undefined;
 }
 
-function parseAmount(raw: string): number | undefined {
-  const value = Number(raw)
-  return Number.isFinite(value) && value > 0 ? value : undefined
+function parseAmount(raw: string): number | undefined
+{
+  const value = Number(raw);
+  return Number.isFinite(value) && value > 0 ? value : undefined;
 }
 
-function parseRange(raw: string): HistoryRangeDays | undefined {
-  const upper = raw.toUpperCase()
-  return HISTORY_RANGES.find((range) => range.label === upper)?.days
+function parseRange(raw: string): HistoryRangeDays | undefined
+{
+  const upper = raw.toUpperCase();
+  return HISTORY_RANGES.find((range) => range.label === upper)?.days;
 }
 
-function parseConversionDate(raw: string): string | undefined {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return undefined
-  return raw >= MIN_DATE && raw <= todayDate ? raw : undefined
+function parseConversionDate(raw: string): string | undefined
+{
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return undefined;
+  return raw >= MIN_DATE && raw <= todayDate ? raw : undefined;
 }
 
 // Order-insensitive equality; both `a` and `b` are always already-deduped
 // currency-code lists (see `parseBoardCodes` and `useRateBoard`'s own
 // validation), so a length check plus a one-way membership check is enough.
-function sameCodes(a: string[], b: string[]): boolean {
-  if (a.length !== b.length) return false
-  const setA = new Set(a)
-  return b.every((code) => setA.has(code))
+function sameCodes(a: string[], b: string[]): boolean
+{
+  if (a.length !== b.length) return false;
+  const setA = new Set(a);
+  return b.every((code) => setA.has(code));
 }
 
 // The default basket, minus the base, further narrowed to codes the loaded
@@ -204,23 +213,27 @@ function sameCodes(a: string[], b: string[]): boolean {
 // (rather than the raw `defaultBoardFor`) is what keeps default-state URLs
 // free of a `board` param.
 const defaultBoardCodes = computed<string[]>(() =>
-  defaultBoardFor(fromCode.value).filter((code) => currencies.value.some((currency) => currency.code === code)),
-)
+  defaultBoardFor(fromCode.value).filter((code) => currencies.value.some((currency) => currency.code === code))
+);
 
-function parseBoardCodes(raw: string): string[] {
-  const base = fromCode.value
-  const seen = new Set<string>()
-  const valid: string[] = []
-  for (const code of raw
-    .split(',')
-    .map((entry) => entry.trim().toUpperCase())
-    .filter(Boolean)) {
-    if (code === base || seen.has(code)) continue
-    if (!currencies.value.some((currency) => currency.code === code)) continue
-    seen.add(code)
-    valid.push(code)
+function parseBoardCodes(raw: string): string[]
+{
+  const base = fromCode.value;
+  const seen = new Set<string>();
+  const valid: string[] = [];
+  for (
+    const code of raw
+      .split(',')
+      .map((entry) => entry.trim().toUpperCase())
+      .filter(Boolean)
+  )
+  {
+    if (code === base || seen.has(code)) continue;
+    if (!currencies.value.some((currency) => currency.code === code)) continue;
+    seen.add(code);
+    valid.push(code);
   }
-  return valid
+  return valid;
 }
 
 // Writable adapter over the board's (read-only) `targetCodes`: the setter
@@ -232,10 +245,10 @@ function parseBoardCodes(raw: string): string[] {
 const boardCodesQuery = computed<string[]>({
   get: () => boardCodes.value,
   set: (codes) => {
-    if (sameCodes(codes, boardCodes.value)) return
-    setBoardCodes(codes)
+    if (sameCodes(codes, boardCodes.value)) return;
+    setBoardCodes(codes);
   },
-})
+});
 
 const { readFromRoute } = useQuerySync({
   from: {
@@ -268,11 +281,12 @@ const { readFromRoute } = useQuerySync({
     fromQuery: parseBoardCodes,
     toQuery: (value) => (sameCodes(value, defaultBoardCodes.value) ? undefined : value.join(',')),
   } satisfies QueryBinding<string[]>,
-})
+});
 
-interface StoredPair {
-  from: string
-  to: string
+interface StoredPair
+{
+  from: string;
+  to: string;
 }
 
 // Local-storage fallbacks for the same state `useQuerySync` above already
@@ -283,19 +297,19 @@ interface StoredPair {
 // specific, not part of "last setup". Applied once in `onMounted`, below,
 // after `loadCurrencies` resolves and before `readFromRoute`; kept in sync
 // afterwards by the watchers right after.
-const pairStorage = useLocalStorage<StoredPair | null>('converter:currencies:pair', null)
-const boardStorage = useLocalStorage<string[] | null>('converter:currencies:board', null)
-const rangeStorage = useLocalStorage<HistoryRangeDays | null>('converter:currencies:range', null)
+const pairStorage = useLocalStorage<StoredPair | null>('converter:currencies:pair', null);
+const boardStorage = useLocalStorage<string[] | null>('converter:currencies:board', null);
+const rangeStorage = useLocalStorage<HistoryRangeDays | null>('converter:currencies:range', null);
 
 watch([fromCode, toCode], ([from, to]) => {
-  pairStorage.value = { from, to }
-})
+  pairStorage.value = { from, to };
+});
 watch(boardCodes, (codes) => {
-  boardStorage.value = [...codes]
-})
+  boardStorage.value = [...codes];
+});
 watch(rangeDays, (days) => {
-  rangeStorage.value = days
-})
+  rangeStorage.value = days;
+});
 
 onMounted(async () => {
   // Snapshotted *before* `loadCurrencies()` below, not read fresh afterwards:
@@ -307,11 +321,11 @@ onMounted(async () => {
   // resumes. Reading `pairStorage.value` fresh after the `await` would then
   // observe that just-written default pair instead of the genuinely stored
   // one, silently defeating storage on every single load.
-  const storedPair = pairStorage.value
-  const storedBoard = boardStorage.value
-  const storedRange = rangeStorage.value
+  const storedPair = pairStorage.value;
+  const storedBoard = boardStorage.value;
+  const storedRange = rangeStorage.value;
 
-  await loadCurrencies()
+  await loadCurrencies();
   // The currency list just finished loading async, so `from`/`to`/`board`
   // query params (invalid until now, since there was nothing to validate
   // them against) can be re-applied on top of the freshly loaded defaults.
@@ -326,23 +340,26 @@ onMounted(async () => {
   // is the "URL wins" half of the rule; invalid params are already handled
   // for free since `readFromRoute`'s `fromQuery` validators leave the ref
   // (here, already set from storage) untouched on parse failure.
-  if (storedPair) {
-    if (typeof route.query.from !== 'string') fromCode.value = storedPair.from
-    if (typeof route.query.to !== 'string') toCode.value = storedPair.to
+  if (storedPair)
+  {
+    if (typeof route.query.from !== 'string') fromCode.value = storedPair.from;
+    if (typeof route.query.to !== 'string') toCode.value = storedPair.to;
   }
-  if (Array.isArray(storedBoard) && typeof route.query.board !== 'string') {
-    boardCodesQuery.value = storedBoard
+  if (Array.isArray(storedBoard) && typeof route.query.board !== 'string')
+  {
+    boardCodesQuery.value = storedBoard;
   }
   if (
-    storedRange !== null &&
-    HISTORY_RANGES.some((range) => range.days === storedRange) &&
-    typeof route.query.range !== 'string'
-  ) {
-    rangeDays.value = storedRange
+    storedRange !== null
+    && HISTORY_RANGES.some((range) => range.days === storedRange)
+    && typeof route.query.range !== 'string'
+  )
+  {
+    rangeDays.value = storedRange;
   }
 
-  readFromRoute()
-})
+  readFromRoute();
+});
 </script>
 
 <template>
@@ -561,11 +578,9 @@ onMounted(async () => {
             :key="range.days"
             type="button"
             class="border px-3 py-1 font-mono text-xs uppercase transition-colors"
-            :class="
-              rangeDays === range.days
-                ? 'border-accent bg-accent text-abyss'
-                : 'border-rule text-ink-dim hover:border-accent hover:text-accent'
-            "
+            :class="rangeDays === range.days
+            ? 'border-accent bg-accent text-abyss'
+            : 'border-rule text-ink-dim hover:border-accent hover:text-accent'"
             :aria-pressed="rangeDays === range.days"
             @click="rangeDays = range.days"
           >

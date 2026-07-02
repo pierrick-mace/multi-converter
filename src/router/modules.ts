@@ -1,5 +1,5 @@
-import { Thermometer, Coins, Ruler, Binary, Database } from '@lucide/vue'
-import type { Component } from 'vue'
+import { Binary, Coins, Database, Ruler, Thermometer } from '@lucide/vue';
+import type { Component } from 'vue';
 
 /**
  * Single source of truth for every conversion module: NavBar links and the
@@ -7,17 +7,18 @@ import type { Component } from 'vue'
  * components stay lazily imported in `src/router/index.ts`; this registry
  * only carries display metadata.
  */
-export interface ConversionModule {
+export interface ConversionModule
+{
   /** Route path, matches the corresponding entry in src/router/index.ts. */
-  path: string
+  path: string;
   /** Route name, matches the corresponding entry in src/router/index.ts. */
-  name: string
+  name: string;
   /** Short nav/card label. */
-  label: string
+  label: string;
   /** One-line description shown on the home card. */
-  description: string
+  description: string;
   /** Lucide icon component. */
-  icon: Component
+  icon: Component;
 }
 
 export const modules: ConversionModule[] = [
@@ -56,4 +57,4 @@ export const modules: ConversionModule[] = [
     description: 'Bits and bytes, decimal and binary prefixes.',
     icon: Database,
   },
-]
+];

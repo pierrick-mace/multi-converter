@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { Copy, Check } from '@lucide/vue'
-import { useClipboard } from '@/composables/useClipboard'
-import { useBaseConverter, type Base } from '@/composables/useBaseConverter'
+import { type Base, useBaseConverter } from '@/composables/useBaseConverter';
+import { useClipboard } from '@/composables/useClipboard';
+import { Check, Copy } from '@lucide/vue';
+import { computed } from 'vue';
 
 const { binary, octal, decimal, hex, error, updateFromBinary, updateFromOctal, updateFromDecimal, updateFromHex } =
-  useBaseConverter()
+  useBaseConverter();
 
 const fields = [
   {
@@ -48,12 +48,13 @@ const fields = [
     onInput: updateFromHex,
     clipboard: useClipboard(),
   },
-] as const
+] as const;
 
-const errorMessage = computed(() => error.value?.message ?? null)
+const errorMessage = computed(() => error.value?.message ?? null);
 
-function fieldHasError(base: Base) {
-  return error.value?.base === base
+function fieldHasError(base: Base)
+{
+  return error.value?.base === base;
 }
 </script>
 

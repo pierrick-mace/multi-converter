@@ -1,27 +1,30 @@
-import { computed, ref, watch } from 'vue'
-import { fetchRates, fetchRatesOn } from '@/services/exchangeRates'
-import type { Currency } from '@/types/currency'
+import { fetchRates, fetchRatesOn } from '@/services/exchangeRates';
+import type { Currency } from '@/types/currency';
+import { computed, ref, watch } from 'vue';
 
 /** Standard four-currency basket; `defaultBoardFor` drops the base from it. */
-export const DEFAULT_BOARD_CODES = ['USD', 'GBP', 'CHF', 'JPY']
+export const DEFAULT_BOARD_CODES = ['USD', 'GBP', 'CHF', 'JPY'];
 
-export interface BoardRow {
-  code: string
-  rate: number
-  delta: number | null
-  deltaPercent: number | null
+export interface BoardRow
+{
+  code: string;
+  rate: number;
+  delta: number | null;
+  deltaPercent: number | null;
 }
 
 /** Default basket for a given base currency: the standard four, minus the base itself. */
-export function defaultBoardFor(base: string): string[] {
-  return DEFAULT_BOARD_CODES.filter((code) => code !== base)
+export function defaultBoardFor(base: string): string[]
+{
+  return DEFAULT_BOARD_CODES.filter((code) => code !== base);
 }
 
 /** Calendar day before `dateStr` (YYYY-MM-DD), computed in UTC to dodge local-timezone drift. */
-function dayBefore(dateStr: string): string {
-  const date = new Date(`${dateStr}T00:00:00Z`)
-  date.setUTCDate(date.getUTCDate() - 1)
-  return date.toISOString().slice(0, 10)
+function dayBefore(dateStr: string): string
+{
+  const date = new Date(`${dateStr}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() - 1);
+  return date.toISOString().slice(0, 10);
 }
 
 /**
@@ -43,21 +46,22 @@ export function useRateBoard(
   baseCode: () => string,
   availableCurrencies: () => Currency[],
   date: () => string | null = () => null,
-) {
+)
+{
   // `null` means "not customized": track the default basket for the current
   // base reactively rather than needing an imperative seed step once the
   // currency list finishes loading. Set to an explicit array once the user
   // (or a `?board=` URL param) customizes the basket.
-  const customCodes = ref<string[] | null>(null)
-  const rows = ref<BoardRow[]>([])
-  const loading = ref(false)
-  const error = ref<string | null>(null)
+  const customCodes = ref<string[] | null>(null);
+  const rows = ref<BoardRow[]>([]);
+  const loading = ref(false);
+  const error = ref<string | null>(null);
   // True when `rows` were served from the offline cache after a live fetch
   // failed (see `src/services/exchangeRates.ts`), rather than thrown into
   // `error`. Reset on every load attempt so a subsequent successful, live
   // fetch clears it again.
-  const stale = ref(false)
-  let requestId = 0
+  const stale = ref(false);
+  let requestId = 0;
 
   /**
    * Security: target codes can arrive from user-editable state (a URL query
@@ -67,17 +71,19 @@ export function useRateBoard(
    * URL. Unknown codes, duplicates, and the current base are dropped
    * silently instead of being sent to the API.
    */
-  function validCodesFor(base: string, codes: string[]): string[] {
-    const known = availableCurrencies()
-    const seen = new Set<string>()
-    const valid: string[] = []
-    for (const code of codes) {
-      if (code === base || seen.has(code)) continue
-      if (!known.some((currency) => currency.code === code)) continue
-      seen.add(code)
-      valid.push(code)
+  function validCodesFor(base: string, codes: string[]): string[]
+  {
+    const known = availableCurrencies();
+    const seen = new Set<string>();
+    const valid: string[] = [];
+    for (const code of codes)
+    {
+      if (code === base || seen.has(code)) continue;
+      if (!known.some((currency) => currency.code === code)) continue;
+      seen.add(code);
+      valid.push(code);
     }
-    return valid
+    return valid;
   }
 
   // The effective, validated basket: derived, not stored, so it is always
@@ -85,84 +91,97 @@ export function useRateBoard(
   // with no risk of a stale value being observed (e.g. by the URL sync)
   // during the async window before the currency list has loaded.
   const targetCodes = computed<string[]>(() => {
-    const base = baseCode()
-    return validCodesFor(base, customCodes.value ?? defaultBoardFor(base))
-  })
+    const base = baseCode();
+    return validCodesFor(base, customCodes.value ?? defaultBoardFor(base));
+  });
 
-  function setTargetCodes(codes: string[]) {
-    customCodes.value = codes
+  function setTargetCodes(codes: string[])
+  {
+    customCodes.value = codes;
   }
 
-  function addTarget(code: string) {
-    const current = targetCodes.value
-    if (code === baseCode() || current.includes(code)) return
-    if (!availableCurrencies().some((currency) => currency.code === code)) return
-    customCodes.value = [...current, code]
+  function addTarget(code: string)
+  {
+    const current = targetCodes.value;
+    if (code === baseCode() || current.includes(code)) return;
+    if (!availableCurrencies().some((currency) => currency.code === code)) return;
+    customCodes.value = [...current, code];
   }
 
-  function removeTarget(code: string) {
-    customCodes.value = targetCodes.value.filter((existing) => existing !== code)
+  function removeTarget(code: string)
+  {
+    customCodes.value = targetCodes.value.filter((existing) => existing !== code);
   }
 
-  async function loadBoard() {
-    const base = baseCode()
-    const symbols = targetCodes.value
+  async function loadBoard()
+  {
+    const base = baseCode();
+    const symbols = targetCodes.value;
 
-    if (!base || symbols.length === 0) {
+    if (!base || symbols.length === 0)
+    {
       // Bump requestId even though there's nothing to fetch: this invalidates
       // any still-in-flight request from a previous, non-empty basket, so its
       // response can't land after `rows` was just cleared and repopulate it
       // with stale data.
-      ++requestId
-      rows.value = []
-      error.value = null
-      stale.value = false
-      loading.value = false
-      return
+      ++requestId;
+      rows.value = [];
+      error.value = null;
+      stale.value = false;
+      loading.value = false;
+      return;
     }
 
-    const id = ++requestId
-    loading.value = true
-    error.value = null
-    try {
-      const symbolsParam = symbols.join(',')
-      const requestedDate = date()
+    const id = ++requestId;
+    loading.value = true;
+    error.value = null;
+    try
+    {
+      const symbolsParam = symbols.join(',');
+      const requestedDate = date();
       const latest = requestedDate
         ? await fetchRatesOn(requestedDate, base, symbolsParam)
-        : await fetchRates(base, symbolsParam)
-      if (id !== requestId) return
-      stale.value = latest.stale === true
+        : await fetchRates(base, symbolsParam);
+      if (id !== requestId) return;
+      stale.value = latest.stale === true;
 
-      let previousRates: Record<string, number> = {}
-      try {
+      let previousRates: Record<string, number> = {};
+      try
+      {
         // dayBefore the API-returned *effective* date (`latest.date`), not
         // the requested one: same non-trading-day resolution caveat as
         // `useCurrencyRates.loadPreviousRates`.
-        const previous = await fetchRatesOn(dayBefore(latest.date), base, symbolsParam)
-        if (id !== requestId) return
-        previousRates = previous.rates
-      } catch {
+        const previous = await fetchRatesOn(dayBefore(latest.date), base, symbolsParam);
+        if (id !== requestId) return;
+        previousRates = previous.rates;
+      }
+      catch
+      {
         // Same rationale as useCurrencyRates.loadPreviousRates: this only
         // feeds the delta indicator, so a failure here shouldn't take down
         // the whole board.
       }
-      if (id !== requestId) return
+      if (id !== requestId) return;
 
       rows.value = symbols
         .filter((code) => typeof latest.rates[code] === 'number')
         .map((code) => {
-          const rate = latest.rates[code]
-          const previousRate = previousRates[code]
-          const delta = typeof previousRate === 'number' ? rate - previousRate : null
-          const deltaPercent = delta !== null && previousRate ? (delta / previousRate) * 100 : null
-          return { code, rate, delta, deltaPercent }
-        })
-    } catch (err) {
-      if (id !== requestId) return
-      rows.value = []
-      error.value = err instanceof Error ? err.message : 'Failed to load rate board'
-    } finally {
-      if (id === requestId) loading.value = false
+          const rate = latest.rates[code];
+          const previousRate = previousRates[code];
+          const delta = typeof previousRate === 'number' ? rate - previousRate : null;
+          const deltaPercent = delta !== null && previousRate ? (delta / previousRate) * 100 : null;
+          return { code, rate, delta, deltaPercent };
+        });
+    }
+    catch (err)
+    {
+      if (id !== requestId) return;
+      rows.value = [];
+      error.value = err instanceof Error ? err.message : 'Failed to load rate board';
+    }
+    finally
+    {
+      if (id === requestId) loading.value = false;
     }
   }
 
@@ -170,7 +189,7 @@ export function useRateBoard(
   // constructed, not just on later base/basket/date changes: a request-
   // triggering point future composables reusing this pattern should account
   // for in the app's mount-time fetch cascade.
-  watch([baseCode, targetCodes, date], loadBoard, { immediate: true })
+  watch([baseCode, targetCodes, date], loadBoard, { immediate: true });
 
   return {
     targetCodes,
@@ -182,5 +201,5 @@ export function useRateBoard(
     addTarget,
     removeTarget,
     loadBoard,
-  }
+  };
 }

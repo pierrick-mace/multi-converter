@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { Copy, Check } from '@lucide/vue'
-import { useClipboard } from '@/composables/useClipboard'
-import { useTemperatureConverter } from '@/composables/useTemperatureConverter'
+import { useClipboard } from '@/composables/useClipboard';
+import { useTemperatureConverter } from '@/composables/useTemperatureConverter';
+import { Check, Copy } from '@lucide/vue';
 
 const { celsius, fahrenheit, kelvin, updateFromCelsius, updateFromFahrenheit, updateFromKelvin } =
-  useTemperatureConverter()
-const { copied, copy } = useClipboard()
+  useTemperatureConverter();
+const { copied, copy } = useClipboard();
 
 const fields = [
   {
@@ -32,7 +32,7 @@ const fields = [
     model: kelvin,
     onInput: updateFromKelvin,
   },
-] as const
+] as const;
 </script>
 
 <template>

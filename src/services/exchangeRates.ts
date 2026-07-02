@@ -1,8 +1,8 @@
-import { cacheKeyFor, readCache, withStaleFlag, writeCache } from '@/services/rateCache'
-import type { ExchangeRatesResponse, RateHistoryResponse } from '@/types/currency'
+import { cacheKeyFor, readCache, withStaleFlag, writeCache } from '@/services/rateCache';
+import type { ExchangeRatesResponse, RateHistoryResponse } from '@/types/currency';
 
-const API_BASE = 'https://api.frankfurter.dev/v1'
-const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+const API_BASE = 'https://api.frankfurter.dev/v1';
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
  * Security: guards against path traversal / request smuggling via a
@@ -13,11 +13,13 @@ const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
  * never trip in practice: it's defense in depth against a future caller
  * accidentally forwarding raw user input.
  */
-function assertDateShape(value: string): string {
-  if (!DATE_PATTERN.test(value)) {
-    throw new Error(`Invalid date: expected YYYY-MM-DD, got "${value}"`)
+function assertDateShape(value: string): string
+{
+  if (!DATE_PATTERN.test(value))
+  {
+    throw new Error(`Invalid date: expected YYYY-MM-DD, got "${value}"`);
   }
-  return value
+  return value;
 }
 
 /**
@@ -26,12 +28,14 @@ function assertDateShape(value: string): string {
  * so caller-supplied strings (base/symbols codes) can't break out of the
  * query string or inject extra params.
  */
-function buildUrl(path: string, params: Record<string, string | undefined>): URL {
-  const url = new URL(path, `${API_BASE}/`)
-  for (const [key, value] of Object.entries(params)) {
-    if (value) url.searchParams.set(key, value)
+function buildUrl(path: string, params: Record<string, string | undefined>): URL
+{
+  const url = new URL(path, `${API_BASE}/`);
+  for (const [key, value] of Object.entries(params))
+  {
+    if (value) url.searchParams.set(key, value);
   }
-  return url
+  return url;
 }
 
 /**
@@ -45,26 +49,32 @@ function buildUrl(path: string, params: Record<string, string | undefined>): URL
  * that signature, the original error propagates unchanged: callers see
  * exactly the same failure they did before caching existed.
  */
-async function fetchWithFallback<T extends object>(url: URL, notOkError: (status: number) => string): Promise<T> {
-  const key = cacheKeyFor(url)
-  try {
-    const response = await fetch(url)
-    if (!response.ok) {
-      throw new Error(notOkError(response.status))
+async function fetchWithFallback<T extends object>(url: URL, notOkError: (status: number) => string): Promise<T>
+{
+  const key = cacheKeyFor(url);
+  try
+  {
+    const response = await fetch(url);
+    if (!response.ok)
+    {
+      throw new Error(notOkError(response.status));
     }
-    const data = (await response.json()) as T
-    writeCache(key, data)
-    return data
-  } catch (err) {
-    const cached = readCache<T>(key)
-    if (cached) return withStaleFlag(cached)
-    throw err
+    const data = (await response.json()) as T;
+    writeCache(key, data);
+    return data;
+  }
+  catch (err)
+  {
+    const cached = readCache<T>(key);
+    if (cached) return withStaleFlag(cached);
+    throw err;
   }
 }
 
-export async function fetchRates(base?: string, symbols?: string): Promise<ExchangeRatesResponse> {
-  const url = buildUrl('latest', { base, symbols })
-  return fetchWithFallback<ExchangeRatesResponse>(url, (status) => `Failed to fetch exchange rates: ${status}`)
+export async function fetchRates(base?: string, symbols?: string): Promise<ExchangeRatesResponse>
+{
+  const url = buildUrl('latest', { base, symbols });
+  return fetchWithFallback<ExchangeRatesResponse>(url, (status) => `Failed to fetch exchange rates: ${status}`);
 }
 
 /**
@@ -73,12 +83,14 @@ export async function fetchRates(base?: string, symbols?: string): Promise<Excha
  * should read the resolved date back off the response rather than assume it
  * echoes the requested one.
  */
-export async function fetchRatesOn(date: string, base: string, symbols?: string): Promise<ExchangeRatesResponse> {
-  const url = buildUrl(assertDateShape(date), { base, symbols })
-  return fetchWithFallback<ExchangeRatesResponse>(url, (status) => `Failed to fetch exchange rates: ${status}`)
+export async function fetchRatesOn(date: string, base: string, symbols?: string): Promise<ExchangeRatesResponse>
+{
+  const url = buildUrl(assertDateShape(date), { base, symbols });
+  return fetchWithFallback<ExchangeRatesResponse>(url, (status) => `Failed to fetch exchange rates: ${status}`);
 }
 
-export async function fetchRateHistory(base: string, symbol: string, startDate: string): Promise<RateHistoryResponse> {
-  const url = buildUrl(`${assertDateShape(startDate)}..`, { base, symbols: symbol })
-  return fetchWithFallback<RateHistoryResponse>(url, (status) => `Failed to fetch rate history: ${status}`)
+export async function fetchRateHistory(base: string, symbol: string, startDate: string): Promise<RateHistoryResponse>
+{
+  const url = buildUrl(`${assertDateShape(startDate)}..`, { base, symbols: symbol });
+  return fetchWithFallback<RateHistoryResponse>(url, (status) => `Failed to fetch rate history: ${status}`);
 }
