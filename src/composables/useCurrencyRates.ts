@@ -22,6 +22,11 @@ export function useCurrencyRates() {
   const previousRateDate = ref<string | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
+  // True when `rates`/`rateDate` were served from the offline cache after a
+  // live fetch failed (see `src/services/exchangeRates.ts`), rather than
+  // thrown into `error`. Reset on every load attempt so a subsequent
+  // successful, live fetch clears it again.
+  const stale = ref(false)
   // Requested historical date (YYYY-MM-DD), null meaning "latest". Frankfurter
   // resolves non-trading days to the closest trading day at or before, so the
   // date actually shown to users is `rateDate` (the API-returned date), not
@@ -62,6 +67,7 @@ export function useCurrencyRates() {
   /** Populates `rateDate`/`rates` from an already-fetched response for the current `selectedCurrency`. */
   function applyRatesResponse(data: ExchangeRatesResponse) {
     rateDate.value = data.date
+    stale.value = data.stale === true
     rates.value = [
       { code: selectedCurrency.value.code, rate: 1 },
       ...Object.entries(data.rates).map(([code, rate]) => ({ code, rate })),
@@ -152,6 +158,7 @@ export function useCurrencyRates() {
     conversionDate,
     loading,
     error,
+    stale,
     loadCurrencies,
     loadRatesForSelectedCurrency,
     swapCurrencies,

@@ -13,6 +13,11 @@ describe('exchangeRates service', () => {
   let fetchMock: ReturnType<typeof vi.fn>
 
   beforeEach(() => {
+    // Cache entries are namespaced (`converter:cache:...`), but every test
+    // below still starts from a clean slate so a cache write from one test
+    // can never be picked up as a fallback by a later, unrelated test that
+    // happens to build the same request URL.
+    localStorage.clear()
     fetchMock = vi
       .fn()
       .mockResolvedValue(jsonResponse({ base: 'EUR', date: '2026-07-01', rates: {} }))
@@ -84,5 +89,101 @@ describe('exchangeRates service', () => {
   it('throws a descriptive error when the response is not ok', async () => {
     fetchMock.mockResolvedValueOnce(jsonResponse({}, false, 500))
     await expect(fetchRates()).rejects.toThrow('Failed to fetch exchange rates: 500')
+  })
+
+  describe('offline fallback', () => {
+    it('serves the cached payload, flagged stale, when a later fetch for the same signature fails', async () => {
+      fetchMock.mockResolvedValueOnce(
+        jsonResponse({ base: 'EUR', date: '2026-07-01', rates: { USD: 1.1 } }),
+      )
+      await fetchRates('EUR', 'USD')
+
+      fetchMock.mockRejectedValueOnce(new Error('network down'))
+      const result = await fetchRates('EUR', 'USD')
+
+      expect(result).toMatchObject({
+        base: 'EUR',
+        date: '2026-07-01',
+        rates: { USD: 1.1 },
+        stale: true,
+      })
+      expect(typeof result.cachedAt).toBe('string')
+    })
+
+    it('also falls back on a non-ok response, not just a network error', async () => {
+      fetchMock.mockResolvedValueOnce(
+        jsonResponse({ base: 'EUR', date: '2026-07-01', rates: { USD: 1.1 } }),
+      )
+      await fetchRates('EUR', 'USD')
+
+      fetchMock.mockResolvedValueOnce(jsonResponse({}, false, 503))
+      const result = await fetchRates('EUR', 'USD')
+
+      expect(result).toMatchObject({ rates: { USD: 1.1 }, stale: true })
+    })
+
+    it('propagates the original error, unchanged, when there is no cache entry to fall back on', async () => {
+      fetchMock.mockRejectedValueOnce(new Error('network down'))
+      await expect(fetchRates('EUR', 'USD')).rejects.toThrow('network down')
+    })
+
+    it('does not let a different base or symbols pair serve a mismatched cache entry', async () => {
+      fetchMock.mockResolvedValueOnce(
+        jsonResponse({ base: 'EUR', date: '2026-07-01', rates: { USD: 1.1 } }),
+      )
+      await fetchRates('EUR', 'USD')
+
+      fetchMock.mockRejectedValueOnce(new Error('network down'))
+      await expect(fetchRates('EUR', 'GBP')).rejects.toThrow('network down')
+    })
+
+    it('does not let a different date serve a mismatched cache entry', async () => {
+      fetchMock.mockResolvedValueOnce(
+        jsonResponse({ base: 'EUR', date: '2026-06-30', rates: { USD: 1.09 } }),
+      )
+      await fetchRatesOn('2026-06-30', 'EUR')
+
+      fetchMock.mockRejectedValueOnce(new Error('network down'))
+      await expect(fetchRatesOn('2026-06-29', 'EUR')).rejects.toThrow('network down')
+    })
+
+    it('falls back for fetchRateHistory the same way', async () => {
+      fetchMock.mockResolvedValueOnce(
+        jsonResponse({
+          base: 'EUR',
+          start_date: '2026-06-01',
+          end_date: '2026-07-01',
+          rates: { '2026-07-01': { USD: 1.1 } },
+        }),
+      )
+      await fetchRateHistory('EUR', 'USD', '2026-06-01')
+
+      fetchMock.mockRejectedValueOnce(new Error('network down'))
+      const result = await fetchRateHistory('EUR', 'USD', '2026-06-01')
+
+      expect(result).toMatchObject({ rates: { '2026-07-01': { USD: 1.1 } }, stale: true })
+    })
+
+    it('keeps working, without throwing, when storage is unavailable (private browsing)', async () => {
+      const getItemSpy = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+        throw new Error('SecurityError: storage is disabled')
+      })
+      const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        throw new Error('SecurityError: storage is disabled')
+      })
+
+      try {
+        fetchMock.mockResolvedValueOnce(
+          jsonResponse({ base: 'EUR', date: '2026-07-01', rates: { USD: 1.1 } }),
+        )
+        await expect(fetchRates('EUR', 'USD')).resolves.toMatchObject({ rates: { USD: 1.1 } })
+
+        fetchMock.mockRejectedValueOnce(new Error('network down'))
+        await expect(fetchRates('EUR', 'USD')).rejects.toThrow('network down')
+      } finally {
+        getItemSpy.mockRestore()
+        setItemSpy.mockRestore()
+      }
+    })
   })
 })

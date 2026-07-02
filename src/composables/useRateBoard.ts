@@ -52,6 +52,11 @@ export function useRateBoard(
   const rows = ref<BoardRow[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+  // True when `rows` were served from the offline cache after a live fetch
+  // failed (see `src/services/exchangeRates.ts`), rather than thrown into
+  // `error`. Reset on every load attempt so a subsequent successful, live
+  // fetch clears it again.
+  const stale = ref(false)
   let requestId = 0
 
   /**
@@ -111,6 +116,7 @@ export function useRateBoard(
       ++requestId
       rows.value = []
       error.value = null
+      stale.value = false
       loading.value = false
       return
     }
@@ -125,6 +131,7 @@ export function useRateBoard(
         ? await fetchRatesOn(requestedDate, base, symbolsParam)
         : await fetchRates(base, symbolsParam)
       if (id !== requestId) return
+      stale.value = latest.stale === true
 
       let previousRates: Record<string, number> = {}
       try {
@@ -170,6 +177,7 @@ export function useRateBoard(
     rows,
     loading,
     error,
+    stale,
     setTargetCodes,
     addTarget,
     removeTarget,

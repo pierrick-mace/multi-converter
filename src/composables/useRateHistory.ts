@@ -21,6 +21,11 @@ export function useRateHistory(baseCode: () => string, targetCode: () => string)
   const rangeDays = ref<HistoryRangeDays>(30)
   const loading = ref(false)
   const error = ref<string | null>(null)
+  // True when `points` were served from the offline cache after a live
+  // fetch failed (see `src/services/exchangeRates.ts`), rather than thrown
+  // into `error`. Reset on every load attempt so a subsequent successful,
+  // live fetch clears it again.
+  const stale = ref(false)
   let requestId = 0
 
   async function loadHistory() {
@@ -30,6 +35,7 @@ export function useRateHistory(baseCode: () => string, targetCode: () => string)
     if (!base || !target || base === target) {
       points.value = []
       error.value = null
+      stale.value = false
       loading.value = false
       return
     }
@@ -40,6 +46,7 @@ export function useRateHistory(baseCode: () => string, targetCode: () => string)
     try {
       const data = await fetchRateHistory(base, target, startDateFor(rangeDays.value))
       if (id !== requestId) return
+      stale.value = data.stale === true
       points.value = Object.entries(data.rates)
         .map(([date, symbols]) => ({ date, rate: symbols[target] }))
         .filter((point): point is RatePoint => typeof point.rate === 'number')
@@ -59,5 +66,5 @@ export function useRateHistory(baseCode: () => string, targetCode: () => string)
   // for in the app's mount-time fetch cascade.
   watch([baseCode, targetCode, rangeDays], loadHistory, { immediate: true })
 
-  return { points, rangeDays, loading, error, loadHistory }
+  return { points, rangeDays, loading, error, stale, loadHistory }
 }

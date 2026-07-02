@@ -114,4 +114,43 @@ describe('useRateHistory', () => {
     expect(points.value).toEqual([])
     expect(loading.value).toBe(false)
   })
+
+  describe('stale flag', () => {
+    it('stays false for an ordinary, live response', async () => {
+      mockedFetchRateHistory.mockResolvedValueOnce({
+        base: 'EUR',
+        start_date: '2026-06-01',
+        end_date: '2026-06-01',
+        rates: { '2026-06-01': { USD: 1.1 } },
+      })
+
+      const { stale } = useRateHistory(
+        () => 'EUR',
+        () => 'USD',
+      )
+      await flushPromises()
+
+      expect(stale.value).toBe(false)
+    })
+
+    it('turns true when the service falls back to a cached, offline response', async () => {
+      mockedFetchRateHistory.mockResolvedValueOnce({
+        base: 'EUR',
+        start_date: '2026-06-01',
+        end_date: '2026-06-01',
+        rates: { '2026-06-01': { USD: 1.1 } },
+        stale: true,
+        cachedAt: '2026-06-02T00:00:00.000Z',
+      })
+
+      const { stale, points } = useRateHistory(
+        () => 'EUR',
+        () => 'USD',
+      )
+      await flushPromises()
+
+      expect(stale.value).toBe(true)
+      expect(points.value).toEqual([{ date: '2026-06-01', rate: 1.1 }])
+    })
+  })
 })

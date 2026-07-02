@@ -280,4 +280,29 @@ describe('CurrenciesView', () => {
     expect(fromSelect.element.selectedOptions[0]?.textContent?.trim()).toBe('GBP')
     expect(toSelect.element.selectedOptions[0]?.textContent?.trim()).toBe('EUR')
   })
+
+  describe('offline notice', () => {
+    it('is hidden when rates load live', async () => {
+      const { wrapper } = await mountWithRouter()
+
+      expect(wrapper.text()).not.toContain('offline')
+    })
+
+    it('shows "rates as of {date}, offline" when the service falls back to a cached response', async () => {
+      mockedFetchRates.mockReset()
+      mockedFetchRates.mockResolvedValueOnce({
+        base: 'EUR',
+        date: '2026-06-30',
+        rates: { USD: 1.09, GBP: 0.89 },
+        stale: true,
+        cachedAt: '2026-07-01T00:00:00.000Z',
+      })
+
+      const { wrapper } = await mountWithRouter()
+
+      const notice = wrapper.find('[role="status"]')
+      expect(notice.exists()).toBe(true)
+      expect(notice.text()).toBe('Rates as of 2026-06-30, offline')
+    })
+  })
 })

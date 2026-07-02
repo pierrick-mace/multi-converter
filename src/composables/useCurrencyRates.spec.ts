@@ -267,4 +267,60 @@ describe('useCurrencyRates', () => {
     // The reload after a swap fetches rates for the new base.
     expect(mockedFetchRates).toHaveBeenLastCalledWith('USD')
   })
+
+  describe('stale flag', () => {
+    it('stays false for an ordinary, live response', async () => {
+      mockedFetchRates.mockResolvedValueOnce({
+        base: 'EUR',
+        date: '2026-07-01',
+        rates: { USD: 1.1 },
+      })
+
+      const { stale, loadCurrencies } = useCurrencyRates()
+      await loadCurrencies()
+
+      expect(stale.value).toBe(false)
+    })
+
+    it('turns true when the service falls back to a cached, offline response', async () => {
+      mockedFetchRates.mockResolvedValueOnce({
+        base: 'EUR',
+        date: '2026-06-30',
+        rates: { USD: 1.09 },
+        stale: true,
+        cachedAt: '2026-07-01T00:00:00.000Z',
+      })
+
+      const { stale, rateDate, loadCurrencies } = useCurrencyRates()
+      await loadCurrencies()
+
+      expect(stale.value).toBe(true)
+      expect(rateDate.value).toBe('2026-06-30')
+    })
+
+    it('clears back to false once a subsequent load succeeds live', async () => {
+      mockedFetchRates.mockResolvedValueOnce({
+        base: 'EUR',
+        date: '2026-06-30',
+        rates: { USD: 1.09 },
+        stale: true,
+        cachedAt: '2026-07-01T00:00:00.000Z',
+      })
+
+      const { stale, targetCurrency, loadCurrencies, loadRatesForSelectedCurrency } =
+        useCurrencyRates()
+      await loadCurrencies()
+      expect(stale.value).toBe(true)
+
+      targetCurrency.value = { code: 'USD', rate: 1.1 }
+      mockedFetchRates.mockResolvedValueOnce({
+        base: 'EUR',
+        date: '2026-07-01',
+        rates: { USD: 1.1 },
+      })
+      await loadRatesForSelectedCurrency()
+
+      expect(stale.value).toBe(false)
+    })
+  })
 })

@@ -28,7 +28,7 @@ views:
   src/views/HomeView.vue: Landing page, responsive card grid driven by the module registry
   src/views/HomeView.spec.ts: Component test for the module card grid
   src/views/TemperatureView.vue: Celsius/Fahrenheit/Kelvin converter with copy-to-clipboard
-  src/views/CurrenciesView.vue: Currency converter with live rates, swap button, delta indicator, historical date mode, multi-target rate board, copy amount / copy share link, rate history chart; pair/amount/range/date/board synced to URL query; pair/board/range persisted (URL wins over storage)
+  src/views/CurrenciesView.vue: Currency converter with live rates, swap button, delta indicator, historical date mode, multi-target rate board, copy amount / copy share link, rate history chart; pair/amount/range/date/board synced to URL query; pair/board/range persisted (URL wins over storage); offline notice when serving stale cached rates
   src/views/CurrenciesView.spec.ts: Component test for swap/URL sync and delta rendering
   src/views/BasesView.vue: Number base converter (binary/octal/decimal/hex), unsigned BigInt
   src/views/BasesView.spec.ts: Component test for field sync and error/aria wiring
@@ -68,14 +68,16 @@ composables:
   src/composables/useLocalStorage.spec.ts: Tests for round-trip, corrupted JSON, unavailable storage
 
 services:
-  src/services/exchangeRates.ts: fetchRates(base, symbols?), fetchRatesOn(date, base, symbols?), fetchRateHistory() against https://api.frankfurter.dev/v1; URL/URLSearchParams construction with date-shape validation
-  src/services/exchangeRates.spec.ts: Tests for URL construction, date validation, param encoding
+  src/services/exchangeRates.ts: fetchRates(base, symbols?), fetchRatesOn(date, base, symbols?), fetchRateHistory() against https://api.frankfurter.dev/v1; URL/URLSearchParams construction with date-shape validation; on fetch failure serves cached response flagged stale
+  src/services/exchangeRates.spec.ts: Tests for URL construction, date validation, param encoding, stale fallback
+  src/services/rateCache.ts: Guarded localStorage cache keyed by request URL (converter:cache:*), silent no-op when storage unavailable
+  src/services/rateCache.spec.ts: Tests for cache round-trip, key isolation, storage failure
 
 testing:
   src/vitestSetup.ts: Restores jsdom Storage over Node's experimental localStorage global in Vitest (registered via setupFiles in vite.config.ts)
 
 types:
-  src/types/currency.ts: Currency, ExchangeRatesResponse, RateHistoryResponse, RatePoint
+  src/types/currency.ts: Currency, ExchangeRatesResponse, RateHistoryResponse, RatePoint, StaleMeta (optional stale/cachedAt on responses)
   src/types/units.ts: UnitDefinition and UnitModule interfaces for factor-based converters
   src/env.d.ts: Vite client type references
 

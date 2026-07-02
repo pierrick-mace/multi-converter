@@ -38,6 +38,7 @@ const {
   conversionDate,
   loading,
   error,
+  stale,
   loadCurrencies,
   loadRatesForSelectedCurrency,
   swapCurrencies,
@@ -363,151 +364,161 @@ onMounted(async () => {
       <p v-if="loading" class="font-mono text-sm text-ink-dim">Loading rates&hellip;</p>
       <p v-else-if="error" class="font-mono text-sm text-danger" role="alert">{{ error }}</p>
 
-      <form v-else class="flex flex-col gap-6" @submit.prevent>
-        <div class="flex flex-col gap-2">
-          <label for="amount-from" class="label-mono">From</label>
-          <div class="flex items-stretch gap-3">
-            <div class="flex flex-1 items-center border-b-2 border-rule focus-within:border-accent">
-              <input
-                id="amount-from"
-                v-model.number="amountToConvert"
-                type="number"
-                placeholder="0.00"
-                class="w-full bg-transparent px-1 py-2 font-mono text-2xl tabular-nums text-ink placeholder-ink-dim/85"
-              />
-            </div>
-            <select
-              v-model="selectedCurrency"
-              aria-label="Source currency"
-              class="w-28 appearance-none border border-rule bg-panel-raised px-3 py-2 font-mono text-sm text-ink uppercase [color-scheme:dark]"
-              @change="loadRatesForSelectedCurrency"
-            >
-              <option v-for="currency in currencies" :key="currency.code" :value="currency">
-                {{ currency.code }}
-              </option>
-            </select>
-          </div>
-        </div>
+      <template v-else>
+        <p v-if="stale && rateDate" class="label-mono mb-6 text-danger" role="status">
+          Rates as of {{ rateDate }}, offline
+        </p>
 
-        <div class="flex justify-center">
-          <button
-            type="button"
-            class="btn-tick"
-            aria-label="Swap currencies"
-            @click="swapCurrencies"
-          >
-            <ArrowRightLeft class="size-4" />
-          </button>
-        </div>
-
-        <div class="flex flex-col gap-2">
-          <label for="amount-to" class="label-mono">To</label>
-          <div class="flex items-stretch gap-3">
-            <div class="flex flex-1 items-center border-b-2 border-rule">
-              <input
-                id="amount-to"
-                :value="amountConverted.toFixed(2)"
-                type="text"
-                readonly
-                aria-live="polite"
-                class="w-full bg-transparent px-1 py-2 font-mono text-2xl tabular-nums text-accent"
-              />
-            </div>
-            <select
-              v-model="targetCurrency"
-              aria-label="Target currency"
-              class="w-28 appearance-none border border-rule bg-panel-raised px-3 py-2 font-mono text-sm text-ink uppercase [color-scheme:dark]"
-            >
-              <option v-for="currency in currencies" :key="currency.code" :value="currency">
-                {{ currency.code }}
-              </option>
-            </select>
-            <button
-              type="button"
-              class="btn-tick"
-              aria-label="Copy converted amount"
-              @click="copyConvertedAmount"
-            >
-              <Check v-if="amountClipboard.copied.value" class="size-4 text-accent" />
-              <Copy v-else class="size-4" />
-            </button>
-          </div>
-        </div>
-
-        <div class="flex flex-col gap-2">
-          <div class="flex items-center justify-between">
-            <label for="conversion-date" class="label-mono">Historical date</label>
-            <button
-              v-if="conversionDate"
-              type="button"
-              class="font-mono text-xs text-ink-dim uppercase transition-colors hover:text-accent"
-              @click="backToLatest"
-            >
-              Back to latest
-            </button>
-          </div>
-          <input
-            id="conversion-date"
-            v-model="dateInputValue"
-            type="date"
-            :min="MIN_DATE"
-            :max="todayDate"
-            class="w-full border border-rule bg-panel-raised px-3 py-2 font-mono text-sm text-ink [color-scheme:dark]"
-          />
-        </div>
-
-        <div
-          v-if="unitRate !== null"
-          class="flex flex-wrap items-baseline justify-between gap-2 border-t border-rule pt-4"
-        >
-          <p class="font-mono text-sm tabular-nums text-ink">
-            1 {{ selectedCurrency.code }} = {{ rateFormatter.format(unitRate) }}
-            {{ targetCurrency.code }}
-            <span v-if="inverseRate !== null" class="text-ink-dim">
-              / 1 {{ targetCurrency.code }} = {{ rateFormatter.format(inverseRate) }}
-              {{ selectedCurrency.code }}
-            </span>
-            <span
-              v-if="delta !== null"
-              class="ml-2 inline-flex items-center gap-1 align-middle"
-              :class="{
-                'text-accent': converterDeltaTone === 'up',
-                'text-danger': converterDeltaTone === 'down',
-                'text-ink-dim': converterDeltaTone === 'flat',
-              }"
-            >
-              <ArrowUp v-if="converterDeltaTone === 'up'" class="size-3" aria-hidden="true" />
-              <ArrowDown
-                v-else-if="converterDeltaTone === 'down'"
-                class="size-3"
-                aria-hidden="true"
-              />
-              <Minus v-else class="size-3" aria-hidden="true" />
-              <span v-if="deltaPercent !== null"
-                >{{ deltaPercentFormatter.format(deltaPercent) }}%</span
+        <form class="flex flex-col gap-6" @submit.prevent>
+          <div class="flex flex-col gap-2">
+            <label for="amount-from" class="label-mono">From</label>
+            <div class="flex items-stretch gap-3">
+              <div
+                class="flex flex-1 items-center border-b-2 border-rule focus-within:border-accent"
               >
-            </span>
-          </p>
-          <div class="flex items-center gap-3">
-            <div class="text-right">
-              <p v-if="conversionDate && rateDate" class="label-mono">Rates as of {{ rateDate }}</p>
-              <p v-else-if="rateDate" class="font-mono text-xs text-ink-dim">
-                ECB reference rate: {{ rateDate }}
-              </p>
-              <p v-if="previousRateDate" class="label-mono">vs {{ previousRateDate }}</p>
+                <input
+                  id="amount-from"
+                  v-model.number="amountToConvert"
+                  type="number"
+                  placeholder="0.00"
+                  class="w-full bg-transparent px-1 py-2 font-mono text-2xl tabular-nums text-ink placeholder-ink-dim/85"
+                />
+              </div>
+              <select
+                v-model="selectedCurrency"
+                aria-label="Source currency"
+                class="w-28 appearance-none border border-rule bg-panel-raised px-3 py-2 font-mono text-sm text-ink uppercase [color-scheme:dark]"
+                @change="loadRatesForSelectedCurrency"
+              >
+                <option v-for="currency in currencies" :key="currency.code" :value="currency">
+                  {{ currency.code }}
+                </option>
+              </select>
             </div>
+          </div>
+
+          <div class="flex justify-center">
             <button
               type="button"
               class="btn-tick"
-              aria-label="Copy share link"
-              @click="copyShareLink"
+              aria-label="Swap currencies"
+              @click="swapCurrencies"
             >
-              <Check v-if="shareClipboard.copied.value" class="size-4 text-accent" />
-              <Link2 v-else class="size-4" />
+              <ArrowRightLeft class="size-4" />
             </button>
           </div>
-        </div>
-      </form>
+
+          <div class="flex flex-col gap-2">
+            <label for="amount-to" class="label-mono">To</label>
+            <div class="flex items-stretch gap-3">
+              <div class="flex flex-1 items-center border-b-2 border-rule">
+                <input
+                  id="amount-to"
+                  :value="amountConverted.toFixed(2)"
+                  type="text"
+                  readonly
+                  aria-live="polite"
+                  class="w-full bg-transparent px-1 py-2 font-mono text-2xl tabular-nums text-accent"
+                />
+              </div>
+              <select
+                v-model="targetCurrency"
+                aria-label="Target currency"
+                class="w-28 appearance-none border border-rule bg-panel-raised px-3 py-2 font-mono text-sm text-ink uppercase [color-scheme:dark]"
+              >
+                <option v-for="currency in currencies" :key="currency.code" :value="currency">
+                  {{ currency.code }}
+                </option>
+              </select>
+              <button
+                type="button"
+                class="btn-tick"
+                aria-label="Copy converted amount"
+                @click="copyConvertedAmount"
+              >
+                <Check v-if="amountClipboard.copied.value" class="size-4 text-accent" />
+                <Copy v-else class="size-4" />
+              </button>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+              <label for="conversion-date" class="label-mono">Historical date</label>
+              <button
+                v-if="conversionDate"
+                type="button"
+                class="font-mono text-xs text-ink-dim uppercase transition-colors hover:text-accent"
+                @click="backToLatest"
+              >
+                Back to latest
+              </button>
+            </div>
+            <input
+              id="conversion-date"
+              v-model="dateInputValue"
+              type="date"
+              :min="MIN_DATE"
+              :max="todayDate"
+              class="w-full border border-rule bg-panel-raised px-3 py-2 font-mono text-sm text-ink [color-scheme:dark]"
+            />
+          </div>
+
+          <div
+            v-if="unitRate !== null"
+            class="flex flex-wrap items-baseline justify-between gap-2 border-t border-rule pt-4"
+          >
+            <p class="font-mono text-sm tabular-nums text-ink">
+              1 {{ selectedCurrency.code }} = {{ rateFormatter.format(unitRate) }}
+              {{ targetCurrency.code }}
+              <span v-if="inverseRate !== null" class="text-ink-dim">
+                / 1 {{ targetCurrency.code }} = {{ rateFormatter.format(inverseRate) }}
+                {{ selectedCurrency.code }}
+              </span>
+              <span
+                v-if="delta !== null"
+                class="ml-2 inline-flex items-center gap-1 align-middle"
+                :class="{
+                  'text-accent': converterDeltaTone === 'up',
+                  'text-danger': converterDeltaTone === 'down',
+                  'text-ink-dim': converterDeltaTone === 'flat',
+                }"
+              >
+                <ArrowUp v-if="converterDeltaTone === 'up'" class="size-3" aria-hidden="true" />
+                <ArrowDown
+                  v-else-if="converterDeltaTone === 'down'"
+                  class="size-3"
+                  aria-hidden="true"
+                />
+                <Minus v-else class="size-3" aria-hidden="true" />
+                <span v-if="deltaPercent !== null"
+                  >{{ deltaPercentFormatter.format(deltaPercent) }}%</span
+                >
+              </span>
+            </p>
+            <div class="flex items-center gap-3">
+              <div class="text-right">
+                <p v-if="conversionDate && rateDate" class="label-mono">
+                  Rates as of {{ rateDate }}
+                </p>
+                <p v-else-if="rateDate" class="font-mono text-xs text-ink-dim">
+                  ECB reference rate: {{ rateDate }}
+                </p>
+                <p v-if="previousRateDate" class="label-mono">vs {{ previousRateDate }}</p>
+              </div>
+              <button
+                type="button"
+                class="btn-tick"
+                aria-label="Copy share link"
+                @click="copyShareLink"
+              >
+                <Check v-if="shareClipboard.copied.value" class="size-4 text-accent" />
+                <Link2 v-else class="size-4" />
+              </button>
+            </div>
+          </div>
+        </form>
+      </template>
     </div>
 
     <div

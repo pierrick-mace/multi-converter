@@ -394,6 +394,43 @@ describe('useRateBoard', () => {
     expect(board.loading.value).toBe(false)
   })
 
+  describe('stale flag', () => {
+    it('stays false for an ordinary, live response', async () => {
+      mockedFetchRates.mockResolvedValueOnce({
+        base: 'EUR',
+        date: '2026-07-01',
+        rates: { USD: 1.1, GBP: 0.9, CHF: 0.95, JPY: 160 },
+      })
+
+      const board = useRateBoard(
+        () => 'EUR',
+        () => CURRENCIES,
+      )
+      await flushPromises()
+
+      expect(board.stale.value).toBe(false)
+    })
+
+    it('turns true when the service falls back to a cached, offline response', async () => {
+      mockedFetchRates.mockResolvedValueOnce({
+        base: 'EUR',
+        date: '2026-06-30',
+        rates: { USD: 1.09, GBP: 0.89, CHF: 0.94, JPY: 158 },
+        stale: true,
+        cachedAt: '2026-07-01T00:00:00.000Z',
+      })
+
+      const board = useRateBoard(
+        () => 'EUR',
+        () => CURRENCIES,
+      )
+      await flushPromises()
+
+      expect(board.stale.value).toBe(true)
+      expect(board.rows.value.map((row) => row.code)).toEqual(['USD', 'GBP', 'CHF', 'JPY'])
+    })
+  })
+
   describe('historical date mode', () => {
     it('fetches the requested historical date via fetchRatesOn (not latest) when a date getter is provided', async () => {
       mockedFetchRatesOn.mockReset()

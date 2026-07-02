@@ -1,3 +1,4 @@
+import { cacheKeyFor, readCache, withStaleFlag, writeCache } from '@/services/rateCache'
 import type { ExchangeRatesResponse, RateHistoryResponse } from '@/types/currency'
 
 const API_BASE = 'https://api.frankfurter.dev/v1'
@@ -33,13 +34,43 @@ function buildUrl(path: string, params: Record<string, string | undefined>): URL
   return url
 }
 
+/**
+ * Shared fetch-then-cache-fallback flow for all three endpoints below.
+ *
+ * On success, the parsed response is written to the offline cache (keyed by
+ * `url`) and returned as-is. On any failure -- a network error, a non-ok
+ * status (raised as `notOkError`), or a malformed JSON body -- a cached
+ * response for that exact `url` is served instead, flagged `stale: true`
+ * with the `cachedAt` timestamp it was written with. With no cache entry for
+ * that signature, the original error propagates unchanged: callers see
+ * exactly the same failure they did before caching existed.
+ */
+async function fetchWithFallback<T extends object>(
+  url: URL,
+  notOkError: (status: number) => string,
+): Promise<T> {
+  const key = cacheKeyFor(url)
+  try {
+    const response = await fetch(url)
+    if (!response.ok) {
+      throw new Error(notOkError(response.status))
+    }
+    const data = (await response.json()) as T
+    writeCache(key, data)
+    return data
+  } catch (err) {
+    const cached = readCache<T>(key)
+    if (cached) return withStaleFlag(cached)
+    throw err
+  }
+}
+
 export async function fetchRates(base?: string, symbols?: string): Promise<ExchangeRatesResponse> {
   const url = buildUrl('latest', { base, symbols })
-  const response = await fetch(url)
-  if (!response.ok) {
-    throw new Error(`Failed to fetch exchange rates: ${response.status}`)
-  }
-  return response.json()
+  return fetchWithFallback<ExchangeRatesResponse>(
+    url,
+    (status) => `Failed to fetch exchange rates: ${status}`,
+  )
 }
 
 /**
@@ -54,11 +85,10 @@ export async function fetchRatesOn(
   symbols?: string,
 ): Promise<ExchangeRatesResponse> {
   const url = buildUrl(assertDateShape(date), { base, symbols })
-  const response = await fetch(url)
-  if (!response.ok) {
-    throw new Error(`Failed to fetch exchange rates: ${response.status}`)
-  }
-  return response.json()
+  return fetchWithFallback<ExchangeRatesResponse>(
+    url,
+    (status) => `Failed to fetch exchange rates: ${status}`,
+  )
 }
 
 export async function fetchRateHistory(
@@ -67,9 +97,8 @@ export async function fetchRateHistory(
   startDate: string,
 ): Promise<RateHistoryResponse> {
   const url = buildUrl(`${assertDateShape(startDate)}..`, { base, symbols: symbol })
-  const response = await fetch(url)
-  if (!response.ok) {
-    throw new Error(`Failed to fetch rate history: ${response.status}`)
-  }
-  return response.json()
+  return fetchWithFallback<RateHistoryResponse>(
+    url,
+    (status) => `Failed to fetch rate history: ${status}`,
+  )
 }
