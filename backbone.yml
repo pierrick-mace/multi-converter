@@ -28,13 +28,13 @@ views:
   src/views/HomeView.vue: Landing page, responsive card grid driven by the module registry
   src/views/HomeView.spec.ts: Component test for the module card grid
   src/views/TemperatureView.vue: Celsius/Fahrenheit/Kelvin converter with copy-to-clipboard
-  src/views/CurrenciesView.vue: Currency converter with live rates, swap button, delta indicator, historical date mode, multi-target rate board, copy amount / copy share link, rate history chart; pair/amount/range/date/board synced to URL query
+  src/views/CurrenciesView.vue: Currency converter with live rates, swap button, delta indicator, historical date mode, multi-target rate board, copy amount / copy share link, rate history chart; pair/amount/range/date/board synced to URL query; pair/board/range persisted (URL wins over storage)
   src/views/CurrenciesView.spec.ts: Component test for swap/URL sync and delta rendering
   src/views/BasesView.vue: Number base converter (binary/octal/decimal/hex), unsigned BigInt
   src/views/BasesView.spec.ts: Component test for field sync and error/aria wiring
-  src/views/UnitsView.vue: Length and mass converters driven by useUnitConverter
+  src/views/UnitsView.vue: Length and mass converters driven by useUnitConverter, unit selections persisted per panel
   src/views/UnitsView.spec.ts: Component test for the length/mass panels
-  src/views/DataSizeView.vue: Data size converter (bits/bytes, decimal and binary prefixes)
+  src/views/DataSizeView.vue: Data size converter (bits/bytes, decimal and binary prefixes), unit selection persisted
   src/views/DataSizeView.spec.ts: Component test for the data size panel
 
 components:
@@ -64,10 +64,15 @@ composables:
   src/composables/useRateBoard.spec.ts: Tests for basket validation, fetch batching, deltas
   src/composables/formatCurrency.ts: Pure Intl.NumberFormat currency formatter
   src/composables/formatCurrency.spec.ts: Tests for currency formatting
+  src/composables/useLocalStorage.ts: Typed write-through localStorage ref (converter:<view>:<what> keys, silent fallback when storage unavailable)
+  src/composables/useLocalStorage.spec.ts: Tests for round-trip, corrupted JSON, unavailable storage
 
 services:
   src/services/exchangeRates.ts: fetchRates(base, symbols?), fetchRatesOn(date, base, symbols?), fetchRateHistory() against https://api.frankfurter.dev/v1; URL/URLSearchParams construction with date-shape validation
   src/services/exchangeRates.spec.ts: Tests for URL construction, date validation, param encoding
+
+testing:
+  src/vitestSetup.ts: Restores jsdom Storage over Node's experimental localStorage global in Vitest (registered via setupFiles in vite.config.ts)
 
 types:
   src/types/currency.ts: Currency, ExchangeRatesResponse, RateHistoryResponse, RatePoint

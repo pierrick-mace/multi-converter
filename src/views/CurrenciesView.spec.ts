@@ -28,6 +28,7 @@ async function mountWithRouter(path = '/currencies') {
 
 describe('CurrenciesView', () => {
   beforeEach(() => {
+    localStorage.clear()
     mockedFetchRates.mockReset()
     mockedFetchRatesOn.mockReset()
     mockedFetchRateHistory.mockReset()
@@ -244,5 +245,39 @@ describe('CurrenciesView', () => {
 
     expect(wrapper.find('[aria-label="Remove USD from rate board"]').exists()).toBe(true)
     expect(router.currentRoute.value.query.board).toBeUndefined()
+  })
+
+  it('applies a stored pair from localStorage when no ?from/?to query params are present', async () => {
+    localStorage.setItem('converter:currencies:pair', JSON.stringify({ from: 'USD', to: 'GBP' }))
+
+    const { wrapper } = await mountWithRouter()
+
+    const fromSelect = wrapper.find<HTMLSelectElement>('[aria-label="Source currency"]')
+    const toSelect = wrapper.find<HTMLSelectElement>('[aria-label="Target currency"]')
+    expect(fromSelect.element.selectedOptions[0]?.textContent?.trim()).toBe('USD')
+    expect(toSelect.element.selectedOptions[0]?.textContent?.trim()).toBe('GBP')
+    expect(mockedFetchRates).toHaveBeenCalledWith('USD')
+  })
+
+  it('lets a ?from= query param win over a stored pair, while storage still fills in the missing ?to=', async () => {
+    localStorage.setItem('converter:currencies:pair', JSON.stringify({ from: 'USD', to: 'EUR' }))
+    mockedFetchRates.mockImplementation(async (base?: string) => {
+      if (!base || base === 'EUR')
+        return { base: 'EUR', date: '2026-07-01', rates: { USD: 1.1, GBP: 0.9 } }
+      if (base === 'USD')
+        return { base: 'USD', date: '2026-07-01', rates: { EUR: 0.9091, GBP: 0.818 } }
+      if (base === 'GBP')
+        return { base: 'GBP', date: '2026-07-01', rates: { EUR: 1.11, USD: 1.22 } }
+      throw new Error(`unexpected base "${base}"`)
+    })
+
+    const { wrapper } = await mountWithRouter('/currencies?from=GBP')
+
+    const fromSelect = wrapper.find<HTMLSelectElement>('[aria-label="Source currency"]')
+    const toSelect = wrapper.find<HTMLSelectElement>('[aria-label="Target currency"]')
+    // ?from=GBP overrides the stored "USD", but the stored "EUR" still fills
+    // in `to` since the URL never mentions it.
+    expect(fromSelect.element.selectedOptions[0]?.textContent?.trim()).toBe('GBP')
+    expect(toSelect.element.selectedOptions[0]?.textContent?.trim()).toBe('EUR')
   })
 })

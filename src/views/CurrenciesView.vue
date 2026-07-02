@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { ArrowRightLeft, ArrowDown, ArrowUp, Minus, X, Copy, Check, Link2 } from '@lucide/vue'
 import RateChart from '@/components/RateChart.vue'
 import { useCurrencyRates } from '@/composables/useCurrencyRates'
@@ -8,9 +9,12 @@ import type { HistoryRangeDays } from '@/composables/useRateHistory'
 import { defaultBoardFor, useRateBoard } from '@/composables/useRateBoard'
 import { useQuerySync } from '@/composables/useQuerySync'
 import type { QueryBinding } from '@/composables/useQuerySync'
+import { useLocalStorage } from '@/composables/useLocalStorage'
 import { useClipboard } from '@/composables/useClipboard'
 import { formatCurrencyAmount } from '@/composables/formatCurrency'
 import { deltaTone } from '@/composables/chartStats'
+
+const route = useRoute()
 
 const DEFAULT_FROM = 'EUR'
 const DEFAULT_TO = 'USD'
@@ -270,13 +274,77 @@ const { readFromRoute } = useQuerySync({
   } satisfies QueryBinding<string[]>,
 })
 
+interface StoredPair {
+  from: string
+  to: string
+}
+
+// Local-storage fallbacks for the same state `useQuerySync` above already
+// carries in the URL: pair, board basket, chart range. Precedence is "URL
+// wins when present, storage fills in when absent" (checked per query param,
+// not per whole feature, so e.g. a `?from=` alone still lets a stored `to`
+// apply). Deliberately excludes `amount` and `date`: both are session-
+// specific, not part of "last setup". Applied once in `onMounted`, below,
+// after `loadCurrencies` resolves and before `readFromRoute`; kept in sync
+// afterwards by the watchers right after.
+const pairStorage = useLocalStorage<StoredPair | null>('converter:currencies:pair', null)
+const boardStorage = useLocalStorage<string[] | null>('converter:currencies:board', null)
+const rangeStorage = useLocalStorage<HistoryRangeDays | null>('converter:currencies:range', null)
+
+watch([fromCode, toCode], ([from, to]) => {
+  pairStorage.value = { from, to }
+})
+watch(boardCodes, (codes) => {
+  boardStorage.value = [...codes]
+})
+watch(rangeDays, (days) => {
+  rangeStorage.value = days
+})
+
 onMounted(async () => {
+  // Snapshotted *before* `loadCurrencies()` below, not read fresh afterwards:
+  // `loadCurrencies` sets `selectedCurrency`/`targetCurrency` to their
+  // built-in defaults (EUR/USD) as soon as it resolves, which the watchers
+  // above immediately (if asynchronously) write back into `pairStorage`, and
+  // the `await` right here is exactly the kind of microtask boundary that
+  // gives that pending watcher job a chance to flush before this function
+  // resumes. Reading `pairStorage.value` fresh after the `await` would then
+  // observe that just-written default pair instead of the genuinely stored
+  // one, silently defeating storage on every single load.
+  const storedPair = pairStorage.value
+  const storedBoard = boardStorage.value
+  const storedRange = rangeStorage.value
+
   await loadCurrencies()
   // The currency list just finished loading async, so `from`/`to`/`board`
   // query params (invalid until now, since there was nothing to validate
   // them against) can be re-applied on top of the freshly loaded defaults.
   // The board itself needs no explicit seeding: its default basket is
   // derived reactively from the base and currency list, not stored.
+
+  // Storage fills in whatever the URL doesn't specify. Each field is gated
+  // on its own query param being absent, not on the "pair"/"board" concept
+  // as a whole, so a partially-specified URL (e.g. only `?from=`) still lets
+  // a stored `to` apply. `readFromRoute()` right after this then lets any
+  // present, valid query param overwrite what was just applied here, which
+  // is the "URL wins" half of the rule; invalid params are already handled
+  // for free since `readFromRoute`'s `fromQuery` validators leave the ref
+  // (here, already set from storage) untouched on parse failure.
+  if (storedPair) {
+    if (typeof route.query.from !== 'string') fromCode.value = storedPair.from
+    if (typeof route.query.to !== 'string') toCode.value = storedPair.to
+  }
+  if (Array.isArray(storedBoard) && typeof route.query.board !== 'string') {
+    boardCodesQuery.value = storedBoard
+  }
+  if (
+    storedRange !== null &&
+    HISTORY_RANGES.some((range) => range.days === storedRange) &&
+    typeof route.query.range !== 'string'
+  ) {
+    rangeDays.value = storedRange
+  }
+
   readFromRoute()
 })
 </script>

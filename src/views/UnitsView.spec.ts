@@ -1,8 +1,12 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import UnitsView from './UnitsView.vue'
 
 describe('UnitsView', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
   it('renders a panel for length and a panel for mass', () => {
     const wrapper = mount(UnitsView)
     const labels = wrapper.findAll('.label-mono').map((label) => label.text())
@@ -49,5 +53,27 @@ describe('UnitsView', () => {
 
     await amountInput.setValue('')
     expect(resultInput.element.value).toBe('')
+  })
+
+  it('persists the selected length units across remounts', async () => {
+    const wrapper = mount(UnitsView)
+    const fromSelect = wrapper.find<HTMLSelectElement>('select[aria-label="Length source unit"]')
+    const toSelect = wrapper.find<HTMLSelectElement>('select[aria-label="Length target unit"]')
+
+    await fromSelect.setValue('mm')
+    await toSelect.setValue('ft')
+    wrapper.unmount()
+
+    const remounted = mount(UnitsView)
+    const remountedFrom = remounted.find<HTMLSelectElement>(
+      'select[aria-label="Length source unit"]',
+    )
+    const remountedTo = remounted.find<HTMLSelectElement>('select[aria-label="Length target unit"]')
+    expect(remountedFrom.element.value).toBe('mm')
+    expect(remountedTo.element.value).toBe('ft')
+    // The mass panel has its own storage key, untouched by the length change.
+    expect(
+      remounted.find<HTMLSelectElement>('select[aria-label="Mass source unit"]').element.value,
+    ).toBe('kg')
   })
 })
