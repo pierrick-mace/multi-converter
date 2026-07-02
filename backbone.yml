@@ -39,7 +39,7 @@ views:
 components:
   src/components/NavBar.vue: Top navigation, Home plus links derived from the module registry (Temperature, Currencies, Units, Bases, Data)
   src/components/NavBar.spec.ts: Component test for NavBar
-  src/components/RateChart.vue: SVG line chart of exchange-rate history, hover tooltip
+  src/components/RateChart.vue: SVG line chart of exchange-rate history, hover tooltip, min/max/avg reference lines, range percent-change header
 
 composables:
   src/composables/useTemperatureConverter.ts: Pure conversion functions + reactive C/F/K state
@@ -57,6 +57,8 @@ composables:
   src/composables/unitModules.spec.ts: Factor-table sanity tests
   src/composables/useQuerySync.ts: Generic ref/route-query sync (fromQuery validates, toQuery omits defaults, router.replace)
   src/composables/useQuerySync.spec.ts: Tests for query/ref sync, fallback, loop guard
+  src/composables/chartStats.ts: Pure series stats (min/max/average) and percent-change helpers
+  src/composables/chartStats.spec.ts: Tests for series stats and percent change
 
 services:
   src/services/exchangeRates.ts: fetchRates() and fetchRateHistory() against https://api.frankfurter.dev/v1

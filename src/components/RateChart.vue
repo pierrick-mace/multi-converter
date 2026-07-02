@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { percentChange, seriesStats } from '@/composables/chartStats'
 import type { RatePoint } from '@/types/currency'
 
 const props = defineProps<{
@@ -86,6 +87,62 @@ const xLabels = computed(() => {
   }))
 })
 
+const stats = computed(() => seriesStats(props.points))
+
+const LABEL_COLLISION_PX = 14
+
+const statLines = computed(() => {
+  const s = stats.value
+  if (!s) return []
+
+  // Flat series: min, max, and average all coincide, so a single reference
+  // line says everything three overlapping lines would.
+  if (s.min === s.max) {
+    return [
+      {
+        key: 'rate',
+        label: 'RATE',
+        value: rateFormatter.format(s.max),
+        y: yAt(s.max),
+        showLabel: true,
+      },
+    ]
+  }
+
+  const maxY = yAt(s.max)
+  const minY = yAt(s.min)
+  const avgY = yAt(s.average)
+  const avgCollides =
+    Math.abs(avgY - maxY) < LABEL_COLLISION_PX || Math.abs(avgY - minY) < LABEL_COLLISION_PX
+
+  return [
+    { key: 'max', label: 'MAX', value: rateFormatter.format(s.max), y: maxY, showLabel: true },
+    { key: 'min', label: 'MIN', value: rateFormatter.format(s.min), y: minY, showLabel: true },
+    {
+      key: 'avg',
+      label: 'AVG',
+      value: rateFormatter.format(s.average),
+      y: avgY,
+      showLabel: !avgCollides,
+    },
+  ]
+})
+
+const change = computed(() => percentChange(props.points))
+
+const changeTone = computed<'up' | 'down' | 'flat'>(() => {
+  const value = change.value
+  if (value === null || Math.abs(value) < 0.005) return 'flat'
+  return value > 0 ? 'up' : 'down'
+})
+
+const changeLabel = computed(() => {
+  const value = change.value
+  if (value === null) return null
+  const sign = value >= 0 ? '+' : ''
+  return `${sign}${value.toFixed(2)}%`
+})
+
 const active = computed(() => {
   if (activeIndex.value === null) return null
   const point = props.points[activeIndex.value]
@@ -148,6 +205,21 @@ watch(() => props.points, clearActive)
 
 <template>
   <div class="relative">
+    <div class="mb-3 flex items-center justify-between gap-3">
+      <p class="label-mono">{{ baseCode }} / {{ targetCode }}</p>
+      <p
+        v-if="changeLabel"
+        class="font-mono text-xs tabular-nums"
+        :class="{
+          'text-accent': changeTone === 'up',
+          'text-danger': changeTone === 'down',
+          'text-ink-dim': changeTone === 'flat',
+        }"
+      >
+        {{ changeLabel }} over range
+      </p>
+    </div>
+
     <svg
       ref="svgEl"
       :viewBox="`0 0 ${VIEW_W} ${VIEW_H}`"
@@ -194,6 +266,29 @@ watch(() => props.points, clearActive)
         {{ label.label }}
       </text>
 
+      <!-- min/max/average reference lines, rendered behind the series -->
+      <g v-for="line in statLines" :key="line.key">
+        <line
+          :x1="PAD.left"
+          :x2="VIEW_W - PAD.right"
+          :y1="line.y"
+          :y2="line.y"
+          class="stroke-ink-dim/40"
+          stroke-width="1"
+          stroke-dasharray="3 3"
+        />
+        <text
+          v-if="line.showLabel"
+          :x="PAD.left + 6"
+          :y="line.y"
+          dy="-4"
+          text-anchor="start"
+          class="fill-ink-dim font-mono text-[9px] tracking-wide uppercase tabular-nums"
+        >
+          {{ line.label }} {{ line.value }}
+        </text>
+      </g>
+
       <!-- area wash + line -->
       <path v-if="areaPath" :d="areaPath" class="fill-accent/10" />
       <path
@@ -216,12 +311,24 @@ watch(() => props.points, clearActive)
           class="stroke-ink-dim/60"
           stroke-width="1"
         />
-        <circle :cx="active.x" :cy="active.y" r="5" class="fill-accent stroke-panel" stroke-width="2" />
+        <circle
+          :cx="active.x"
+          :cy="active.y"
+          r="5"
+          class="fill-accent stroke-panel"
+          stroke-width="2"
+        />
       </g>
 
       <!-- end marker + direct end label -->
       <g v-if="endPoint">
-        <circle :cx="endPoint.x" :cy="endPoint.y" r="4" class="fill-accent stroke-panel" stroke-width="2" />
+        <circle
+          :cx="endPoint.x"
+          :cy="endPoint.y"
+          r="4"
+          class="fill-accent stroke-panel"
+          stroke-width="2"
+        />
         <text
           :x="endPoint.x + 10"
           :y="endPoint.y"
