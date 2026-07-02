@@ -10,6 +10,7 @@ async function mountWithRouter() {
       { path: '/home', component: { template: '<div />' } },
       { path: '/temperature', component: { template: '<div />' } },
       { path: '/currencies', component: { template: '<div />' } },
+      { path: '/bases', component: { template: '<div />' } },
     ],
   })
   router.push('/home')
@@ -21,7 +22,12 @@ describe('NavBar', () => {
   it('renders a link for every route', async () => {
     const wrapper = await mountWithRouter()
     const links = wrapper.findAll('a')
-    expect(links.map((link) => link.text())).toEqual(['Home', 'Temperature', 'Currencies'])
+    expect(links.map((link) => link.text())).toEqual([
+      'Home',
+      'Temperature',
+      'Currencies',
+      'Bases',
+    ])
   })
 
   it('marks the active route link', async () => {

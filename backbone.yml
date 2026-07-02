@@ -18,15 +18,17 @@ routing:
       /home        -> HomeView
       /temperature -> TemperatureView
       /currencies  -> CurrenciesView
+      /bases       -> BasesView
       catch-all    -> redirect /home
 
 views:
   src/views/HomeView.vue: Landing page listing the conversion modules
   src/views/TemperatureView.vue: Celsius/Fahrenheit/Kelvin converter with copy-to-clipboard
   src/views/CurrenciesView.vue: Currency converter with live rates and rate history chart
+  src/views/BasesView.vue: Number base converter (binary/octal/decimal/hex), unsigned BigInt
 
 components:
-  src/components/NavBar.vue: Top navigation (Home, Temperature, Currencies)
+  src/components/NavBar.vue: Top navigation (Home, Temperature, Currencies, Bases)
   src/components/NavBar.spec.ts: Component test for NavBar
   src/components/RateChart.vue: SVG line chart of exchange-rate history, hover tooltip
 
@@ -40,6 +42,8 @@ composables:
   src/composables/useClipboard.ts: navigator.clipboard wrapper with transient copied flag
   src/composables/useUnitConverter.ts: Generic linear-unit converter, pure convertUnit(value, from, to, factors) + stateful composable over a UnitModule definition
   src/composables/useUnitConverter.spec.ts: Tests for factor math and composable state
+  src/composables/useBaseConverter.ts: Pure BigInt parse/format per base + reactive binary/octal/decimal/hex sync with per-field error state
+  src/composables/useBaseConverter.spec.ts: Tests for base round-trips, invalid input, 64-bit values
 
 services:
   src/services/exchangeRates.ts: fetchRates() and fetchRateHistory() against https://api.frankfurter.dev/v1

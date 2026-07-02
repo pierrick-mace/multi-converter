@@ -15,6 +15,11 @@ const router = createRouter({
       name: 'currencies',
       component: () => import('@/views/CurrenciesView.vue'),
     },
+    {
+      path: '/bases',
+      name: 'bases',
+      component: () => import('@/views/BasesView.vue'),
+    },
     { path: '/:pathMatch(.*)*', redirect: '/home' },
   ],
 })

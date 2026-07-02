@@ -3,6 +3,7 @@ const links = [
   { to: '/home', label: 'Home' },
   { to: '/temperature', label: 'Temperature' },
   { to: '/currencies', label: 'Currencies' },
+  { to: '/bases', label: 'Bases' },
 ]
 </script>
 
