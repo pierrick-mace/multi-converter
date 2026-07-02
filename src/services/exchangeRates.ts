@@ -2,8 +2,11 @@ import type { ExchangeRatesResponse, RateHistoryResponse } from '@/types/currenc
 
 const API_BASE = 'https://api.frankfurter.dev/v1'
 
-export async function fetchRates(base?: string): Promise<ExchangeRatesResponse> {
-  const url = base ? `${API_BASE}/latest?base=${base}` : `${API_BASE}/latest`
+export async function fetchRates(base?: string, symbols?: string): Promise<ExchangeRatesResponse> {
+  const params = [base ? `base=${base}` : '', symbols ? `symbols=${symbols}` : '']
+    .filter(Boolean)
+    .join('&')
+  const url = params ? `${API_BASE}/latest?${params}` : `${API_BASE}/latest`
   const response = await fetch(url)
   if (!response.ok) {
     throw new Error(`Failed to fetch exchange rates: ${response.status}`)

@@ -126,4 +126,79 @@ describe('CurrenciesView', () => {
     expect(wrapper.text()).not.toContain('Rates as of')
     expect(wrapper.text()).toContain('ECB reference rate: 2026-07-01')
   })
+
+  it('renders the default rate board and removes a target via its row control', async () => {
+    const { wrapper } = await mountWithRouter()
+
+    // Currency list here only has EUR/GBP/USD, so the CHF/JPY portion of the
+    // default basket is silently dropped: nothing to validate them against.
+    expect(wrapper.find('[aria-label="Remove USD from rate board"]').exists()).toBe(true)
+    expect(wrapper.find('[aria-label="Remove GBP from rate board"]').exists()).toBe(true)
+
+    await wrapper.find('[aria-label="Remove USD from rate board"]').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[aria-label="Remove USD from rate board"]').exists()).toBe(false)
+    expect(wrapper.find('[aria-label="Remove GBP from rate board"]').exists()).toBe(true)
+  })
+
+  it('adds a target from the board select, skipping the current base and existing targets', async () => {
+    const { wrapper } = await mountWithRouter()
+
+    const addSelect = wrapper.find<HTMLSelectElement>('[aria-label="Add currency to rate board"]')
+    const optionValues = addSelect.findAll('option').map((option) => option.element.value)
+    // EUR is the base, USD/GBP are already in the default board: none of
+    // them should be offered again.
+    expect(optionValues).not.toContain('EUR')
+    expect(optionValues).not.toContain('USD')
+    expect(optionValues).not.toContain('GBP')
+  })
+
+  it('round-trips a ?board= query param through the rate board', async () => {
+    const { wrapper, router } = await mountWithRouter()
+
+    await router.push('/currencies?board=GBP')
+    await flushPromises()
+
+    expect(wrapper.find('[aria-label="Remove GBP from rate board"]').exists()).toBe(true)
+    expect(wrapper.find('[aria-label="Remove USD from rate board"]').exists()).toBe(false)
+    // Not the default basket (USD, GBP), so the param stays in the URL.
+    expect(router.currentRoute.value.query.board).toBe('GBP')
+
+    await wrapper.find('[aria-label="Remove GBP from rate board"]').trigger('click')
+    await flushPromises()
+
+    // An empty basket is still not the default, so it stays explicit.
+    expect(router.currentRoute.value.query.board).toBe('')
+  })
+
+  it('drops an unknown code from a ?board= query param, showing only the valid ones', async () => {
+    const { wrapper, router } = await mountWithRouter()
+
+    await router.push('/currencies?board=USD,GBP,NOT-A-CODE')
+    await flushPromises()
+
+    // NOT-A-CODE never resolves to a valid currency, so no remove control is
+    // ever rendered for it; USD/GBP still show as they're both valid.
+    expect(wrapper.find('[aria-label="Remove USD from rate board"]').exists()).toBe(true)
+    expect(wrapper.find('[aria-label="Remove GBP from rate board"]').exists()).toBe(true)
+    expect(wrapper.text()).not.toContain('NOT-A-CODE')
+  })
+
+  it('omits the ?board= param once a customized basket is set back to the default', async () => {
+    const { wrapper, router } = await mountWithRouter()
+
+    await router.push('/currencies?board=GBP')
+    await flushPromises()
+    expect(router.currentRoute.value.query.board).toBe('GBP')
+
+    // Re-add USD: USD,GBP is now the (currency-list-narrowed) default
+    // basket again, so the param is omitted from the URL.
+    const addSelect = wrapper.find<HTMLSelectElement>('[aria-label="Add currency to rate board"]')
+    await addSelect.setValue('USD')
+    await flushPromises()
+
+    expect(wrapper.find('[aria-label="Remove USD from rate board"]').exists()).toBe(true)
+    expect(router.currentRoute.value.query.board).toBeUndefined()
+  })
 })

@@ -28,7 +28,7 @@ views:
   src/views/HomeView.vue: Landing page, responsive card grid driven by the module registry
   src/views/HomeView.spec.ts: Component test for the module card grid
   src/views/TemperatureView.vue: Celsius/Fahrenheit/Kelvin converter with copy-to-clipboard
-  src/views/CurrenciesView.vue: Currency converter with live rates, swap button, delta indicator, historical date mode, rate history chart; pair/amount/range/date synced to URL query
+  src/views/CurrenciesView.vue: Currency converter with live rates, swap button, delta indicator, historical date mode, multi-target rate board, rate history chart; pair/amount/range/date/board synced to URL query
   src/views/CurrenciesView.spec.ts: Component test for swap/URL sync and delta rendering
   src/views/BasesView.vue: Number base converter (binary/octal/decimal/hex), unsigned BigInt
   src/views/BasesView.spec.ts: Component test for field sync and error/aria wiring
@@ -60,9 +60,11 @@ composables:
   src/composables/useQuerySync.spec.ts: Tests for query/ref sync, fallback, loop guard
   src/composables/chartStats.ts: Pure series stats (min/max/average) and percent-change helpers
   src/composables/chartStats.spec.ts: Tests for series stats and percent change
+  src/composables/useRateBoard.ts: Multi-target rate board (validated basket, one latest + one dated fetch, per-target deltas, stale-request guard)
+  src/composables/useRateBoard.spec.ts: Tests for basket validation, fetch batching, deltas
 
 services:
-  src/services/exchangeRates.ts: fetchRates(), fetchRatesOn(date), and fetchRateHistory() against https://api.frankfurter.dev/v1
+  src/services/exchangeRates.ts: fetchRates(base, symbols?), fetchRatesOn(date, base, symbols?), fetchRateHistory() against https://api.frankfurter.dev/v1
 
 types:
   src/types/currency.ts: Currency, ExchangeRatesResponse, RateHistoryResponse, RatePoint

@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { ArrowRightLeft, ArrowDown, ArrowUp, Minus } from '@lucide/vue'
+import { ArrowRightLeft, ArrowDown, ArrowUp, Minus, X } from '@lucide/vue'
 import RateChart from '@/components/RateChart.vue'
 import { useCurrencyRates } from '@/composables/useCurrencyRates'
 import { HISTORY_RANGES, useRateHistory } from '@/composables/useRateHistory'
 import type { HistoryRangeDays } from '@/composables/useRateHistory'
+import { defaultBoardFor, useRateBoard } from '@/composables/useRateBoard'
 import { useQuerySync } from '@/composables/useQuerySync'
 import type { QueryBinding } from '@/composables/useQuerySync'
 
@@ -44,6 +45,43 @@ const {
   () => selectedCurrency.value.code,
   () => targetCurrency.value.code,
 )
+
+const {
+  targetCodes: boardCodes,
+  rows: boardRows,
+  loading: boardLoading,
+  error: boardError,
+  setTargetCodes: setBoardCodes,
+  addTarget: addBoardTarget,
+  removeTarget: removeBoardTarget,
+} = useRateBoard(
+  () => selectedCurrency.value.code,
+  () => currencies.value,
+)
+
+const boardDisplayRows = computed(() =>
+  boardCodes.value.map((code) => {
+    const row = boardRows.value.find((entry) => entry.code === code)
+    return {
+      code,
+      rate: row?.rate ?? null,
+      delta: row?.delta ?? null,
+      deltaPercent: row?.deltaPercent ?? null,
+    }
+  }),
+)
+
+const addableBoardCurrencies = computed(() =>
+  currencies.value.filter(
+    (currency) => currency.code !== fromCode.value && !boardCodes.value.includes(currency.code),
+  ),
+)
+
+function onAddBoardTarget(event: Event) {
+  const select = event.target as HTMLSelectElement
+  if (select.value) addBoardTarget(select.value)
+  select.value = ''
+}
 
 const rateFormatter = new Intl.NumberFormat('en', { maximumSignificantDigits: 5 })
 const deltaPercentFormatter = new Intl.NumberFormat('en', {
@@ -120,6 +158,56 @@ function parseConversionDate(raw: string): string | undefined {
   return raw >= MIN_DATE && raw <= todayDate ? raw : undefined
 }
 
+// Order-insensitive equality; both `a` and `b` are always already-deduped
+// currency-code lists (see `parseBoardCodes` and `useRateBoard`'s own
+// validation), so a length check plus a one-way membership check is enough.
+function sameCodes(a: string[], b: string[]): boolean {
+  if (a.length !== b.length) return false
+  const setA = new Set(a)
+  return b.every((code) => setA.has(code))
+}
+
+// The default basket, minus the base, further narrowed to codes the loaded
+// currency list actually knows about. This is exactly what `useRateBoard`
+// itself resolves an uncustomized basket down to, so comparing against it
+// (rather than the raw `defaultBoardFor`) is what keeps default-state URLs
+// free of a `board` param.
+const defaultBoardCodes = computed<string[]>(() =>
+  defaultBoardFor(fromCode.value).filter((code) =>
+    currencies.value.some((currency) => currency.code === code),
+  ),
+)
+
+function parseBoardCodes(raw: string): string[] {
+  const base = fromCode.value
+  const seen = new Set<string>()
+  const valid: string[] = []
+  for (const code of raw
+    .split(',')
+    .map((entry) => entry.trim().toUpperCase())
+    .filter(Boolean)) {
+    if (code === base || seen.has(code)) continue
+    if (!currencies.value.some((currency) => currency.code === code)) continue
+    seen.add(code)
+    valid.push(code)
+  }
+  return valid
+}
+
+// Writable adapter over the board's (read-only) `targetCodes`: the setter
+// only calls through to `setTargetCodes` (and so only triggers a board
+// refetch and a URL rewrite) when the basket content actually changed.
+// Without this guard, `readFromRoute` re-running on every unrelated query
+// change (amount, range...) would call it with a brand-new array every time
+// and trigger a spurious board refetch even when the basket is unchanged.
+const boardCodesQuery = computed<string[]>({
+  get: () => boardCodes.value,
+  set: (codes) => {
+    if (sameCodes(codes, boardCodes.value)) return
+    setBoardCodes(codes)
+  },
+})
+
 const { readFromRoute } = useQuerySync({
   from: {
     ref: fromCode,
@@ -147,13 +235,20 @@ const { readFromRoute } = useQuerySync({
     fromQuery: parseConversionDate,
     toQuery: (value) => value ?? undefined,
   } satisfies QueryBinding<string | null>,
+  board: {
+    ref: boardCodesQuery,
+    fromQuery: parseBoardCodes,
+    toQuery: (value) => (sameCodes(value, defaultBoardCodes.value) ? undefined : value.join(',')),
+  } satisfies QueryBinding<string[]>,
 })
 
 onMounted(async () => {
   await loadCurrencies()
-  // The currency list just finished loading async, so `from`/`to` query
-  // params (invalid until now, since there was nothing to validate them
-  // against) can be re-applied on top of the freshly loaded defaults.
+  // The currency list just finished loading async, so `from`/`to`/`board`
+  // query params (invalid until now, since there was nothing to validate
+  // them against) can be re-applied on top of the freshly loaded defaults.
+  // The board itself needs no explicit seeding: its default basket is
+  // derived reactively from the base and currency list, not stored.
   readFromRoute()
 })
 </script>
@@ -295,6 +390,82 @@ onMounted(async () => {
       v-if="!loading && !error"
       class="panel reveal mt-8 px-6 py-8 md:px-10"
       style="animation-delay: 0.3s"
+    >
+      <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <h2 class="label-mono">{{ selectedCurrency.code }} rate board</h2>
+        <div class="flex items-center gap-2">
+          <select
+            aria-label="Add currency to rate board"
+            class="w-32 appearance-none border border-rule bg-panel-raised px-3 py-2 font-mono text-sm text-ink uppercase [color-scheme:dark]"
+            :value="''"
+            @change="onAddBoardTarget"
+          >
+            <option value="" disabled>Add&hellip;</option>
+            <option
+              v-for="currency in addableBoardCurrencies"
+              :key="currency.code"
+              :value="currency.code"
+            >
+              {{ currency.code }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <p
+        v-if="boardLoading && boardDisplayRows.length === 0"
+        class="font-mono text-sm text-ink-dim"
+      >
+        Loading rate board&hellip;
+      </p>
+      <p v-else-if="boardError" class="font-mono text-sm text-danger" role="alert">
+        {{ boardError }}
+      </p>
+      <p v-else-if="boardDisplayRows.length === 0" class="font-mono text-sm text-ink-dim">
+        Add a currency to start building a rate board.
+      </p>
+      <ul v-else :class="{ 'opacity-50': boardLoading }" class="transition-opacity">
+        <li
+          v-for="row in boardDisplayRows"
+          :key="row.code"
+          class="flex items-center justify-between gap-4 border-b border-rule py-3 last:border-b-0"
+        >
+          <p class="font-mono text-sm text-ink">{{ row.code }}</p>
+          <div class="flex items-center gap-4">
+            <p class="font-mono text-sm tabular-nums text-ink">
+              {{ row.rate !== null ? rateFormatter.format(row.rate) : '—' }}
+            </p>
+            <span
+              v-if="row.delta !== null"
+              class="inline-flex w-16 items-center gap-1 font-mono text-xs tabular-nums"
+              :class="
+                row.delta > 0 ? 'text-accent' : row.delta < 0 ? 'text-danger' : 'text-ink-dim'
+              "
+            >
+              <ArrowUp v-if="row.delta > 0" class="size-3" aria-hidden="true" />
+              <ArrowDown v-else-if="row.delta < 0" class="size-3" aria-hidden="true" />
+              <Minus v-else class="size-3" aria-hidden="true" />
+              <span v-if="row.deltaPercent !== null"
+                >{{ deltaPercentFormatter.format(row.deltaPercent) }}%</span
+              >
+            </span>
+            <button
+              type="button"
+              class="text-ink-dim transition-colors hover:text-danger"
+              :aria-label="`Remove ${row.code} from rate board`"
+              @click="removeBoardTarget(row.code)"
+            >
+              <X class="size-4" />
+            </button>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div
+      v-if="!loading && !error"
+      class="panel reveal mt-8 px-6 py-8 md:px-10"
+      style="animation-delay: 0.45s"
     >
       <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
         <h2 class="label-mono">{{ selectedCurrency.code }} / {{ targetCurrency.code }} history</h2>
