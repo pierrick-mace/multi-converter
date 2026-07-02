@@ -7,11 +7,11 @@ vue-expert, test-automator, ui-designer, accessibility-tester, performance-engin
 
 ## Phases
 
-| Phase | File | Theme | Outcome |
-| ----- | ---- | ----- | ------- |
-| 1 | [01-breadth.md](01-breadth.md) | More conversion modules | A generic unit-converter core powering 3 new views |
-| 2 | [02-depth.md](02-depth.md) | Richer currency tooling | The currency view becomes a destination, not a widget |
-| 3 | [03-stickiness.md](03-stickiness.md) | Persistence and resilience | The app remembers you and survives a flaky network |
+| Phase | File                                 | Theme                      | Outcome                                               |
+| ----- | ------------------------------------ | -------------------------- | ----------------------------------------------------- |
+| 1     | [01-breadth.md](01-breadth.md)       | More conversion modules    | A generic unit-converter core powering 3 new views    |
+| 2     | [02-depth.md](02-depth.md)           | Richer currency tooling    | The currency view becomes a destination, not a widget |
+| 3     | [03-stickiness.md](03-stickiness.md) | Persistence and resilience | The app remembers you and survives a flaky network    |
 
 Work phases in order. Within a phase, tasks are ordered by dependency: a task lists the
 tasks it builds on. Every task is sized to land as one reviewable change (code, spec,

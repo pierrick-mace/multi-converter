@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { Copy, Check } from '@lucide/vue'
-import { useClipboard } from '@/composables/useClipboard'
-import { useTemperatureConverter } from '@/composables/useTemperatureConverter'
+import { useClipboard } from '@/composables/useClipboard';
+import { useTemperatureConverter } from '@/composables/useTemperatureConverter';
+import { Check, Copy } from '@lucide/vue';
 
 const { celsius, fahrenheit, kelvin, updateFromCelsius, updateFromFahrenheit, updateFromKelvin } =
-  useTemperatureConverter()
-const { copied, copy } = useClipboard()
+  useTemperatureConverter();
+const { copied, copy } = useClipboard();
 
 const fields = [
   {
@@ -32,7 +32,7 @@ const fields = [
     model: kelvin,
     onInput: updateFromKelvin,
   },
-] as const
+] as const;
 </script>
 
 <template>
@@ -53,15 +53,13 @@ const fields = [
             <span class="font-mono text-sm text-ink-dim">{{ field.label }}</span>
           </label>
 
-          <div
-            class="flex flex-1 items-center gap-3 border-b-2 border-rule focus-within:border-accent"
-          >
+          <div class="flex flex-1 items-center gap-3 border-b-2 border-rule focus-within:border-accent">
             <input
               :id="field.id"
               v-model.number="field.model.value"
               type="number"
               :placeholder="field.unit"
-              class="w-full bg-transparent px-1 py-2 font-mono text-2xl tabular-nums text-ink placeholder-ink-dim/40 focus:outline-none"
+              class="w-full bg-transparent px-1 py-2 font-mono text-2xl tabular-nums text-ink placeholder-ink-dim/85"
               @input="field.onInput()"
             />
             <span class="pr-1 font-mono text-lg text-ink-dim">{{ field.unit }}</span>

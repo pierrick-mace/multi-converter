@@ -12,38 +12,73 @@ entry:
   src/App.vue: Root layout, renders NavBar and RouterView
 
 routing:
+  src/router/modules.ts: Module registry (path, name, label, description, lucide icon) feeding NavBar links and HomeView cards
   src/router/index.ts: |
     Routes (all lazy-loaded views):
       /            -> redirect /home
       /home        -> HomeView
       /temperature -> TemperatureView
       /currencies  -> CurrenciesView
+      /bases       -> BasesView
+      /units       -> UnitsView
+      /data        -> DataSizeView
       catch-all    -> redirect /home
 
 views:
-  src/views/HomeView.vue: Landing page listing the conversion modules
+  src/views/HomeView.vue: Landing page, responsive card grid driven by the module registry
+  src/views/HomeView.spec.ts: Component test for the module card grid
   src/views/TemperatureView.vue: Celsius/Fahrenheit/Kelvin converter with copy-to-clipboard
-  src/views/CurrenciesView.vue: Currency converter with live rates and rate history chart
+  src/views/CurrenciesView.vue: Currency converter with live rates, swap button, delta indicator, historical date mode, multi-target rate board, copy amount / copy share link, rate history chart; pair/amount/range/date/board synced to URL query; pair/board/range persisted (URL wins over storage); offline notice when serving stale cached rates
+  src/views/CurrenciesView.spec.ts: Component test for swap/URL sync and delta rendering
+  src/views/BasesView.vue: Number base converter (binary/octal/decimal/hex), unsigned BigInt
+  src/views/BasesView.spec.ts: Component test for field sync and error/aria wiring
+  src/views/UnitsView.vue: Length and mass converters driven by useUnitConverter, unit selections persisted per panel
+  src/views/UnitsView.spec.ts: Component test for the length/mass panels
+  src/views/DataSizeView.vue: Data size converter (bits/bytes, decimal and binary prefixes), unit selection persisted
+  src/views/DataSizeView.spec.ts: Component test for the data size panel
 
 components:
-  src/components/NavBar.vue: Top navigation (Home, Temperature, Currencies)
+  src/components/NavBar.vue: Top navigation, Home plus links derived from the module registry (Temperature, Currencies, Units, Bases, Data)
   src/components/NavBar.spec.ts: Component test for NavBar
-  src/components/RateChart.vue: SVG line chart of exchange-rate history, hover tooltip
+  src/components/RateChart.vue: SVG line chart of exchange-rate history, hover tooltip, min/max/avg reference lines, range percent-change header
 
 composables:
   src/composables/useTemperatureConverter.ts: Pure conversion functions + reactive C/F/K state
   src/composables/useTemperatureConverter.spec.ts: Tests for conversions and sync logic
-  src/composables/useCurrencyRates.ts: Currency list, selected/target currency, amount conversion, unit/inverse rates, rate date
+  src/composables/useCurrencyRates.ts: Currency list, selected/target currency, amount conversion, unit/inverse rates, rate date, previous-day delta, swapCurrencies, historical conversionDate mode
   src/composables/useCurrencyRates.spec.ts: Tests with mocked fetch
   src/composables/useRateHistory.ts: Loads historical rate points for a base/target pair, range presets (1M/3M/1Y), stale-request guard
   src/composables/useRateHistory.spec.ts: Tests with mocked fetch
   src/composables/useClipboard.ts: navigator.clipboard wrapper with transient copied flag
+  src/composables/useUnitConverter.ts: Generic linear-unit converter, pure convertUnit(value, from, to, factors) + stateful composable over a UnitModule definition
+  src/composables/useUnitConverter.spec.ts: Tests for factor math and composable state
+  src/composables/useBaseConverter.ts: Pure BigInt parse/format per base + reactive binary/octal/decimal/hex sync with per-field error state
+  src/composables/useBaseConverter.spec.ts: Tests for base round-trips, invalid input, 64-bit values
+  src/composables/unitModules.ts: Factor tables (UnitModule data) for length, mass, and data size
+  src/composables/unitModules.spec.ts: Factor-table sanity tests
+  src/composables/useQuerySync.ts: Generic ref/route-query sync (fromQuery validates, toQuery omits defaults, router.replace)
+  src/composables/useQuerySync.spec.ts: Tests for query/ref sync, fallback, loop guard
+  src/composables/chartStats.ts: Pure series stats (min/max/average) and percent-change helpers
+  src/composables/chartStats.spec.ts: Tests for series stats and percent change
+  src/composables/useRateBoard.ts: Multi-target rate board (validated basket, one latest + one dated fetch, per-target deltas, stale-request guard)
+  src/composables/useRateBoard.spec.ts: Tests for basket validation, fetch batching, deltas
+  src/composables/formatCurrency.ts: Pure Intl.NumberFormat currency formatter
+  src/composables/formatCurrency.spec.ts: Tests for currency formatting
+  src/composables/useLocalStorage.ts: Typed write-through localStorage ref (converter:<view>:<what> keys, silent fallback when storage unavailable)
+  src/composables/useLocalStorage.spec.ts: Tests for round-trip, corrupted JSON, unavailable storage
 
 services:
-  src/services/exchangeRates.ts: fetchRates() and fetchRateHistory() against https://api.frankfurter.dev/v1
+  src/services/exchangeRates.ts: fetchRates(base, symbols?), fetchRatesOn(date, base, symbols?), fetchRateHistory() against https://api.frankfurter.dev/v1; URL/URLSearchParams construction with date-shape validation; on fetch failure serves cached response flagged stale
+  src/services/exchangeRates.spec.ts: Tests for URL construction, date validation, param encoding, stale fallback
+  src/services/rateCache.ts: Guarded localStorage cache keyed by request URL (converter:cache:*), silent no-op when storage unavailable
+  src/services/rateCache.spec.ts: Tests for cache round-trip, key isolation, storage failure
+
+testing:
+  src/vitestSetup.ts: Restores jsdom Storage over Node's experimental localStorage global in Vitest (registered via setupFiles in vite.config.ts)
 
 types:
-  src/types/currency.ts: Currency, ExchangeRatesResponse, RateHistoryResponse, RatePoint
+  src/types/currency.ts: Currency, ExchangeRatesResponse, RateHistoryResponse, RatePoint, StaleMeta (optional stale/cachedAt on responses)
+  src/types/units.ts: UnitDefinition and UnitModule interfaces for factor-based converters
   src/env.d.ts: Vite client type references
 
 assets:
@@ -58,7 +93,7 @@ config:
   tsconfig.app.json: App TS config ('@' path alias)
   tsconfig.node.json: TS config for Vite config files
   .oxlintrc.json: oxlint rules
-  .prettierrc.json: Prettier config
+  dprint.json: dprint formatter config (semicolons, single quotes, Allman braces except lambdas, 2-space indent, width 120)
   .editorconfig: Editor defaults
 
 claude:

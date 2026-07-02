@@ -18,7 +18,7 @@ npm run build      # vue-tsc --noEmit && vite build
 npm run test       # Vitest, single run
 npm run test:watch # Vitest watch mode
 npm run lint       # oxlint src/
-npm run format     # prettier --write .
+npm run format     # dprint fmt, formats in place (npm run format:check to verify)
 npm run typecheck  # vue-tsc --noEmit
 ```
 
@@ -30,6 +30,7 @@ npm run typecheck  # vue-tsc --noEmit
 - Views are lazy-loaded in `src/router/index.ts`; register any new view there and add a NavBar link if it's a top-level module.
 - Styling is Tailwind CSS v4 with theme tokens defined in `src/assets/main.css` (dark instrument design). Reuse existing tokens/utility classes (`panel`, `label-mono`, etc.) rather than inventing new ones.
 - Imports use the `@/` alias for `src/`.
+- Code style (enforced by dprint, `dprint.json`): semicolons always, single quotes, 2-space indent, width 120, Allman braces everywhere except arrow/anonymous function bodies which use K&R, and `else`/`catch`/`finally` on their own line.
 - Tests are colocated `*.spec.ts` files (Vitest + @vue/test-utils, jsdom). New logic in composables or services needs a spec; mock `fetch` for API-backed code.
 - Run `npm run test`, `npm run lint`, and `npm run typecheck` before considering a change done.
 

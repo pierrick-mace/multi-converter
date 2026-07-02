@@ -60,3 +60,25 @@ Depends on: 3.2.
 - Keyed or paid APIs (crypto rates, geocoding): same reason.
 - Pinia: nothing in this plan needs cross-view state beyond URL plus localStorage.
 - A second visual theme or light mode: single-theme by design, per ui-designer.
+
+## 3.3 decision record (2026-07-02): no-go
+
+Decided by the project owner with evidence from the performance-engineer and
+dependency-manager reviews. Rationale:
+
+- The performance case evaporated with the old photo theme: the full precache set
+  is ~222 KB raw (~89 KB gzip), and Vite's hashed immutable assets plus normal HTTP
+  caching already deliver near-instant repeat visits without a service worker.
+- Offline rate data, the part users would actually notice, shipped in 3.2 at the
+  service layer (localStorage cache with a stale flag and offline notice). A service
+  worker would add only an offline app shell and an install prompt.
+- vite-plugin-pwa is healthy (active maintainer, Vite 8 compatible) but pulls
+  workbox plus a Babel/Rollup toolchain, roughly 50 to 60 transitive packages, a
+  disproportionate supply-chain surface for the remaining benefit.
+- Service worker lifecycle risk (stale HTML behind a live SW, full re-precache on
+  every deploy) outweighs the marginal win for a small utility app.
+
+Revisit trigger: an installable app, push notifications, or offline multi-page
+navigation becoming an explicit product goal. In that case, prefer a hand-rolled
+manifest plus a minimal service worker first; reach for vite-plugin-pwa only if
+workbox's feature set is genuinely needed.

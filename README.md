@@ -19,7 +19,7 @@ currencies with live rates and a historical rate chart, powered by the
 - Tailwind CSS v4
 - Lucide icons (`@lucide/vue`)
 - Vitest + @vue/test-utils
-- oxlint + Prettier
+- oxlint + dprint
 
 ## Project layout
 
@@ -47,6 +47,6 @@ npm run preview # preview the production build
 npm run test       # run the Vitest suite once
 npm run test:watch # watch mode
 npm run lint       # oxlint
-npm run format     # prettier --write
+npm run format     # dprint fmt, formats in place
 npm run typecheck  # vue-tsc --noEmit
 ```

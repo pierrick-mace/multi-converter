@@ -1,17 +1,13 @@
 <script setup lang="ts">
-const links = [
-  { to: '/home', label: 'Home' },
-  { to: '/temperature', label: 'Temperature' },
-  { to: '/currencies', label: 'Currencies' },
-]
+import { modules } from '@/router/modules';
+
+const links = [{ to: '/home', label: 'Home' }, ...modules.map((mod) => ({ to: mod.path, label: mod.label }))];
 </script>
 
 <template>
   <header class="relative border-b border-rule bg-panel/60">
     <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-5 md:px-8">
-      <span class="font-display text-2xl tracking-wide text-ink">
-        Converter<span class="text-accent">.</span>
-      </span>
+      <span class="font-display text-2xl tracking-wide text-ink"> Converter<span class="text-accent">.</span> </span>
 
       <ul class="nav-list flex items-center gap-1 md:gap-2">
         <li v-for="link in links" :key="link.to">
@@ -31,7 +27,7 @@ const links = [
 
 <style scoped>
 .nav-list {
-  counter-reset: nav;
+  counter-reset: nav -1;
 }
 
 .nav-link {
@@ -39,13 +35,13 @@ const links = [
 }
 
 .nav-link::before {
-  content: '0' counter(nav) ' / ';
+  content: "0" counter(nav) " / ";
   color: var(--color-accent);
   opacity: 0.7;
 }
 
 .nav-link::after {
-  content: '';
+  content: "";
   position: absolute;
   right: 0.75rem;
   bottom: 0;

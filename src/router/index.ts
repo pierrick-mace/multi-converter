@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,8 +15,23 @@ const router = createRouter({
       name: 'currencies',
       component: () => import('@/views/CurrenciesView.vue'),
     },
+    {
+      path: '/bases',
+      name: 'bases',
+      component: () => import('@/views/BasesView.vue'),
+    },
+    {
+      path: '/units',
+      name: 'units',
+      component: () => import('@/views/UnitsView.vue'),
+    },
+    {
+      path: '/data',
+      name: 'data',
+      component: () => import('@/views/DataSizeView.vue'),
+    },
     { path: '/:pathMatch(.*)*', redirect: '/home' },
   ],
-})
+});
 
-export default router
+export default router;
