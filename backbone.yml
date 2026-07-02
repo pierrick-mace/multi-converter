@@ -28,7 +28,8 @@ views:
   src/views/HomeView.vue: Landing page, responsive card grid driven by the module registry
   src/views/HomeView.spec.ts: Component test for the module card grid
   src/views/TemperatureView.vue: Celsius/Fahrenheit/Kelvin converter with copy-to-clipboard
-  src/views/CurrenciesView.vue: Currency converter with live rates and rate history chart; pair/amount/range synced to URL query
+  src/views/CurrenciesView.vue: Currency converter with live rates, swap button, delta indicator, rate history chart; pair/amount/range synced to URL query
+  src/views/CurrenciesView.spec.ts: Component test for swap/URL sync and delta rendering
   src/views/BasesView.vue: Number base converter (binary/octal/decimal/hex), unsigned BigInt
   src/views/BasesView.spec.ts: Component test for field sync and error/aria wiring
   src/views/UnitsView.vue: Length and mass converters driven by useUnitConverter
@@ -44,7 +45,7 @@ components:
 composables:
   src/composables/useTemperatureConverter.ts: Pure conversion functions + reactive C/F/K state
   src/composables/useTemperatureConverter.spec.ts: Tests for conversions and sync logic
-  src/composables/useCurrencyRates.ts: Currency list, selected/target currency, amount conversion, unit/inverse rates, rate date
+  src/composables/useCurrencyRates.ts: Currency list, selected/target currency, amount conversion, unit/inverse rates, rate date, previous-day delta, swapCurrencies
   src/composables/useCurrencyRates.spec.ts: Tests with mocked fetch
   src/composables/useRateHistory.ts: Loads historical rate points for a base/target pair, range presets (1M/3M/1Y), stale-request guard
   src/composables/useRateHistory.spec.ts: Tests with mocked fetch
@@ -61,7 +62,7 @@ composables:
   src/composables/chartStats.spec.ts: Tests for series stats and percent change
 
 services:
-  src/services/exchangeRates.ts: fetchRates() and fetchRateHistory() against https://api.frankfurter.dev/v1
+  src/services/exchangeRates.ts: fetchRates(), fetchRatesOn(date), and fetchRateHistory() against https://api.frankfurter.dev/v1
 
 types:
   src/types/currency.ts: Currency, ExchangeRatesResponse, RateHistoryResponse, RatePoint

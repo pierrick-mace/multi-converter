@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { ArrowRightLeft } from '@lucide/vue'
+import { ArrowRightLeft, ArrowDown, ArrowUp, Minus } from '@lucide/vue'
 import RateChart from '@/components/RateChart.vue'
 import { useCurrencyRates } from '@/composables/useCurrencyRates'
 import { HISTORY_RANGES, useRateHistory } from '@/composables/useRateHistory'
@@ -20,10 +20,14 @@ const {
   unitRate,
   inverseRate,
   rateDate,
+  previousRateDate,
+  delta,
+  deltaPercent,
   loading,
   error,
   loadCurrencies,
   loadRatesForSelectedCurrency,
+  swapCurrencies,
 } = useCurrencyRates()
 
 const {
@@ -37,6 +41,10 @@ const {
 )
 
 const rateFormatter = new Intl.NumberFormat('en', { maximumSignificantDigits: 5 })
+const deltaPercentFormatter = new Intl.NumberFormat('en', {
+  maximumFractionDigits: 2,
+  signDisplay: 'always',
+})
 
 // Thin string adapters over the Currency-object refs, so the URL only ever
 // deals with plain currency codes. Setting them looks up the matching
@@ -149,8 +157,15 @@ onMounted(async () => {
           </div>
         </div>
 
-        <div class="flex items-center justify-center text-accent" aria-hidden="true">
-          <ArrowRightLeft class="size-4" />
+        <div class="flex justify-center">
+          <button
+            type="button"
+            class="btn-tick"
+            aria-label="Swap currencies"
+            @click="swapCurrencies"
+          >
+            <ArrowRightLeft class="size-4" />
+          </button>
         </div>
 
         <div class="flex flex-col gap-2">
@@ -188,10 +203,25 @@ onMounted(async () => {
               / 1 {{ targetCurrency.code }} = {{ rateFormatter.format(inverseRate) }}
               {{ selectedCurrency.code }}
             </span>
+            <span
+              v-if="delta !== null"
+              class="ml-2 inline-flex items-center gap-1 align-middle"
+              :class="delta > 0 ? 'text-accent' : delta < 0 ? 'text-danger' : 'text-ink-dim'"
+            >
+              <ArrowUp v-if="delta > 0" class="size-3" aria-hidden="true" />
+              <ArrowDown v-else-if="delta < 0" class="size-3" aria-hidden="true" />
+              <Minus v-else class="size-3" aria-hidden="true" />
+              <span v-if="deltaPercent !== null"
+                >{{ deltaPercentFormatter.format(deltaPercent) }}%</span
+              >
+            </span>
           </p>
-          <p v-if="rateDate" class="font-mono text-xs text-ink-dim">
-            ECB reference rate: {{ rateDate }}
-          </p>
+          <div class="text-right">
+            <p v-if="rateDate" class="font-mono text-xs text-ink-dim">
+              ECB reference rate: {{ rateDate }}
+            </p>
+            <p v-if="previousRateDate" class="label-mono">vs {{ previousRateDate }}</p>
+          </div>
         </div>
       </form>
     </div>
