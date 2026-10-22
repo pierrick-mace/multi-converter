@@ -31,7 +31,7 @@
     "oxlint": "^1.72.0",
     "tailwindcss": "^4.3.2",
     "typescript": "^5.9.3",
-    "vite": "^8.1.2",
+    "vite": "^8.3.5",
     "vitest": "^4.1.9",
     "vue-tsc": "^3.3.6"
   }
